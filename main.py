@@ -1,76 +1,85 @@
-from datetime import date
+from dotenv import load_dotenv
 
 from fastapi import FastAPI, HTTPException
-from fastapi.responses import HTMLResponse
-from fastui import FastUI, AnyComponent, prebuilt_html, components as c
-from fastui.components.display import DisplayMode, DisplayLookup
-from fastui.events import GoToEvent, BackEvent
-from pydantic import BaseModel, Field
+
+from service.kline.kline import get_kline_data
+
+# 加载环境变量
+load_dotenv()
 
 app = FastAPI()
 
 
-class User(BaseModel):
-    id: int
-    name: str
-    dob: date = Field(title='Date of Birth')
 
-
-# define some users
-users = [
-    User(id=1, name='John', dob=date(1990, 1, 1)),
-    User(id=2, name='Jack', dob=date(1991, 1, 1)),
-    User(id=3, name='Jill', dob=date(1992, 1, 1)),
-    User(id=4, name='Jane', dob=date(1993, 1, 1)),
-]
-
-
-@app.get("/api/", response_model=FastUI, response_model_exclude_none=True)
-def users_table() -> list[AnyComponent]:
+@app.get("/api/kline")
+async def get_kline(code: str, start_date: str = None, end_date: str = None, name: str = None):
     """
-    Show a table of four users, `/api` is the endpoint the frontend will connect to
-    when a user visits `/` to fetch components to render.
+    获取股票K线数据
+    :param code: 股票代码
+    :param start_date: 开始日期（格式：YYYY-MM-DD）
+    :param end_date: 结束日期（格式：YYYY-MM-DD）
+    :param name: 股票名称（可选）
+    :return: K线数据
     """
-    return [
-        c.Page(  # Page provides a basic container for components
-            components=[
-                c.Heading(text='Users', level=2),  # renders `<h2>Users</h2>`
-                c.Table(
-                    data=users,
-                    # define two columns for the table
-                    columns=[
-                        # the first is the users, name rendered as a link to their profile
-                        DisplayLookup(field='name', on_click=GoToEvent(url='/user/{id}/')),
-                        # the second is the date of birth, rendered as a date
-                        DisplayLookup(field='dob', mode=DisplayMode.date),
-                    ],
-                ),
-            ]
-        ),
-    ]
+    print(f'获取股票K线数据，股票代码：{code}，开始日期：{start_date}，结束日期：{end_date}，股票名称：{name}')
 
-
-@app.get("/api/user/{user_id}/", response_model=FastUI, response_model_exclude_none=True)
-def user_profile(user_id: int) -> list[AnyComponent]:
-    """
-    User profile page, the frontend will fetch this when the user visits `/user/{id}/`.
-    """
     try:
-        user = next(u for u in users if u.id == user_id)
-    except StopIteration:
-        raise HTTPException(status_code=404, detail="User not found")
-    return [
-        c.Page(
-            components=[
-                c.Heading(text=user.name, level=2),
-                c.Link(components=[c.Text(text='Back')], on_click=BackEvent()),
-                c.Details(data=user),
-            ]
-        ),
-    ]
+        # 调用新的kline服务获取数据
+        result = get_kline_data(code, start_date, end_date)
+        
+        # 转换结果为API响应格式
+        return {
+            "code": code,
+            "name": name or code,
+            "market": result["market"],
+            "data_source": result["data_source"],
+            "data": result["data"]
+        }
+        
+    except ImportError:
+        raise HTTPException(status_code=500, detail="OpenBB未安装，请先安装openbb")
+    except Exception as e:
+        print(f'获取股票数据出错：{e}')
+        raise HTTPException(status_code=500, detail=f"获取股票数据失败：{str(e)}")
 
 
-@app.get('/{path:path}')
-async def html_landing() -> HTMLResponse:
-    """Simple HTML page which serves the React app, comes last as it matches all paths."""
-    return HTMLResponse(prebuilt_html(title='FastUI Demo'))
+from service.stocks.stocks import get_stock_by_market
+
+
+@app.get("/api/stock/market")
+async def get_stock_market(marketCode: str):
+    """
+    获取指定市场的所有股票列表
+    :param marketCode: 市场代码 (cn, hk, us)
+    :return: 股票列表数据
+    """
+    print(f'获取市场股票列表，市场代码：{marketCode}')
+
+    try:
+        # 调用股票市场服务获取数据
+        result = get_stock_by_market(marketCode)
+        
+        if result is None:
+            raise HTTPException(status_code=404, detail=f"未找到市场代码为 {marketCode} 的股票列表")
+        
+        # 转换结果为API响应格式
+        return {
+            "market": marketCode,
+            "count": result["count"],
+            "stocks": result["stocks"],
+            "timestamp": result["timestamp"]
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f'获取市场股票列表出错：{e}')
+        raise HTTPException(status_code=500, detail=f"获取市场股票列表失败：{str(e)}")
+
+
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=8000)
+
+    
