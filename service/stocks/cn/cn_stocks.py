@@ -14,7 +14,8 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 # 数据源列表（按优先级顺序）
 DATA_SOURCES = [
-    'ak_stocks',  # akshare数据源
+    # 'ak_stocks',    # akshare数据源
+    'bs_stocks',     # baostock数据源
     # 未来可以添加更多数据源，如：'finnhub_stocks', 'yahoo_stocks'
 ]
 
@@ -41,6 +42,19 @@ def get_cn_stocks() -> Optional[Dict[str, Any]]:
                     module = importlib.util.module_from_spec(spec)
                     spec.loader.exec_module(module)
                     result = module.get_cn_stocks_by_ak()
+                else:
+                    raise ImportError(f"模块文件不存在: {module_path}")
+            elif source_name == 'bs_stocks':
+                # 使用绝对导入路径
+                import sys
+                import os
+                module_path = os.path.join(os.path.dirname(__file__), 'bs_stocks.py')
+                if os.path.exists(module_path):
+                    import importlib.util
+                    spec = importlib.util.spec_from_file_location('bs_stocks', module_path)
+                    module = importlib.util.module_from_spec(spec)
+                    spec.loader.exec_module(module)
+                    result = module.get_cn_stocks_by_baostock()
                 else:
                     raise ImportError(f"模块文件不存在: {module_path}")
             else:
