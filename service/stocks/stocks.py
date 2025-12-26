@@ -15,9 +15,15 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # 导入各市场实现
-from .cn.cn_stocks import get_cn_stocks
-from .hk.hk_stocks import get_hk_stocks
-from .us.us_stocks import get_us_stocks
+import sys
+import os
+
+# 添加service/stocks目录到Python路径
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+
+from cn.cn_stocks import get_cn_stocks
+from hk.hk_stocks import get_hk_stocks
+from us.us_stocks import get_us_stocks
 
 
 def get_stock_by_market(marketcode: str) -> Optional[Dict[str, Any]]:

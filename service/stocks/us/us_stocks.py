@@ -10,14 +10,15 @@ from openbb import obb
 
 # 导入各个数据源模块
 from .sec_stocks import get_sec_stocks_all
+from .finnhub_stocks import get_finnhub_stocks_all
 
 # 数据源配置（参考 kline.py 的 DATA_SOURCES_CONFIG 结构）
 US_DATA_SOURCES_CONFIG = {
-    'default': ['sec'],  # 默认数据源优先级
-    'available': ['sec'],  # 可用数据源
+    'default': ['finnhub', 'sec'],  # 默认数据源优先级
+    'available': ['finnhub', 'sec'],  # 可用数据源
     'exchange_mapping': {  # 交易所代码映射
         'sec': {'N': 'Nasdaq', 'A': 'NYSE', 'P': 'AMEX'},
-        'yfinance': {'N': 'nasdaq', 'A': 'nyq', 'P': 'amex'},
+        'finnhub': {'N': 'US', 'A': 'US', 'P': 'US'},  # Finnhub使用统一的US交易所代码
     }
 }
 
@@ -39,6 +40,8 @@ def get_us_stocks(data_source: str = None) -> Optional[Dict[str, Any]]:
         if data_source:
             if data_source == 'sec':
                 return get_sec_stocks_all()
+            elif data_source == 'finnhub':
+                return get_finnhub_stocks_all()
             else:
                 print(f"不支持的数据源: {data_source}")
                 return None
@@ -49,6 +52,8 @@ def get_us_stocks(data_source: str = None) -> Optional[Dict[str, Any]]:
             
             if source == 'sec':
                 result = get_sec_stocks_all()
+            elif source == 'finnhub':
+                result = get_finnhub_stocks_all()
             else:
                 continue
             
@@ -74,7 +79,8 @@ def get_us_stocks_by_exchange(exchange: str = "N", data_source: str = None) -> O
         exchange: 交易所代码
             - 对于 sec 数据源: N=Nasdaq, A=NYSE, P=AMEX
             - 对于 yfinance 数据源: nasdaq, nyse, amex
-        data_source: 指定数据源（sec, yfinance, intrinio），不指定则按优先级尝试
+            - 对于 finnhub 数据源: US（统一使用US）
+        data_source: 指定数据源（sec, finnhub），不指定则按优先级尝试
         
     Returns:
         包含美股股票列表的字典
@@ -87,6 +93,10 @@ def get_us_stocks_by_exchange(exchange: str = "N", data_source: str = None) -> O
             if data_source == 'sec':
                 from .sec_stocks import get_sec_stocks
                 return get_sec_stocks(exchange)
+            elif data_source == 'finnhub':
+                from .finnhub_stocks import get_finnhub_stocks
+                # Finnhub使用统一的US交易所代码
+                return get_finnhub_stocks("US")
             else:
                 print(f"不支持的数据源: {data_source}")
                 return None
@@ -98,6 +108,10 @@ def get_us_stocks_by_exchange(exchange: str = "N", data_source: str = None) -> O
             if source == 'sec':
                 from .sec_stocks import get_sec_stocks
                 result = get_sec_stocks(exchange)
+            elif source == 'finnhub':
+                from .finnhub_stocks import get_finnhub_stocks
+                # Finnhub使用统一的US交易所代码
+                result = get_finnhub_stocks("US")
             else:
                 continue
             
@@ -122,6 +136,18 @@ if __name__ == "__main__":
     # 测试按优先级获取
     print("\n1. 测试按优先级获取（默认）:")
     result = get_us_stocks()
+    if result:
+        print(f"获取到 {result['count']} 只股票，数据源: {result.get('source', 'unknown')}")
+        if result['stocks']:
+            print("前5只股票:")
+            for stock in result['stocks'][:5]:
+                print(f"  {stock['code']}: {stock['name']}")
+    else:
+        print("获取失败")
+    
+    # 测试finnhub数据源
+    print("\n2. 测试finnhub数据源:")
+    result = get_us_stocks(data_source="finnhub")
     if result:
         print(f"获取到 {result['count']} 只股票，数据源: {result.get('source', 'unknown')}")
         if result['stocks']:
