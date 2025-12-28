@@ -1,7 +1,7 @@
 import sys
 sys.path.append('.')
 
-from service.stock.hk.akshare_hk import get_hk_sector_performance
+from service.kline.hk.akshare_hk import get_hk_sector_performance
 
 result = get_hk_sector_performance()
 print('Result type:', type(result))

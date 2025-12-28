@@ -2,11 +2,12 @@
 # -*- coding: utf-8 -*-
 """
 中国A股市场 - baostock数据源
+{"market":"cn","count":5686,"stocks":[{"code":"000001","name":"1","market":"cn","full_code":"000001.SH","industry":"","list_date":""}]}
 """
 
 from typing import Dict, List, Optional, Any
 import pandas as pd
-from datetime import datetime
+from datetime import datetime, timedelta
 import os
 
 
@@ -25,13 +26,11 @@ def get_cn_stocks_by_baostock() -> Optional[Dict[str, Any]]:
         if lg.error_code != '0':
             print(f"[baostock] 登录失败: {lg.error_msg}")
             return None
-        
         # 获取所有股票列表
         # query_all_stock()返回指定日期的所有股票列表
-        # 使用当前日期作为查询日期
+        # 使用当前日期作为查询日期，如果当前日期没有数据，尝试前一个交易日
         current_date = datetime.now().strftime('%Y-%m-%d')
         rs = bs.query_all_stock(current_date)
-        
         if rs.error_code != '0':
             print(f"[baostock] 查询股票列表失败: {rs.error_msg}")
             bs.logout()
@@ -42,10 +41,29 @@ def get_cn_stocks_by_baostock() -> Optional[Dict[str, Any]]:
         while (rs.error_code == '0') and rs.next():
             data_list.append(rs.get_row_data())
         
+        # 如果当前日期没有数据，尝试前一个交易日
         if not data_list:
-            print("[baostock] 获取A股股票列表失败: 数据为空")
-            bs.logout()
-            return None
+            print(f"[baostock] 当前日期 {current_date} 无数据，尝试前一个交易日")
+            # 尝试前7天内的交易日
+            for days_back in range(1, 8):
+                prev_date = (datetime.now() - timedelta(days=days_back)).strftime('%Y-%m-%d')
+                rs = bs.query_all_stock(prev_date)
+                if rs.error_code == '0':
+                    data_list = []
+                    while rs.next():
+                        data_list.append(rs.get_row_data())
+                    if data_list:
+                        print(f"[baostock] 使用交易日 {prev_date} 获取到 {len(data_list)} 条数据")
+                        break
+                    else:
+                        print(f"[baostock] 日期 {prev_date} 也无数据")
+                else:
+                    print(f"[baostock] 查询日期 {prev_date} 失败: {rs.error_msg}")
+            
+            if not data_list:
+                print("[baostock] 获取A股股票列表失败: 最近7天均无数据")
+                bs.logout()
+                return None
         
         # 登出
         bs.logout()

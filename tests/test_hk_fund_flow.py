@@ -7,7 +7,7 @@
 import sys
 sys.path.append('.')
 
-from service.stock.hk.akshare_hk import get_hk_fund_flow
+from service.kline.hk.akshare_hk import get_hk_fund_flow
 
 if __name__ == "__main__":
     print("测试港股资金流向数据获取...")

@@ -1,42 +1,75 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
-测试yfinance基本功能
+测试yfinance数据源
 """
 
-import yfinance as yf
+import os
+import sys
+from dotenv import load_dotenv
 
-print("测试yfinance基本功能...")
+# 添加项目路径
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
-# 创建Ticker对象
-ticker = yf.Ticker('TSLA')
-print(f"Ticker对象创建成功: {ticker}")
+# 加载环境变量
+load_dotenv()
 
-# 获取历史数据
-try:
-    data = ticker.history(start='2024-12-01', end='2024-12-10')
-    print(f"数据形状: {data.shape if data is not None else 'None'}")
-    print(f"数据类型: {type(data)}")
-    
-    if data is not None and not data.empty:
-        print(f"数据列名: {data.columns.tolist()}")
-        print(f"前几行数据:\n{data.head()}")
-        print(f"数据索引: {data.index}")
-        print(f"数据信息:\n{data.info() if hasattr(data, 'info') else 'No info method'}")
-    else:
-        print("数据为空或None")
+from service.stocks.us.yfinance_stocks import get_yfinance_stocks, get_yfinance_stocks_all
+
+print("测试yfinance数据源")
+print("=" * 50)
+
+print("\n1. 测试 NYSE 交易所:")
+result = get_yfinance_stocks("nyse")
+if result:
+    print(f"✓ 成功获取到 {result['count']} 只股票")
+    if result["stocks"]:
+        print("前5只股票:")
+        for stock in result["stocks"][:5]:
+            print(f"  {stock['code']}: {stock['name']} ({stock.get('exchange', 'N/A')})")
+else:
+    print("✗ 获取失败")
+
+print("\n2. 测试 Nasdaq 交易所:")
+result = get_yfinance_stocks("nasdaq")
+if result:
+    print(f"✓ 成功获取到 {result['count']} 只股票")
+    if result["stocks"]:
+        print("前5只股票:")
+        for stock in result["stocks"][:5]:
+            print(f"  {stock['code']}: {stock['name']} ({stock.get('exchange', 'N/A')})")
+else:
+    print("✗ 获取失败")
+
+print("\n3. 测试 AMEX 交易所:")
+result = get_yfinance_stocks("amex")
+if result:
+    print(f"✓ 成功获取到 {result['count']} 只股票")
+    if result["stocks"]:
+        print("前5只股票:")
+        for stock in result["stocks"][:5]:
+            print(f"  {stock['code']}: {stock['name']} ({stock.get('exchange', 'N/A')})")
+else:
+    print("✗ 获取失败")
+
+print("\n4. 测试获取所有交易所:")
+result = get_yfinance_stocks_all()
+if result:
+    print(f"✓ 成功获取到 {result['count']} 只股票（去重后）")
+    if result["stocks"]:
+        print("前10只股票:")
+        for stock in result["stocks"][:10]:
+            print(f"  {stock['code']}: {stock['name']} ({stock.get('exchange', 'N/A')})")
         
-except Exception as e:
-    print(f"获取数据时出错: {e}")
-    import traceback
-    traceback.print_exc()
+        # 统计各交易所股票数量
+        exchanges = {}
+        for stock in result["stocks"]:
+            exchange = stock.get('exchange', 'Unknown')
+            exchanges[exchange] = exchanges.get(exchange, 0) + 1
+        
+        print("\n各交易所股票数量:")
+        for exchange, count in exchanges.items():
+            print(f"  {exchange}: {count} 只")
+else:
+    print("✗ 获取失败")
 
-# 测试其他股票代码
-print("\n测试其他股票代码...")
-for symbol in ['AAPL', 'MSFT', 'GOOGL']:
-    try:
-        ticker = yf.Ticker(symbol)
-        data = ticker.history(period='1d')
-        print(f"{symbol}: {data.shape if data is not None else 'None'}")
-    except Exception as e:
-        print(f"{symbol}: 错误 - {e}")
+print("\n测试完成")

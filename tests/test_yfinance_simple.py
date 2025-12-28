@@ -7,7 +7,7 @@
 import sys
 sys.path.append('.')
 
-from service.stock.us.yfinance import get_kline_data_from_yfinance
+from service.kline.us.yfinance import get_kline_data_from_yfinance
 
 print("测试简化后的yfinance模块...")
 
@@ -31,7 +31,7 @@ else:
 # 测试主kline服务的数据源切换
 print("\n测试主kline服务的数据源切换...")
 try:
-    from service.stock.kline import get_kline_data
+    from service.kline.kline import get_kline_data
     
     # 测试美股
     print("测试美股TSLA:")

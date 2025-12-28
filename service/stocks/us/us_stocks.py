@@ -14,8 +14,8 @@ from .finnhub_stocks import get_finnhub_stocks_all
 
 # 数据源配置（参考 kline.py 的 DATA_SOURCES_CONFIG 结构）
 US_DATA_SOURCES_CONFIG = {
-    'default': ['finnhub', 'sec'],  # 默认数据源优先级
-    'available': ['finnhub', 'sec'],  # 可用数据源
+    'default': ['sec', 'finnhub'],  # 默认数据源优先级
+    'available': ['sec', 'finnhub'],  # 可用数据源
     'exchange_mapping': {  # 交易所代码映射
         'sec': {'N': 'Nasdaq', 'A': 'NYSE', 'P': 'AMEX'},
         'finnhub': {'N': 'US', 'A': 'US', 'P': 'US'},  # Finnhub使用统一的US交易所代码
