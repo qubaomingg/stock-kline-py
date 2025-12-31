@@ -82,6 +82,7 @@ def get_kline_data_from_akshare_hk(
     for source in data_sources:
         try:
             print(f"尝试使用 {source['name']} 获取港股数据...")
+            data = None
             
             if source['name'] == "stock_hk_hist":
                 # stock_hk_hist函数
@@ -92,6 +93,20 @@ def get_kline_data_from_akshare_hk(
                     end_date=end_date.replace('-', ''),
                     adjust='qfq'  # 前复权
                 )
+                # 重命名列以匹配process_kline_data期望的格式
+                if data is not None and not data.empty:
+                    if '日期' in data.columns:
+                        data = data.rename(columns={'日期': 'date'})
+                    if '开盘' in data.columns:
+                        data = data.rename(columns={'开盘': 'open'})
+                    if '收盘' in data.columns:
+                        data = data.rename(columns={'收盘': 'close'})
+                    if '最高' in data.columns:
+                        data = data.rename(columns={'最高': 'high'})
+                    if '最低' in data.columns:
+                        data = data.rename(columns={'最低': 'low'})
+                    if '成交量' in data.columns:
+                        data = data.rename(columns={'成交量': 'volume'})
             elif source['name'] == "stock_hk_daily":
                 # stock_hk_daily函数（可能需要不同的参数格式）
                 # 先尝试获取所有数据，然后过滤日期范围
@@ -100,15 +115,26 @@ def get_kline_data_from_akshare_hk(
                         symbol=code,
                         adjust='qfq'
                     )
-                    # 过滤日期范围
+                    # 过滤日期范围 - 修复过滤逻辑
                     if data is not None and not data.empty:
-                        data = data[(data.index >= start_date) & (data.index <= end_date)]
+                        # 确保有date列
+                        if 'date' not in data.columns:
+                            print(f"警告: stock_hk_daily返回的数据缺少date列，列名为: {list(data.columns)}")
+                            data = None
+                        else:
+                            # 转换date列为datetime类型
+                            # 检查date列是否已经是datetime类型
+                            if not pd.api.types.is_datetime64_any_dtype(data['date']):
+                                data['date'] = pd.to_datetime(data['date'])
+                            # 过滤日期范围
+                            start_dt = pd.to_datetime(start_date)
+                            end_dt = pd.to_datetime(end_date)
+                            data = data[(data['date'] >= start_dt) & (data['date'] <= end_dt)]
                 except Exception as e:
                     print(f"stock_hk_daily调用失败: {e}")
                     data = None
-            else:
-                continue
-                
+            
+            # 检查是否成功获取数据
             if data is not None and not data.empty:
                 print(f"{source['name']} 成功获取港股数据，数据形状: {data.shape}")
                 

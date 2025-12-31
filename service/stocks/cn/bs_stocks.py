@@ -135,7 +135,7 @@ def get_cn_stocks_by_baostock() -> Optional[Dict[str, Any]]:
 def is_baostock_available() -> bool:
     """检查baostock是否可用"""
     try:
-        import baostock
+        import baostock as bs
         return True
     except ImportError:
         return False

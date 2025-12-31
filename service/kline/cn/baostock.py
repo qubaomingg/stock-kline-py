@@ -22,11 +22,11 @@ Baostock数据源模块
 """
 
 import os
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Any
 import pandas as pd
 from datetime import datetime
 
-from service.kline.utils import process_kline_data
+from ..utils import process_kline_data
 
 
 def get_kline_data_from_baostock(
@@ -35,7 +35,7 @@ def get_kline_data_from_baostock(
     market_type: str,
     start_date: str,
     end_date: str
-) -> Optional[Dict]:
+) -> Optional[Dict[str, Any]]:
     """
     从Baostock获取K线数据
     
@@ -57,7 +57,36 @@ def get_kline_data_from_baostock(
         如果失败则返回None
     """
     try:
-        import baostock as bs
+        # 使用绝对导入避免本地文件冲突
+        import sys
+        import os
+        
+        # 确保从系统包导入baostock，而不是本地文件
+        # 临时从sys.path中移除可能包含本地baostock文件的目录
+        original_path = sys.path.copy()
+        
+        # 移除可能包含本地baostock文件的目录
+        paths_to_remove = []
+        for path in sys.path:
+            if os.path.exists(path) and os.path.isdir(path):
+                # 检查是否包含本地baostock.py文件
+                local_baostock_path = os.path.join(path, 'baostock.py')
+                if os.path.exists(local_baostock_path):
+                    paths_to_remove.append(path)
+                # 检查是否包含bs_stocks.py文件（可能被误导入）
+                local_bs_stocks_path = os.path.join(path, 'bs_stocks.py')
+                if os.path.exists(local_bs_stocks_path):
+                    paths_to_remove.append(path)
+        
+        for path in paths_to_remove:
+            if path in sys.path:
+                sys.path.remove(path)
+        
+        try:
+            import baostock as bs
+        finally:
+            # 恢复原始sys.path
+            sys.path = original_path
         
         # 检查baostock是否可用
         if not is_baostock_available():
@@ -65,7 +94,18 @@ def get_kline_data_from_baostock(
             return None
         
         # 登录Baostock
+        print(f'11 - bs模块属性: {dir(bs)}')
+        print(f'11 - bs模块是否有login属性: {"login" in dir(bs)}')
+        print(f'11 - bs模块位置: {bs.__file__}')
+        
+        # 检查login属性是否存在
+        if not hasattr(bs, 'login'):
+            print('错误: bs模块没有login属性')
+            print(f'bs模块的所有属性: {dir(bs)}')
+            return None
+            
         lg = bs.login()
+        print('22 - login成功')
         if lg.error_code != '0':
             print(f"baostock 登录失败: {lg.error_msg}")
             return None
@@ -119,6 +159,10 @@ def get_kline_data_from_baostock(
             bs.logout()
             return None
         
+        print(f"baostock 获取到 {len(data_list)} 条数据")
+        print(f"数据字段: {fields}")
+        print(f"第一条数据: {data_list[0] if data_list else '空'}")
+        
         df = pd.DataFrame(data_list, columns=fields.split(','))
         
         # 登出
@@ -152,7 +196,10 @@ def get_kline_data_from_baostock(
         }
         
     except Exception as e:
-        print(f"baostock 数据源失败: {e}")
+        import traceback
+        print(f"baostock 数据源失败: {type(e).__name__}: {e}")
+        print("完整错误信息:")
+        traceback.print_exc()
         # 确保登出
         try:
             import baostock as bs
@@ -165,8 +212,37 @@ def get_kline_data_from_baostock(
 def is_baostock_available() -> bool:
     """检查baostock是否可用"""
     try:
-        import baostock
-        return True
+        # 使用与主函数相同的导入逻辑避免本地文件冲突
+        import sys
+        import os
+        
+        # 确保从系统包导入baostock，而不是本地文件
+        # 临时从sys.path中移除可能包含本地baostock文件的目录
+        original_path = sys.path.copy()
+        
+        # 移除可能包含本地baostock文件的目录
+        paths_to_remove = []
+        for path in sys.path:
+            if os.path.exists(path) and os.path.isdir(path):
+                # 检查是否包含本地baostock.py文件
+                local_baostock_path = os.path.join(path, 'baostock.py')
+                if os.path.exists(local_baostock_path):
+                    paths_to_remove.append(path)
+                # 检查是否包含bs_stocks.py文件（可能被误导入）
+                local_bs_stocks_path = os.path.join(path, 'bs_stocks.py')
+                if os.path.exists(local_bs_stocks_path):
+                    paths_to_remove.append(path)
+        
+        for path in paths_to_remove:
+            if path in sys.path:
+                sys.path.remove(path)
+        
+        try:
+            import baostock as bs
+            return True
+        finally:
+            # 恢复原始sys.path
+            sys.path = original_path
     except ImportError:
         return False
 

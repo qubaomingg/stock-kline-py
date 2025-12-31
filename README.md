@@ -35,6 +35,77 @@ This example starts up a [FastUI](https://github.com/pydantic/FastUI/tree/main) 
 - To learn about Pydantic and how to use it, read their [Documentation](https://pydantic-docs.helpmanual.io/)
 - To learn about Hypercorn and how to configure it, read their [Documentation](https://hypercorn.readthedocs.io/)
 
+## 📚 API文档展示
+
+FastAPI自动生成交互式API文档，启动服务后可以通过以下地址访问：
+
+### Swagger UI
+- **地址**: `http://localhost:8000/docs`
+- **特点**: 交互式API文档，支持在线测试API接口
+- **功能**:
+  - 查看所有API端点
+  - 查看请求/响应模型
+  - 在线发送测试请求
+  - 查看请求示例
+
+### ReDoc
+- **地址**: `http://localhost:8000/redoc`
+- **特点**: 更美观的API文档展示
+- **功能**:
+  - 更清晰的API文档布局
+  - 更好的可读性
+  - 支持Markdown格式的描述
+
+### OpenAPI JSON
+- **地址**: `http://localhost:8000/openapi.json`
+- **特点**: 原始的OpenAPI规范JSON文件
+- **用途**:
+  - 用于API客户端生成
+  - 导入到其他API工具
+  - 自动化API测试
+
+### 如何访问API文档
+
+1. 启动FastAPI服务：
+   ```bash
+   python3 -m hypercorn main:app --reload --bind 0.0.0.0:8000
+   ```
+
+2. 打开浏览器访问：
+   - Swagger UI: http://localhost:8000/docs
+   - ReDoc: http://localhost:8000/redoc
+
+3. 在Swagger UI中，您可以：
+   - 点击"Try it out"按钮测试API
+   - 查看请求参数和响应格式
+   - 查看API的详细描述
+
+### 自定义API文档
+
+当前项目使用FastAPI的默认配置，您可以在`main.py`中自定义API文档的标题和描述以提供更好的文档体验：
+
+```python
+app = FastAPI(
+    title="股票K线数据API",
+    description="提供股票K线数据查询服务的API接口",
+    version="1.0.0",
+    docs_url="/docs",  # Swagger UI地址（默认）
+    redoc_url="/redoc",  # ReDoc地址（默认）
+    openapi_url="/openapi.json"  # OpenAPI JSON地址（默认）
+)
+```
+
+**当前配置说明**：
+- 项目使用`app = FastAPI()`默认初始化
+- Swagger UI地址：`http://localhost:8000/docs`
+- ReDoc地址：`http://localhost:8000/redoc`
+- OpenAPI JSON地址：`http://localhost:8000/openapi.json`
+
+**自定义选项**：
+- 可以修改`docs_url`或`redoc_url`来改变文档地址
+- 设置`docs_url=None`或`redoc_url=None`可以禁用对应的文档界面
+- 可以通过`openapi_tags`参数对API进行分组和分类
+
 ## 🔧 Python调试断点
 
 ### 使用内置的`breakpoint()`函数

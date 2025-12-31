@@ -4,6 +4,7 @@
 重构版本：使用独立的数据源模块
 """
 import os
+import sys
 from typing import Dict, List, Optional, Tuple
 import pandas as pd
 from datetime import datetime, timedelta
@@ -13,31 +14,45 @@ import time
 from dotenv import load_dotenv
 load_dotenv()
 
+# 添加项目根目录到Python路径
+project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+sys.path.insert(0, project_root)
+
 # 导入数据源模块
 from service.kline.us.yfinance import get_kline_data_from_yfinance, is_yfinance_available
 from service.kline.cn.akshare import get_kline_data_from_akshare, is_akshare_available
 from service.kline.hk.akshare_hk import get_kline_data_from_akshare_hk, is_akshare_hk_available
 from service.kline.us.alpha_vantage import get_kline_data_from_alpha_vantage, is_alpha_vantage_available
 from service.kline.us.tiingo import get_kline_data_from_tiingo, is_tiingo_available
-from service.kline.us.finnhub import get_kline_data_from_finnhub, is_finnhub_available
 from service.kline.cn.baostock import get_kline_data_from_baostock, is_baostock_available
+from service.kline.hk.eastmoney_hk import get_kline_data_from_eastmoney_hk, is_eastmoney_hk_available
+from service.kline.cn.eastmoney_cn import get_kline_data_from_eastmoney_cn, is_eastmoney_cn_available
 
 
 # 导入工具函数
-from utils.stock import get_market_type, format_stock_code
+# 使用绝对导入避免与本地utils.py冲突
+try:
+    from utils.stock import get_market_type, format_stock_code
+except ImportError:
+    # 如果无法导入，尝试从项目根目录直接导入
+    import importlib.util
+    spec = importlib.util.spec_from_file_location("stock", os.path.join(project_root, "utils", "stock.py"))
+    stock_module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(stock_module)
+    get_market_type = stock_module.get_market_type
+    format_stock_code = stock_module.format_stock_code
 
 # 数据源配置
 DATA_SOURCES_CONFIG = {
-    'A': ['akshare', 'baostock'],
-    'HK': ['akshare_hk', 'akshare'],
-    'US': ['yfinance', 'alpha_vantage', 'tiingo', 'finnhub']
+    'A': ['eastmoney_cn', 'akshare', 'baostock'],
+    'HK': ['eastmoney_hk', 'akshare_hk'],
+    'US': ['yfinance', 'alpha_vantage', 'tiingo']
 }
 
 # API密钥配置
 API_KEYS = {
     'alpha_vantage': os.getenv('ALPHA_VANTAGE_API_KEY', ''),
     'tiingo': os.getenv('TIINGO_API_KEY', ''),
-    'finnhub': os.getenv('FINNHUB_API_KEY', '')
 }
 
 
@@ -186,6 +201,32 @@ def get_kline_data(
                     start_date=start_date,
                     end_date=end_date
                 )
+            
+            elif source == 'eastmoney_hk':
+                if not is_eastmoney_hk_available():
+                    print("eastmoney_hk不可用，跳过")
+                    continue
+                
+                result = get_kline_data_from_eastmoney_hk(
+                    code=code,
+                    market_type=market_type,
+                    formatted_code=formatted_code,
+                    start_date=start_date,
+                    end_date=end_date
+                )
+            
+            elif source == 'eastmoney_cn':
+                if not is_eastmoney_cn_available():
+                    print("eastmoney_cn不可用，跳过")
+                    continue
+                
+                result = get_kline_data_from_eastmoney_cn(
+                    code=code,
+                    market_type=market_type,
+                    formatted_code=formatted_code,
+                    start_date=start_date,
+                    end_date=end_date
+                )
                 
             elif source == 'alpha_vantage':
                 if not is_alpha_vantage_available():
@@ -226,24 +267,6 @@ def get_kline_data(
                     api_key=api_key
                 )
                 
-            elif source == 'finnhub':
-                if not is_finnhub_available():
-                    print("finnhub不可用，跳过")
-                    continue
-                
-                api_key = API_KEYS.get('finnhub', '')
-                if not api_key:
-                    print("finnhub需要API密钥，跳过")
-                    continue
-                
-                result = get_kline_data_from_finnhub(
-                    code=code,
-                    market_type=market_type,
-                    formatted_code=formatted_code,
-                    start_date=start_date,
-                    end_date=end_date,
-                    api_key=api_key
-                )
             elif source == 'baostock':
                 if not is_baostock_available():
                     print("baostock不可用，跳过")
