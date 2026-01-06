@@ -28,6 +28,8 @@ from service.kline.cn.baostock import get_kline_data_from_baostock, is_baostock_
 from service.kline.hk.eastmoney_hk import get_kline_data_from_eastmoney_hk, is_eastmoney_hk_available
 from service.kline.cn.eastmoney_cn import get_kline_data_from_eastmoney_cn, is_eastmoney_cn_available
 
+# 导入缓存装饰器
+from service.cache.decorators import cache_kline_data
 
 # 导入工具函数
 # 使用绝对导入避免与本地utils.py冲突
@@ -122,6 +124,7 @@ def process_kline_data(data: pd.DataFrame, source: str) -> List[Dict]:
     return result
 
 
+@cache_kline_data()
 def get_kline_data(
     code: str,
     start_date: Optional[str] = None,
@@ -136,7 +139,7 @@ def get_kline_data(
         start_date: 开始日期，格式：YYYY-MM-DD
         end_date: 结束日期，格式：YYYY-MM-DD
         data_sources: 指定数据源列表，如果为None则使用默认配置
-        
+    
     Returns:
         包含K线数据的字典
     """

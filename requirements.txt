@@ -22,3 +22,4 @@ python-dotenv>=1.0.0
 openbb-yfinance==1.5.0
 baostock==00.8.90
 alpha_vantage>=2.3.1
+pymongo>=4.6.0

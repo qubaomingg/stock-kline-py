@@ -1,4 +1,5 @@
 from dotenv import load_dotenv
+import logging
 
 from fastapi import FastAPI, HTTPException
 
@@ -6,6 +7,13 @@ from service.kline.kline import get_kline_data
 
 # 加载环境变量
 load_dotenv()
+
+# 配置日志
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    datefmt='%Y-%m-%d %H:%M:%S'
+)
 
 app = FastAPI()
 
