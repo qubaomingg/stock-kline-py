@@ -1,4 +1,5 @@
 {
+  "version": 2,
   "functions": {
     "main.py": {
       "runtime": "vercel-python@3.9",
