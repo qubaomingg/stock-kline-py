@@ -119,6 +119,7 @@ celerybeat.pid
 # SageMath parsed files
 *.sage.py
 
+tests
 test_venv
 test_vercel_env
 
