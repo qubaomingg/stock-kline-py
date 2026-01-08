@@ -2,7 +2,7 @@
   "version": 2,
   "functions": {
     "main.py": {
-      "runtime": "vercel-python@3.9",
+      "runtime": "@vercel/python",
       "excludeFiles": "tests/** debugs/** env/** test_venv/** test_vercel_env/** *.whl *.pyc __pycache__/** .gitignore README.md openBB.md railway.json runtime.txt start.sh test_cache.py test_cache_debug.py"
     }
   },
