@@ -31,8 +31,7 @@ class MongoDBCache:
             connection_string: MongoDB连接字符串，如果为None则从环境变量读取
         """
         self.connection_string = connection_string or os.environ.get(
-            "DIRECT_URL", 
-            "mongodb+srv://qubaoming:cVO8ANavyXm4ls3U@cluster0.hnnjj.mongodb.net/stock?retryWrites=true&w=majority&ssl=true"
+            "MONGODB_URL"
         )
         self.client = None
         self.db = None
