@@ -2,6 +2,7 @@ from dotenv import load_dotenv
 import logging
 
 from fastapi import FastAPI, HTTPException
+from fastapi.responses import JSONResponse
 
 from service.kline.kline import get_kline_data
 
@@ -17,6 +18,14 @@ logging.basicConfig(
 
 app = FastAPI()
 
+
+@app.get("/api/health")
+async def health_check():
+    """
+    健康检查接口
+    :return: 返回it works
+    """
+    return JSONResponse(content={"message": "it works"})
 
 
 @app.get("/api/kline")
