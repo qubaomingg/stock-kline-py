@@ -287,7 +287,27 @@ def get_cache() -> MongoDBCache:
     """
     global _cache_instance
     if _cache_instance is None:
-        _cache_instance = MongoDBCache()
+        try:
+            # 尝试导入pymongo，如果不可用则使用模拟缓存
+            import pymongo
+            _cache_instance = MongoDBCache()
+        except ImportError:
+            # 如果没有pymongo，创建一个模拟缓存对象
+            logger.warning("pymongo不可用，使用模拟缓存（无实际缓存功能）")
+            class MockCache:
+                def __init__(self):
+                    self.cache = {}
+                def get(self, code: str, start_date: Optional[str] = None, end_date: Optional[str] = None) -> Optional[Dict[str, Any]]:
+                    return None
+                def set(self, code: str, start_date: Optional[str] = None, end_date: Optional[str] = None, data: Dict[str, Any] = None, ttl_days: int = 2) -> bool:
+                    return True
+                def delete(self, code: str, start_date: Optional[str] = None, end_date: Optional[str] = None) -> bool:
+                    return True
+                def is_connected(self):
+                    return False
+                def close(self):
+                    pass
+            _cache_instance = MockCache()
     return _cache_instance
 
 
