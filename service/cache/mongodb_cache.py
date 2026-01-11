@@ -171,6 +171,16 @@ class MongoDBCache:
             logger.warning(f"数据为空，跳过缓存: {code.upper()}")
             return False
 
+        # 检查如果是字典且包含data字段，data字段是否为空数组
+        if isinstance(data, dict) and 'data' in data and isinstance(data['data'], list) and len(data['data']) == 0:
+            logger.warning(f"数据中的data字段为空数组，跳过缓存: {code.upper()}")
+            return False
+
+        # 检查如果是字典且包含stocks字段，stocks字段是否为空数组
+        if isinstance(data, dict) and 'stocks' in data and isinstance(data['stocks'], list) and len(data['stocks']) == 0:
+            logger.warning(f"数据中的stocks字段为空数组，跳过缓存: {code.upper()}")
+            return False
+
         # 统一使用_generate_cache_key生成缓存键
         cache_key = self._generate_cache_key(code, start_date, end_date)
 
