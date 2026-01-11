@@ -26,16 +26,16 @@ US_DATA_SOURCES_CONFIG = {
 def get_us_stocks(data_source: str = None) -> Optional[Dict[str, Any]]:
     """
     获取美股列表
-    
+
     Args:
         data_source: 指定数据源（sec, yfinance, fmp），不指定则按优先级尝试
-        
+
     Returns:
         包含美股股票列表的字典
     """
     try:
         print(f"开始获取美股列表，数据源: {data_source if data_source else '按优先级尝试'}")
-        
+
         # 如果指定了数据源，直接使用该数据源
         if data_source:
             if data_source == 'sec':
@@ -45,27 +45,27 @@ def get_us_stocks(data_source: str = None) -> Optional[Dict[str, Any]]:
             else:
                 print(f"不支持的数据源: {data_source}")
                 return None
-        
+
         # 按优先级尝试各个数据源
         for source in US_DATA_SOURCES_CONFIG['default']:
             print(f"尝试使用 {source} 数据源...")
-            
+
             if source == 'sec':
                 result = get_sec_stocks_all()
             elif source == 'finnhub':
                 result = get_finnhub_stocks_all()
             else:
                 continue
-            
+
             if result and result['stocks']:
                 print(f"{source} 数据源获取成功，共 {result['count']} 只股票")
                 return result
             else:
                 print(f"{source} 数据源获取失败，尝试下一个数据源...")
-        
+
         print("所有数据源获取美股列表失败")
         return None
-        
+
     except Exception as e:
         print(f"获取美股列表时发生错误: {e}")
         return None
@@ -74,20 +74,20 @@ def get_us_stocks(data_source: str = None) -> Optional[Dict[str, Any]]:
 def get_us_stocks_by_exchange(exchange: str = "N", data_source: str = None) -> Optional[Dict[str, Any]]:
     """
     按交易所获取美股列表
-    
+
     Args:
         exchange: 交易所代码
             - 对于 sec 数据源: N=Nasdaq, A=NYSE, P=AMEX
             - 对于 yfinance 数据源: nasdaq, nyse, amex
             - 对于 finnhub 数据源: US（统一使用US）
         data_source: 指定数据源（sec, finnhub），不指定则按优先级尝试
-        
+
     Returns:
         包含美股股票列表的字典
     """
     try:
         print(f"开始获取 {exchange} 交易所的美股列表，数据源: {data_source if data_source else '按优先级尝试'}")
-        
+
         # 如果指定了数据源，直接使用该数据源
         if data_source:
             if data_source == 'sec':
@@ -100,11 +100,11 @@ def get_us_stocks_by_exchange(exchange: str = "N", data_source: str = None) -> O
             else:
                 print(f"不支持的数据源: {data_source}")
                 return None
-        
+
         # 按优先级尝试各个数据源
         for source in US_DATA_SOURCES_CONFIG['default']:
             print(f"尝试使用 {source} 数据源...")
-            
+
             if source == 'sec':
                 from .sec_stocks import get_sec_stocks
                 result = get_sec_stocks(exchange)
@@ -114,16 +114,16 @@ def get_us_stocks_by_exchange(exchange: str = "N", data_source: str = None) -> O
                 result = get_finnhub_stocks("US")
             else:
                 continue
-            
+
             if result and result['stocks']:
                 print(f"{source} 数据源获取成功，共 {result['count']} 只股票")
                 return result
             else:
                 print(f"{source} 数据源获取失败，尝试下一个数据源...")
-        
+
         print(f"所有数据源获取 {exchange} 交易所股票列表失败")
         return None
-        
+
     except Exception as e:
         print(f"按交易所获取美股列表时发生错误: {e}")
         return None
@@ -132,7 +132,7 @@ def get_us_stocks_by_exchange(exchange: str = "N", data_source: str = None) -> O
 if __name__ == "__main__":
     # 测试获取美股列表
     print("测试获取美股列表:")
-    
+
     # 测试按优先级获取
     print("\n1. 测试按优先级获取（默认）:")
     result = get_us_stocks()
@@ -144,7 +144,7 @@ if __name__ == "__main__":
                 print(f"  {stock['code']}: {stock['name']}")
     else:
         print("获取失败")
-    
+
     # 测试finnhub数据源
     print("\n2. 测试finnhub数据源:")
     result = get_us_stocks(data_source="finnhub")
@@ -156,4 +156,3 @@ if __name__ == "__main__":
                 print(f"  {stock['code']}: {stock['name']}")
     else:
         print("获取失败")
-    

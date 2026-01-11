@@ -33,7 +33,7 @@ def get_kline_data_from_tiingo(
 ) -> Optional[Dict]:
     """
     从Tiingo获取K线数据
-    
+
     Args:
         code: 原始股票代码
         formatted_code: 格式化后的股票代码
@@ -41,7 +41,7 @@ def get_kline_data_from_tiingo(
         start_date: 开始日期 (YYYY-MM-DD)
         end_date: 结束日期 (YYYY-MM-DD)
         api_key: Tiingo API密钥
-        
+
     Returns:
         包含K线数据的字典，格式为:
         {
@@ -53,32 +53,32 @@ def get_kline_data_from_tiingo(
         }
         如果获取失败则返回None
     """
-    
+
     try:
         from tiingo import TiingoClient
     except ImportError:
         print("tiingo未安装，无法使用tiingo数据源")
         return None
-    
+
     if not api_key:
         print("tiingo需要API密钥，跳过")
         return None
-    
+
     try:
         config = {
             'api_key': api_key,
             'session': True
         }
         client = TiingoClient(config)
-        
+
         # 获取日线数据
         # start_date和end_date已经是字符串格式，直接使用
-        data = client.get_ticker_price(formatted_code, 
-                                      fmt='json', 
+        data = client.get_ticker_price(formatted_code,
+                                      fmt='json',
                                       startDate=start_date,
                                       endDate=end_date,
                                       frequency='daily')
-        
+
         # tiingo返回的数据格式需要特殊处理
         if isinstance(data, list) and len(data) > 0:
             # 确保每个字典都有正确的键
@@ -91,22 +91,22 @@ def get_kline_data_from_tiingo(
                 item['low'] = item.get('low', item.get('adjLow', 0))
                 item['close'] = item.get('close', item.get('adjClose', 0))
                 item['volume'] = item.get('volume', item.get('adjVolume', 0))
-        
+
         if not data:
             print(f"tiingo 数据源返回空数据")
             return None
-        
+
         # 转换为DataFrame
         data = pd.DataFrame(data)
         data['date'] = pd.to_datetime(data['date'])
         data.set_index('date', inplace=True)
-        
+
         print(f"tiingo 数据源成功获取数据，数据形状: {data.shape}")
-        
+
         # 处理数据 - 注意：process_kline_data函数需要从主模块导入
         from ..kline import process_kline_data
         processed_data = process_kline_data(data, 'tiingo')
-        
+
         return {
             "code": code,
             "formatted_code": formatted_code,
@@ -114,7 +114,7 @@ def get_kline_data_from_tiingo(
             "data_source": "tiingo",
             "data": processed_data
         }
-        
+
     except Exception as e:
         print(f"tiingo 数据源失败: {e}")
         return None
@@ -132,11 +132,11 @@ def is_tiingo_available() -> bool:
 if __name__ == "__main__":
     # 测试代码
     print(f"tiingo可用: {is_tiingo_available()}")
-    
+
     # 需要API密钥才能实际测试
     import os
     api_key = os.environ.get('TIINGO_API_KEY', '')
-    
+
     if api_key:
         # 测试获取美股数据
         result = get_kline_data_from_tiingo(
@@ -147,7 +147,7 @@ if __name__ == "__main__":
             end_date="2024-01-10",
             api_key=api_key
         )
-        
+
         if result:
             print(f"成功获取美股数据: {result['data_source']}, 数据条数: {len(result['data'])}")
         else:

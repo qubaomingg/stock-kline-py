@@ -59,7 +59,7 @@ def get_kline_data_from_alpha_vantage(
 ) -> Optional[Dict[str, Any]]:
     """
     从Alpha Vantage获取K线数据
-    
+
     Args:
         code: 原始股票代码
         formatted_code: 格式化后的股票代码
@@ -67,19 +67,19 @@ def get_kline_data_from_alpha_vantage(
         start_date: 开始日期
         end_date: 结束日期
         api_key: API密钥
-        
+
     Returns:
         包含K线数据的字典
     """
     try:
         from alpha_vantage.timeseries import TimeSeries
-        
+
         # 初始化客户端
         ts = TimeSeries(key=api_key, output_format='pandas')
-        
+
         # 获取数据
         data, meta_data = ts.get_daily(symbol=formatted_code, outputsize='compact')
-        
+
         # 重命名列
         data = data.rename(columns={
             '1. open': 'open',
@@ -88,21 +88,21 @@ def get_kline_data_from_alpha_vantage(
             '4. close': 'close',
             '5. volume': 'volume'
         })
-        
+
         # 筛选日期范围
         start_dt = datetime.strptime(start_date, '%Y-%m-%d')
         end_dt = datetime.strptime(end_date, '%Y-%m-%d')
         data = data[(data.index >= start_dt) & (data.index <= end_dt)]
-        
+
         if data.empty:
             print(f"alpha_vantage 数据源返回空数据")
             return None
-        
+
         print(f"alpha_vantage 数据源成功获取数据，数据形状: {data.shape}")
-        
+
         # 处理数据
         processed_data = process_kline_data(data, 'alpha_vantage')
-        
+
         return {
             "code": code,
             "formatted_code": formatted_code,
@@ -110,7 +110,7 @@ def get_kline_data_from_alpha_vantage(
             "data_source": "alpha_vantage",
             "data": processed_data
         }
-        
+
     except Exception as e:
         print(f"alpha_vantage 数据源失败: {e}")
         return None
@@ -120,10 +120,10 @@ def get_kline_data_from_alpha_vantage(
 if __name__ == "__main__":
     # 测试alpha_vantage数据源
     print("测试alpha_vantage数据源...")
-    
+
     # 检查可用性
     print(f"alpha_vantage可用: {is_alpha_vantage_available()}")
-    
+
     # 注意：需要设置API密钥才能实际测试
     # result = get_kline_data_from_alpha_vantage(
     #     code="AAPL",

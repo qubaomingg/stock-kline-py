@@ -24,7 +24,7 @@ def get_hk_stocks() -> Optional[Dict[str, Any]]:
     """
     获取港股市场所有股票列表
     支持多数据源，按优先级顺序尝试，直到成功获取数据
-    
+
     Returns:
         包含港股股票列表的字典
     """
@@ -60,18 +60,18 @@ def get_hk_stocks() -> Optional[Dict[str, Any]]:
             else:
                 # 未来其他数据源的调用方式
                 continue
-            
+
             if result:
                 print(f"[hk_stocks] 使用数据源 '{source_name}' 成功获取 {result['count']} 只港股")
                 return result
-            
+
         except ImportError as e:
             print(f"[hk_stocks] 无法导入数据源模块 '{source_name}': {e}")
             continue
         except Exception as e:
             print(f"[hk_stocks] 数据源 '{source_name}' 获取数据失败: {e}")
             continue
-    
+
     print("[hk_stocks] 所有数据源均失败，无法获取港股股票列表")
     return None
 

@@ -37,14 +37,14 @@ def get_kline_data_from_akshare(
 ) -> Optional[Dict]:
     """
     从akshare获取K线数据
-    
+
     Args:
         code: 原始股票代码
         formatted_code: 格式化后的股票代码
         market_type: 市场类型 (A, HK, US)
         start_date: 开始日期 (YYYY-MM-DD)
         end_date: 结束日期 (YYYY-MM-DD)
-        
+
     Returns:
         包含K线数据的字典，格式为:
         {
@@ -56,13 +56,13 @@ def get_kline_data_from_akshare(
         }
         如果获取失败则返回None
     """
-    
+
     try:
         import akshare as ak
     except ImportError:
         print("akshare未安装，无法使用akshare数据源")
         return None
-    
+
     try:
         # 根据市场类型选择不同的akshare函数
         if market_type == 'A':
@@ -86,16 +86,16 @@ def get_kline_data_from_akshare(
         else:
             print(f"akshare不支持 {market_type} 市场")
             return None
-        
+
         if data is None or data.empty:
             print(f"akshare 数据源返回空数据")
             return None
-            
+
         print(f"akshare 数据源成功获取数据，数据形状: {data.shape}")
-        
+
         # 处理数据
         processed_data = process_kline_data(data, 'akshare')
-        
+
         return {
             "code": code,
             "formatted_code": formatted_code,
@@ -103,7 +103,7 @@ def get_kline_data_from_akshare(
             "data_source": "akshare",
             "data": processed_data
         }
-        
+
     except Exception as e:
         print(f"akshare 数据源失败: {e}")
         return None
@@ -121,7 +121,7 @@ def is_akshare_available() -> bool:
 if __name__ == "__main__":
     # 测试代码
     print(f"akshare可用: {is_akshare_available()}")
-    
+
     # 测试获取A股数据
     result = get_kline_data_from_akshare(
         code="000001",
@@ -130,12 +130,12 @@ if __name__ == "__main__":
         start_date="2024-01-01",
         end_date="2024-01-10"
     )
-    
+
     if result:
         print(f"成功获取A股数据: {result['data_source']}, 数据条数: {len(result['data'])}")
     else:
         print("获取A股数据失败")
-    
+
     # 测试获取港股数据
     result = get_kline_data_from_akshare(
         code="03690",
@@ -144,7 +144,7 @@ if __name__ == "__main__":
         start_date="2024-01-01",
         end_date="2024-01-10"
     )
-    
+
     if result:
         print(f"成功获取港股数据: {result['data_source']}, 数据条数: {len(result['data'])}")
     else:

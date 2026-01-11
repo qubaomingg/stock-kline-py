@@ -13,18 +13,18 @@ import akshare as ak
 def get_cn_stocks_by_ak() -> Optional[Dict[str, Any]]:
     """
     使用akshare获取中国A股市场所有股票列表
-    
+
     Returns:
         包含A股股票列表的字典
     """
     try:
         # 使用akshare获取A股股票列表
         stock_info_a_code_name_df = ak.stock_info_a_code_name()
-        
+
         if stock_info_a_code_name_df.empty:
             print("[akshare] 获取A股股票列表失败: 数据为空")
             return None
-        
+
         # 转换为列表格式
         stocks = []
         for _, row in stock_info_a_code_name_df.iterrows():
@@ -37,7 +37,7 @@ def get_cn_stocks_by_ak() -> Optional[Dict[str, Any]]:
                 'list_date': ''  # 需要额外获取上市日期
             }
             stocks.append(stock)
-        
+
         result = {
             'market': 'cn',
             'count': len(stocks),
@@ -45,10 +45,10 @@ def get_cn_stocks_by_ak() -> Optional[Dict[str, Any]]:
             'timestamp': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
             'source': 'akshare'
         }
-        
+
         print(f"[akshare] 成功获取 {len(stocks)} 只A股股票")
         return result
-        
+
     except Exception as e:
         print(f"[akshare] 获取A股股票列表时发生错误: {e}")
         return None

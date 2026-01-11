@@ -37,10 +37,10 @@ from cache.decorators import cache_market_stocks
 def get_stock_by_market(marketcode: str) -> Optional[Dict[str, Any]]:
     """
     获取指定市场的所有股票列表
-    
+
     Args:
         marketcode: 市场代码 ('cn', 'hk', 'us')
-        
+
     Returns:
         包含股票列表的字典，格式为:
         {
@@ -61,7 +61,7 @@ def get_stock_by_market(marketcode: str) -> Optional[Dict[str, Any]]:
         }
     """
     marketcode = marketcode.lower()
-    
+
     if marketcode == 'cn':
         return get_cn_stocks()
     elif marketcode == 'hk':
@@ -76,7 +76,7 @@ def get_stock_by_market(marketcode: str) -> Optional[Dict[str, Any]]:
 def get_all_markets() -> List[str]:
     """
     获取所有支持的市场列表
-    
+
     Returns:
         支持的市场代码列表
     """

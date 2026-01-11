@@ -43,7 +43,7 @@ async def get_kline(code: str, start_date: str = None, end_date: str = None, nam
     try:
         # 调用新的kline服务获取数据
         result = get_kline_data(code, start_date, end_date)
-        
+
         # 转换结果为API响应格式
         return {
             "code": code,
@@ -52,7 +52,7 @@ async def get_kline(code: str, start_date: str = None, end_date: str = None, nam
             "data_source": result["data_source"],
             "data": result["data"]
         }
-        
+
     except ImportError:
         raise HTTPException(status_code=500, detail="OpenBB未安装，请先安装openbb")
     except Exception as e:
@@ -75,10 +75,10 @@ async def get_stock_market(marketCode: str):
     try:
         # 调用股票市场服务获取数据
         result = get_stock_by_market(marketCode)
-        
+
         if result is None:
             raise HTTPException(status_code=404, detail=f"未找到市场代码为 {marketCode} 的股票列表")
-        
+
         # 转换结果为API响应格式
         return {
             "market": marketCode,
@@ -86,7 +86,7 @@ async def get_stock_market(marketCode: str):
             "stocks": result["stocks"],
             "timestamp": result["timestamp"]
         }
-        
+
     except HTTPException:
         raise
     except Exception as e:
@@ -98,5 +98,3 @@ async def get_stock_market(marketCode: str):
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)
-
-    

@@ -43,14 +43,14 @@ def get_kline_data_from_akshare_hk(
 ) -> Optional[Dict]:
     """
     从akshare获取港股K线数据
-    
+
     Args:
         code: 原始股票代码（如'00700'）
         formatted_code: 格式化后的股票代码（如'0700.HK'）
         market_type: 市场类型（应为'HK'）
         start_date: 开始日期 (YYYY-MM-DD)
         end_date: 结束日期 (YYYY-MM-DD)
-        
+
     Returns:
         包含K线数据的字典，格式为:
         {
@@ -62,28 +62,28 @@ def get_kline_data_from_akshare_hk(
         }
         如果获取失败则返回None
     """
-    
+
     if market_type != 'HK':
         print(f"akshare_hk模块仅支持港股市场，不支持{market_type}市场")
         return None
-    
+
     try:
         import akshare as ak
     except ImportError:
         print("akshare未安装，无法使用akshare_hk数据源")
         return None
-    
+
     # 尝试不同的akshare函数获取港股数据
     data_sources = [
         {"name": "stock_hk_hist", "func": ak.stock_hk_hist},
         {"name": "stock_hk_daily", "func": ak.stock_hk_daily},
     ]
-    
+
     for source in data_sources:
         try:
             print(f"尝试使用 {source['name']} 获取港股数据...")
             data = None
-            
+
             if source['name'] == "stock_hk_hist":
                 # stock_hk_hist函数
                 data = source['func'](
@@ -133,14 +133,14 @@ def get_kline_data_from_akshare_hk(
                 except Exception as e:
                     print(f"stock_hk_daily调用失败: {e}")
                     data = None
-            
+
             # 检查是否成功获取数据
             if data is not None and not data.empty:
                 print(f"{source['name']} 成功获取港股数据，数据形状: {data.shape}")
-                
+
                 # 处理数据
                 processed_data = process_kline_data(data, 'akshare_hk')
-                
+
                 return {
                     "code": code,
                     "formatted_code": formatted_code,
@@ -148,11 +148,11 @@ def get_kline_data_from_akshare_hk(
                     "data_source": "akshare_hk",
                     "data": processed_data
                 }
-                
+
         except Exception as e:
             print(f"{source['name']} 获取港股数据失败: {e}")
             continue
-    
+
     # 如果所有数据源都失败，尝试获取实时数据
     print("所有历史数据源失败，尝试获取实时数据...")
     try:
@@ -163,7 +163,7 @@ def get_kline_data_from_akshare_hk(
             return realtime_data
     except Exception as e:
         print(f"获取实时数据失败: {e}")
-    
+
     print(f"所有akshare港股数据源均失败")
     return None
 
@@ -171,16 +171,16 @@ def get_kline_data_from_akshare_hk(
 def get_hk_realtime_data(code: str) -> Optional[Dict]:
     """
     获取港股实时行情数据
-    
+
     Args:
         code: 港股代码（如'00700'）
-        
+
     Returns:
         包含实时数据的字典
     """
     try:
         import akshare as ak
-        
+
         # 尝试获取实时行情
         realtime = ak.stock_hk_spot_em()
         if realtime is not None and not realtime.empty:
@@ -197,7 +197,7 @@ def get_hk_realtime_data(code: str) -> Optional[Dict]:
                     "close": float(stock_data.iloc[0]['最新价']),
                     "volume": float(stock_data.iloc[0]['成交量'])
                 }]
-                
+
                 return {
                     "code": code,
                     "formatted_code": f"{code}.HK",
@@ -207,23 +207,23 @@ def get_hk_realtime_data(code: str) -> Optional[Dict]:
                 }
     except Exception as e:
         print(f"获取实时数据失败: {e}")
-    
+
     return None
 
 
 def get_hk_market_sentiment() -> Optional[Dict]:
     """
     获取港股市场情绪数据
-    
+
     Returns:
         包含市场情绪数据的字典
     """
     try:
         import akshare as ak
-        
+
         # 获取港股指数数据
         hk_index_data = ak.stock_hk_index_spot_sina()
-        
+
         if hk_index_data is not None and not hk_index_data.empty:
             # 格式化数据
             formatted_data = []
@@ -239,7 +239,7 @@ def get_hk_market_sentiment() -> Optional[Dict]:
                     "low_price": float(row['最低']),
                     "prev_close": float(row['昨收'])
                 })
-            
+
             return {
                 "data_source": "akshare_hk",
                 "type": "market_sentiment",
@@ -247,23 +247,23 @@ def get_hk_market_sentiment() -> Optional[Dict]:
             }
     except Exception as e:
         print(f"获取市场情绪数据失败: {e}")
-    
+
     return None
 
 
 def get_hk_sector_performance() -> Optional[Dict]:
     """
     获取港股板块表现数据
-    
+
     Returns:
         包含板块表现数据的字典
     """
     try:
         import akshare as ak
-        
+
         # 获取行业板块数据
         industry_data = ak.stock_board_industry_name_em()
-        
+
         if industry_data is not None and not industry_data.empty:
             # 格式化数据
             formatted_data = []
@@ -282,7 +282,7 @@ def get_hk_sector_performance() -> Optional[Dict]:
                     "leading_stock": row.get("领涨股票"),
                     "leading_stock_change": row.get("领涨股票-涨跌幅")
                 })
-            
+
             return {
                 "data_source": "akshare_hk",
                 "type": "sector_performance",
@@ -290,27 +290,27 @@ def get_hk_sector_performance() -> Optional[Dict]:
             }
     except Exception as e:
         print(f"获取板块表现数据失败: {e}")
-    
+
     return None
 
 
 def get_hk_fund_flow() -> Optional[Dict]:
     """
     获取港股资金流向数据（沪深港通资金流向）
-    
+
     Returns:
         包含资金流向数据的字典
     """
     try:
         import akshare as ak
-        
+
         # 获取沪深港通资金流向数据
         fund_flow = ak.stock_hsgt_fund_flow_summary_em()
-        
+
         if fund_flow is not None and not fund_flow.empty:
             # 筛选港股通数据
             hk_fund_flow = fund_flow[fund_flow['板块'].str.contains('港股通')]
-            
+
             if not hk_fund_flow.empty:
                 return {
                     "data_source": "akshare_hk",
@@ -319,23 +319,23 @@ def get_hk_fund_flow() -> Optional[Dict]:
                 }
     except Exception as e:
         print(f"获取资金流向数据失败: {e}")
-    
+
     return None
 
 
 def get_hk_order_book(code: str) -> Optional[Dict]:
     """
     获取港股盘口数据（买卖五档）
-    
+
     Args:
         code: 港股代码（如'00700'）
-        
+
     Returns:
         包含盘口数据的字典
     """
     try:
         import akshare as ak
-        
+
         # 获取实时行情数据，其中包含盘口信息
         realtime = ak.stock_hk_spot_em()
         if realtime is not None and not realtime.empty:
@@ -364,15 +364,15 @@ def get_hk_order_book(code: str) -> Optional[Dict]:
                     "change": float(stock_data.iloc[0]['涨跌额']),
                     "change_percent": float(stock_data.iloc[0]['涨跌幅'])
                 }
-                
+
                 # 注意：akshare的实时数据可能不包含完整的买卖五档数据
                 # 这里我们使用实时行情中的相关字段
                 # 如果需要完整的买卖五档，可能需要使用其他API
-                
+
                 return order_book
     except Exception as e:
         print(f"获取盘口数据失败: {e}")
-    
+
     return None
 
 
@@ -388,7 +388,7 @@ def is_akshare_hk_available() -> bool:
 if __name__ == "__main__":
     # 测试代码
     print(f"akshare_hk可用: {is_akshare_hk_available()}")
-    
+
     # 测试获取港股数据
     result = get_kline_data_from_akshare_hk(
         code="00700",
@@ -397,23 +397,23 @@ if __name__ == "__main__":
         start_date="2024-01-01",
         end_date="2024-01-10"
     )
-    
+
     if result:
         print(f"成功获取港股数据: {result['data_source']}, 数据条数: {len(result['data'])}")
         print(f"第一条数据: {result['data'][0] if result['data'] else '空'}")
     else:
         print("获取港股数据失败")
-    
+
     # 测试市场情绪数据
     sentiment = get_hk_market_sentiment()
     if sentiment:
         print(f"成功获取市场情绪数据，数据条数: {len(sentiment['data'])}")
-    
+
     # 测试板块表现数据
     sector = get_hk_sector_performance()
     if sector:
         print(f"成功获取板块表现数据，数据条数: {len(sector['data'])}")
-    
+
     # 测试资金流向数据
     fund_flow = get_hk_fund_flow()
     if fund_flow:
