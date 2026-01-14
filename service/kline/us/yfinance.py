@@ -136,11 +136,40 @@ def get_kline_data_from_yfinance(
             # 导入yfinance
             import yfinance as yf
 
+            # 转换日期格式为YYYY-MM-DD
+            def convert_date_format(date_str):
+                """将各种日期格式转换为YYYY-MM-DD格式"""
+                import datetime
+                formats = [
+                    '%Y-%m-%d',  # YYYY-MM-DD
+                    '%Y%m%d',    # YYYYMMDD
+                    '%Y/%m/%d',  # YYYY/MM/DD
+                    '%d/%m/%Y',  # DD/MM/YYYY
+                    '%m/%d/%Y',  # MM/DD/YYYY
+                ]
+
+                for fmt in formats:
+                    try:
+                        dt = datetime.datetime.strptime(date_str, fmt)
+                        return dt.strftime('%Y-%m-%d')
+                    except ValueError:
+                        continue
+
+                # 如果所有格式都失败，返回原始字符串
+                print(f"警告: 无法解析日期格式: {date_str}")
+                return date_str
+
+            # 转换开始日期和结束日期
+            start_date_converted = convert_date_format(start_date)
+            end_date_converted = convert_date_format(end_date)
+
+            print(f"yfinance 转换日期格式: {start_date} -> {start_date_converted}, {end_date} -> {end_date_converted}")
+
             # 使用download方法获取数据
             data = yf.download(
                 tickers=formatted_code,
-                start=start_date,
-                end=end_date,
+                start=start_date_converted,
+                end=end_date_converted,
                 interval="1d",
                 actions=False,
                 auto_adjust=False,

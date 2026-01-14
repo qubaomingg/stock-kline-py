@@ -89,9 +89,34 @@ def get_kline_data_from_alpha_vantage(
             '5. volume': 'volume'
         })
 
+        # 尝试多种日期格式解析start_date和end_date
+        date_formats = ['%Y-%m-%d', '%Y%m%d', '%Y/%m/%d', '%d/%m/%Y', '%m/%d/%Y']
+        start_dt = None
+        end_dt = None
+
+        for date_format in date_formats:
+            try:
+                if start_dt is None:
+                    start_dt = datetime.strptime(start_date, date_format)
+                if end_dt is None:
+                    end_dt = datetime.strptime(end_date, date_format)
+            except ValueError:
+                continue
+
+        # 如果无法解析日期，使用默认值
+        if start_dt is None:
+            print(f"警告: 无法解析开始日期 {start_date}，使用默认值")
+            start_dt = datetime.strptime('2000-01-01', '%Y-%m-%d')
+        if end_dt is None:
+            print(f"警告: 无法解析结束日期 {end_date}，使用默认值")
+            end_dt = datetime.now()
+
+        # 确保end_dt在start_dt之后
+        if end_dt < start_dt:
+            print(f"警告: 结束日期 {end_dt.strftime('%Y-%m-%d')} 早于开始日期 {start_dt.strftime('%Y-%m-%d')}，交换日期")
+            start_dt, end_dt = end_dt, start_dt
+
         # 筛选日期范围
-        start_dt = datetime.strptime(start_date, '%Y-%m-%d')
-        end_dt = datetime.strptime(end_date, '%Y-%m-%d')
         data = data[(data.index >= start_dt) & (data.index <= end_dt)]
 
         if data.empty:
