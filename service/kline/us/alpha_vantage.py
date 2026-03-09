@@ -76,10 +76,16 @@ def get_kline_data_from_alpha_vantage(
 
         # 初始化客户端
         ts = TimeSeries(key=api_key, output_format='pandas')
-
+        
         # 获取数据
-        data, meta_data = ts.get_daily(symbol=formatted_code, outputsize='compact')
-
+        # 注意：免费版API限制了outputsize='full'，使用'compact'只能获取最近100条数据
+        # 如果需要获取更多数据，可能需要使用其他数据源或升级API Key
+        try:
+            # 优先尝试 compact 模式，因为 full 模式需要付费且更容易触发限流
+            data, meta_data = ts.get_daily(symbol=formatted_code, outputsize='compact')
+        except ValueError as e:
+            raise e
+        
         # 重命名列
         data = data.rename(columns={
             '1. open': 'open',
@@ -88,7 +94,10 @@ def get_kline_data_from_alpha_vantage(
             '4. close': 'close',
             '5. volume': 'volume'
         })
-
+        
+        # 转换索引为日期类型
+        data.index = pd.to_datetime(data.index)
+        
         # 尝试多种日期格式解析start_date和end_date
         date_formats = ['%Y-%m-%d', '%Y%m%d', '%Y/%m/%d', '%d/%m/%Y', '%m/%d/%Y']
         start_dt = None
@@ -117,16 +126,31 @@ def get_kline_data_from_alpha_vantage(
             start_dt, end_dt = end_dt, start_dt
 
         # 筛选日期范围
-        data = data[(data.index >= start_dt) & (data.index <= end_dt)]
+        # 注意：Alpha Vantage 返回的数据索引是 DatetimeIndex
+        mask = (data.index >= pd.to_datetime(start_date)) & (data.index <= pd.to_datetime(end_date))
+        data = data.loc[mask]
 
         if data.empty:
-            print(f"alpha_vantage 数据源返回空数据")
+            print(f"alpha_vantage 数据源返回空数据 (日期范围: {start_date} - {end_date})")
             return None
+
+        # 确保数据按日期升序排列
+        data = data.sort_index(ascending=True)
 
         print(f"alpha_vantage 数据源成功获取数据，数据形状: {data.shape}")
 
         # 处理数据
-        processed_data = process_kline_data(data, 'alpha_vantage')
+        processed_data = []
+        for date, row in data.iterrows():
+            item = {
+                "date": date.strftime('%Y-%m-%d'),
+                "open": float(row['open']),
+                "high": float(row['high']),
+                "low": float(row['low']),
+                "close": float(row['close']),
+                "volume": int(row['volume'])
+            }
+            processed_data.append(item)
 
         return {
             "code": code,
