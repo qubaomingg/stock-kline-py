@@ -40,6 +40,10 @@ class MongoDBCache:
 
     def _connect(self):
         """连接到MongoDB数据库"""
+        if not self.connection_string:
+            logger.warning("MongoDB连接字符串未设置，跳过连接")
+            return
+
         try:
             logger.info(f"正在连接MongoDB: {self.connection_string[:50]}...")
             self.client = MongoClient(

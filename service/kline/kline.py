@@ -104,6 +104,9 @@ def process_kline_data(data: pd.DataFrame, source: str) -> List[Dict]:
     # 转换日期格式
     data['date'] = pd.to_datetime(data['date'])
 
+    # 按日期升序排序
+    data = data.sort_values('date', ascending=True)
+
     # 转换为字典列表
     result = []
     for _, row in data.iterrows():
@@ -302,6 +305,10 @@ def get_kline_data(
                 # 确保返回的字典包含source字段
                 if 'data_source' in result and 'source' not in result:
                     result['source'] = result['data_source']
+
+                # 按照日期从远到近排序
+                result['data'].sort(key=lambda x: x['date'])
+
                 return result
 
         except Exception as e:

@@ -166,3 +166,4 @@ cython_debug/
 .vscode/settings.json
 .vercel
 .env*.local
+.openbb_platform/

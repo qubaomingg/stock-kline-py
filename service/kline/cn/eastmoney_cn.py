@@ -50,28 +50,28 @@ def get_kline_data_from_eastmoney_cn(
             return None
 
         # 东方财富K线API
-        url = "https://push2his.eastmoney.com/api/qt/stock/kline/get"
+        url = "http://push2his.eastmoney.com/api/qt/stock/kline/get"
 
-        # 计算开始和结束时间戳
-        start_dt = datetime.strptime(start_date, '%Y-%m-%d')
-        end_dt = datetime.strptime(end_date, '%Y-%m-%d')
-
-        # 东方财富API需要倒序时间戳
+        # 东方财富API参数
         klt = 101  # 日K线
         fqt = 1    # 前复权
 
+        # 转换日期格式 YYYY-MM-DD -> YYYYMMDD
+        beg = start_date.replace('-', '')
+        end = end_date.replace('-', '')
+
         params = {
-            "secid": secid,
+            "secid": f"{'1' if code.startswith('6') else '0'}.{code}",
             "klt": klt,
             "fqt": fqt,
-            "beg": start_date.replace('-', ''),
-            "end": end_date.replace('-', ''),
-            "fields1": "f1,f2,f3,f4,f5",
+            "beg": beg,
+            "end": end,
+            "fields1": "f1,f2,f3,f4,f5,f6",
             "fields2": "f51,f52,f53,f54,f55,f56,f57,f58,f59,f60,f61",
             "lmt": 10000  # 最大数据量
         }
 
-        response = requests.get(url, params=params)
+        response = requests.get(url, params=params, timeout=10)
         data = response.json()
 
         if data.get('data') is None or data['data'].get('klines') is None:

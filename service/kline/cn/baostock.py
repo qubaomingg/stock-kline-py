@@ -144,8 +144,8 @@ def get_kline_data_from_baostock(
             adjustflag="3"  # 复权类型：3=不复权
         )
 
-        if rs.error_code != '0':
-            print(f"baostock 查询失败: {rs.error_msg}")
+        if not rs or rs.error_code != '0':
+            print(f"baostock 查询失败: {rs.error_msg if rs else '结果为空'}")
             bs.logout()
             return None
 
