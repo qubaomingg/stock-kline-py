@@ -149,6 +149,8 @@ def get_kline_data(
     # 判断市场类型
     market_type = get_market_type(code)
 
+    print(f"股票代码: {code} 市场类型：{market_type}")
+
     # 格式化股票代码
     formatted_code = format_stock_code(code)
 

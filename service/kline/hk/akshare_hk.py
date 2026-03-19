@@ -29,6 +29,30 @@ from typing import Dict, List, Optional, Tuple
 import pandas as pd
 import time
 from datetime import datetime
+import requests
+import urllib3
+import contextlib
+
+# 忽略SSL警告
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+
+@contextlib.contextmanager
+def ignore_ssl_verification():
+    """
+    上下文管理器：临时禁用requests的SSL验证
+    用于解决akshare调用外部接口时的SSL证书问题
+    """
+    original_request = requests.Session.request
+
+    def patched_request(self, method, url, *args, **kwargs):
+        kwargs['verify'] = False
+        return original_request(self, method, url, *args, **kwargs)
+
+    requests.Session.request = patched_request
+    try:
+        yield
+    finally:
+        requests.Session.request = original_request
 
 # 导入数据处理函数
 from ..utils import process_kline_data
@@ -84,55 +108,57 @@ def get_kline_data_from_akshare_hk(
             print(f"尝试使用 {source['name']} 获取港股数据...")
             data = None
 
-            if source['name'] == "stock_hk_hist":
-                # stock_hk_hist函数
-                data = source['func'](
-                    symbol=code,  # 使用原始代码，如'00700'
-                    period='daily',
-                    start_date=start_date.replace('-', ''),
-                    end_date=end_date.replace('-', ''),
-                    adjust='qfq'  # 前复权
-                )
-                # 重命名列以匹配process_kline_data期望的格式
-                if data is not None and not data.empty:
-                    if '日期' in data.columns:
-                        data = data.rename(columns={'日期': 'date'})
-                    if '开盘' in data.columns:
-                        data = data.rename(columns={'开盘': 'open'})
-                    if '收盘' in data.columns:
-                        data = data.rename(columns={'收盘': 'close'})
-                    if '最高' in data.columns:
-                        data = data.rename(columns={'最高': 'high'})
-                    if '最低' in data.columns:
-                        data = data.rename(columns={'最低': 'low'})
-                    if '成交量' in data.columns:
-                        data = data.rename(columns={'成交量': 'volume'})
-            elif source['name'] == "stock_hk_daily":
-                # stock_hk_daily函数（可能需要不同的参数格式）
-                # 先尝试获取所有数据，然后过滤日期范围
-                try:
+            # 使用ignore_ssl_verification上下文管理器执行akshare函数
+            with ignore_ssl_verification():
+                if source['name'] == "stock_hk_hist":
+                    # stock_hk_hist函数
                     data = source['func'](
-                        symbol=code,
-                        adjust='qfq'
+                        symbol=code,  # 使用原始代码，如'00700'
+                        period='daily',
+                        start_date=start_date.replace('-', ''),
+                        end_date=end_date.replace('-', ''),
+                        adjust='qfq'  # 前复权
                     )
-                    # 过滤日期范围 - 修复过滤逻辑
+                    # 重命名列以匹配process_kline_data期望的格式
                     if data is not None and not data.empty:
-                        # 确保有date列
-                        if 'date' not in data.columns:
-                            print(f"警告: stock_hk_daily返回的数据缺少date列，列名为: {list(data.columns)}")
-                            data = None
-                        else:
-                            # 转换date列为datetime类型
-                            # 检查date列是否已经是datetime类型
-                            if not pd.api.types.is_datetime64_any_dtype(data['date']):
-                                data['date'] = pd.to_datetime(data['date'])
-                            # 过滤日期范围
-                            start_dt = pd.to_datetime(start_date)
-                            end_dt = pd.to_datetime(end_date)
-                            data = data[(data['date'] >= start_dt) & (data['date'] <= end_dt)]
-                except Exception as e:
-                    print(f"stock_hk_daily调用失败: {e}")
-                    data = None
+                        if '日期' in data.columns:
+                            data = data.rename(columns={'日期': 'date'})
+                        if '开盘' in data.columns:
+                            data = data.rename(columns={'开盘': 'open'})
+                        if '收盘' in data.columns:
+                            data = data.rename(columns={'收盘': 'close'})
+                        if '最高' in data.columns:
+                            data = data.rename(columns={'最高': 'high'})
+                        if '最低' in data.columns:
+                            data = data.rename(columns={'最低': 'low'})
+                        if '成交量' in data.columns:
+                            data = data.rename(columns={'成交量': 'volume'})
+                elif source['name'] == "stock_hk_daily":
+                    # stock_hk_daily函数（可能需要不同的参数格式）
+                    # 先尝试获取所有数据，然后过滤日期范围
+                    try:
+                        data = source['func'](
+                            symbol=code,
+                            adjust='qfq'
+                        )
+                        # 过滤日期范围 - 修复过滤逻辑
+                        if data is not None and not data.empty:
+                            # 确保有date列
+                            if 'date' not in data.columns:
+                                print(f"警告: stock_hk_daily返回的数据缺少date列，列名为: {list(data.columns)}")
+                                data = None
+                            else:
+                                # 转换date列为datetime类型
+                                # 检查date列是否已经是datetime类型
+                                if not pd.api.types.is_datetime64_any_dtype(data['date']):
+                                    data['date'] = pd.to_datetime(data['date'])
+                                # 过滤日期范围
+                                start_dt = pd.to_datetime(start_date)
+                                end_dt = pd.to_datetime(end_date)
+                                data = data[(data['date'] >= start_dt) & (data['date'] <= end_dt)]
+                    except Exception as e:
+                        print(f"stock_hk_daily调用失败: {e}")
+                        data = None
 
             # 检查是否成功获取数据
             if data is not None and not data.empty:

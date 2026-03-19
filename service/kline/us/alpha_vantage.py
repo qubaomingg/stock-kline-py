@@ -32,7 +32,30 @@ Alpha Vantage数据源模块
 import pandas as pd
 from typing import Dict, List, Optional, Any
 import requests
+import urllib3
+import contextlib
 from datetime import datetime
+
+# 忽略SSL警告
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+
+@contextlib.contextmanager
+def ignore_ssl_verification():
+    """
+    上下文管理器：临时禁用requests的SSL验证
+    用于解决alpha_vantage调用外部接口时的SSL证书问题
+    """
+    original_request = requests.Session.request
+
+    def patched_request(self, method, url, *args, **kwargs):
+        kwargs['verify'] = False
+        return original_request(self, method, url, *args, **kwargs)
+
+    requests.Session.request = patched_request
+    try:
+        yield
+    finally:
+        requests.Session.request = original_request
 
 # 导入数据处理函数
 from ..utils import process_kline_data
@@ -76,16 +99,27 @@ def get_kline_data_from_alpha_vantage(
 
         # 初始化客户端
         ts = TimeSeries(key=api_key, output_format='pandas')
-        
+
         # 获取数据
         # 注意：免费版API限制了outputsize='full'，使用'compact'只能获取最近100条数据
         # 如果需要获取更多数据，可能需要使用其他数据源或升级API Key
         try:
-            # 优先尝试 compact 模式，因为 full 模式需要付费且更容易触发限流
-            data, meta_data = ts.get_daily(symbol=formatted_code, outputsize='compact')
+            # 使用ignore_ssl_verification上下文管理器执行API调用
+            with ignore_ssl_verification():
+                # Alpha Vantage 某些情况需要带后缀，部分不需要，尝试清洗股票代码
+                # 美股代码通常是纯字母，去掉可能的市场后缀
+                clean_symbol = formatted_code.split('.')[0] if '.' in formatted_code else formatted_code
+
+                # 优先尝试 compact 模式，因为 full 模式需要付费且更容易触发限流
+                data, meta_data = ts.get_daily(symbol=clean_symbol, outputsize='compact')
         except ValueError as e:
-            raise e
-        
+            # 如果清理后的代码失败，尝试原始代码
+            if clean_symbol != formatted_code:
+                 with ignore_ssl_verification():
+                    data, meta_data = ts.get_daily(symbol=formatted_code, outputsize='compact')
+            else:
+                raise e
+
         # 重命名列
         data = data.rename(columns={
             '1. open': 'open',
@@ -94,10 +128,10 @@ def get_kline_data_from_alpha_vantage(
             '4. close': 'close',
             '5. volume': 'volume'
         })
-        
+
         # 转换索引为日期类型
         data.index = pd.to_datetime(data.index)
-        
+
         # 尝试多种日期格式解析start_date和end_date
         date_formats = ['%Y-%m-%d', '%Y%m%d', '%Y/%m/%d', '%d/%m/%Y', '%m/%d/%Y']
         start_dt = None
@@ -127,7 +161,7 @@ def get_kline_data_from_alpha_vantage(
 
         # 筛选日期范围
         # 注意：Alpha Vantage 返回的数据索引是 DatetimeIndex
-        mask = (data.index >= pd.to_datetime(start_date)) & (data.index <= pd.to_datetime(end_date))
+        mask = (data.index >= start_dt) & (data.index <= end_dt)
         data = data.loc[mask]
 
         if data.empty:

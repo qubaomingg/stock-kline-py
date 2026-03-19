@@ -62,13 +62,26 @@ def get_kline_data_from_eastmoney_hk(
         # 构建API URL
         url = f"https://push2his.eastmoney.com/api/qt/stock/kline/get"
 
-        # 计算开始和结束时间戳（毫秒）
-        start_dt = datetime.strptime(start_date, '%Y-%m-%d')
-        end_dt = datetime.strptime(end_date, '%Y-%m-%d')
+        # 处理日期格式，支持 YYYY-MM-DD 和 YYYYMMDD
+        try:
+            if "-" in start_date:
+                start_dt = datetime.strptime(start_date, '%Y-%m-%d')
+                beg_date = start_date.replace("-", "")
+            else:
+                start_dt = datetime.strptime(start_date, '%Y%m%d')
+                beg_date = start_date
+                start_date = start_dt.strftime('%Y-%m-%d') # 标准化为 YYYY-MM-DD 供后续使用
 
-        # 转换为YYYYMMDD格式
-        beg_date = start_date.replace("-", "")
-        end_date_formatted = end_date.replace("-", "")
+            if "-" in end_date:
+                end_dt = datetime.strptime(end_date, '%Y-%m-%d')
+                end_date_formatted = end_date.replace("-", "")
+            else:
+                end_dt = datetime.strptime(end_date, '%Y%m%d')
+                end_date_formatted = end_date
+                end_date = end_dt.strftime('%Y-%m-%d') # 标准化为 YYYY-MM-DD 供后续使用
+        except ValueError as e:
+            print(f"[eastmoney_hk] 日期格式解析错误: {e}")
+            return None
 
         # API参数
         params = {
@@ -83,7 +96,13 @@ def get_kline_data_from_eastmoney_hk(
             "lmt": "10000",  # 最大数据量
         }
 
-        response = requests.get(url, params=params, timeout=10)
+        # 发送请求
+        # 注意：由于本地SSL证书问题，这里禁用verify
+        # 并抑制 InsecureRequestWarning
+        import urllib3
+        urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+
+        response = requests.get(url, params=params, timeout=10, verify=False)
         response.raise_for_status()
         data = response.json()
 

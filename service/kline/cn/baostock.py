@@ -133,6 +133,37 @@ def get_kline_data_from_baostock(
             bs.logout()
             return None
 
+        # 确保日期格式为YYYY-MM-DD
+        try:
+            # 尝试解析并重新格式化日期
+            # 支持 YYYYMMDD, YYYY-MM-DD, YYYY/MM/DD 等格式
+            import re
+
+            # 清理日期字符串中的非数字字符（保留-和/）
+            start_date_clean = start_date.strip()
+            end_date_clean = end_date.strip()
+
+            # 处理 YYYYMMDD 格式
+            if len(start_date_clean) == 8 and start_date_clean.isdigit():
+                start_date = f"{start_date_clean[:4]}-{start_date_clean[4:6]}-{start_date_clean[6:]}"
+            elif '-' in start_date_clean:
+                # 已经是 YYYY-MM-DD 格式，无需处理
+                pass
+            elif '/' in start_date_clean:
+                start_date = start_date_clean.replace('/', '-')
+
+            if len(end_date_clean) == 8 and end_date_clean.isdigit():
+                end_date = f"{end_date_clean[:4]}-{end_date_clean[4:6]}-{end_date_clean[6:]}"
+            elif '-' in end_date_clean:
+                # 已经是 YYYY-MM-DD 格式，无需处理
+                pass
+            elif '/' in end_date_clean:
+                end_date = end_date_clean.replace('/', '-')
+
+        except Exception as e:
+            print(f"baostock 日期格式处理错误: {e}")
+            # 继续尝试使用原始日期
+
         # 获取日线数据
         fields = "date,open,high,low,close,volume"
         rs = bs.query_history_k_data_plus(
