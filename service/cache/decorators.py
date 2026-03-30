@@ -50,8 +50,8 @@ def cache_market_stocks(market_code_param: str = "market"):
             if not market_code:
                 # 如果没有明确的市场代码，尝试从函数名推断
                 func_name = func.__name__.lower()
-                if 'cn' in func_name:
-                    market_code = 'cn'
+                if 'a' in func_name:
+                    market_code = 'a'
                 elif 'hk' in func_name:
                     market_code = 'hk'
                 elif 'us' in func_name:

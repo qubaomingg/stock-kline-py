@@ -113,7 +113,7 @@ def get_cn_stocks_by_eastmoney() -> Optional[Dict[str, Any]]:
             stock = {
                 'code': symbol_str,
                 'name': str(row['name']),
-                'market': 'cn',
+                'market': 'a',
                 'full_code': full_code,
                 'industry': '',  # 东方财富API不提供行业信息
                 'list_date': ''  # 需要额外获取上市日期
@@ -121,7 +121,7 @@ def get_cn_stocks_by_eastmoney() -> Optional[Dict[str, Any]]:
             stocks.append(stock)
 
         result = {
-            'market': 'cn',
+            'market': 'a',
             'count': len(stocks),
             'stocks': stocks,
             'timestamp': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),

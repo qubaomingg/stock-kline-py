@@ -100,7 +100,7 @@ def get_cn_stocks_by_baostock() -> Optional[Dict[str, Any]]:
             stock = {
                 'code': code,
                 'name': code_name,
-                'market': 'cn',
+                'market': 'a',
                 'full_code': full_code,
                 'industry': '',  # baostock需要额外查询获取行业信息
                 'list_date': ''  # baostock需要额外查询获取上市日期
@@ -108,7 +108,7 @@ def get_cn_stocks_by_baostock() -> Optional[Dict[str, Any]]:
             stocks.append(stock)
 
         result = {
-            'market': 'cn',
+            'market': 'a',
             'count': len(stocks),
             'stocks': stocks,
             'timestamp': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),

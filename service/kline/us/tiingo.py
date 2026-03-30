@@ -73,11 +73,27 @@ def get_kline_data_from_tiingo(
 
         # 获取日线数据
         # start_date和end_date已经是字符串格式，直接使用
-        data = client.get_ticker_price(formatted_code,
-                                      fmt='json',
-                                      startDate=start_date,
-                                      endDate=end_date,
-                                      frequency='daily')
+        import time
+        for attempt in range(3):
+            try:
+                data = client.get_ticker_price(formatted_code,
+                                              fmt='json',
+                                              startDate=start_date,
+                                              endDate=end_date,
+                                              frequency='daily')
+                break
+            except Exception as e:
+                error_msg = str(e)
+                if "rate limit" in error_msg.lower() or "too many requests" in error_msg.lower():
+                    wait_time = 5
+                    print(f"tiingo 速率限制，等待 {wait_time} 秒后重试...")
+                    time.sleep(wait_time)
+                    continue
+                else:
+                    raise e
+        else:
+            print("tiingo 所有重试均失败")
+            return None
 
         # tiingo返回的数据格式需要特殊处理
         if isinstance(data, list) and len(data) > 0:
@@ -103,8 +119,8 @@ def get_kline_data_from_tiingo(
 
         print(f"tiingo 数据源成功获取数据，数据形状: {data.shape}")
 
-        # 处理数据 - 注意：process_kline_data函数需要从主模块导入
-        from ..kline import process_kline_data
+        # 处理数据
+        from ..utils import process_kline_data
         processed_data = process_kline_data(data, 'tiingo')
 
         return {

@@ -31,7 +31,7 @@ def get_cn_stocks_by_ak() -> Optional[Dict[str, Any]]:
             stock = {
                 'code': str(row['code']),
                 'name': str(row['name']),
-                'market': 'cn',
+                'market': 'a',
                 'full_code': f"{row['code']}.SH" if row['code'].startswith('6') else f"{row['code']}.SZ",
                 'industry': '',  # 需要额外获取行业信息
                 'list_date': ''  # 需要额外获取上市日期
@@ -39,7 +39,7 @@ def get_cn_stocks_by_ak() -> Optional[Dict[str, Any]]:
             stocks.append(stock)
 
         result = {
-            'market': 'cn',
+            'market': 'a',
             'count': len(stocks),
             'stocks': stocks,
             'timestamp': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),

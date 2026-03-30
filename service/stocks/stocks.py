@@ -39,7 +39,7 @@ def get_stock_by_market(marketcode: str) -> Optional[Dict[str, Any]]:
     获取指定市场的所有股票列表
 
     Args:
-        marketcode: 市场代码 ('cn', 'hk', 'us')
+        marketcode: 市场代码 ('a', 'hk', 'us')
 
     Returns:
         包含股票列表的字典，格式为:
@@ -62,7 +62,7 @@ def get_stock_by_market(marketcode: str) -> Optional[Dict[str, Any]]:
     """
     marketcode = marketcode.lower()
 
-    if marketcode == 'cn':
+    if marketcode == 'a':
         return get_cn_stocks()
     elif marketcode == 'hk':
         return get_hk_stocks()
@@ -80,7 +80,7 @@ def get_all_markets() -> List[str]:
     Returns:
         支持的市场代码列表
     """
-    return ['cn', 'hk', 'us']
+    return ['a', 'hk', 'us']
 
 
 if __name__ == "__main__":
