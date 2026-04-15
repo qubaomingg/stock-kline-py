@@ -8,12 +8,12 @@ import sys
 import os
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-from eastmoney_stocks import get_cn_stocks_by_eastmoney
+from eastmoney_stocks import get_a_stocks_by_eastmoney
 
 def main():
     print("开始测试A股eastmoney数据源...")
 
-    result = get_cn_stocks_by_eastmoney()
+    result = get_a_stocks_by_eastmoney()
 
     if result:
         print(f"\n测试成功!")

@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """
 中国A股市场 - baostock数据源
-{"market":"cn","count":5686,"stocks":[{"code":"000001","name":"1","market":"cn","full_code":"000001.SH","industry":"","list_date":""}]}
+{"market":"a", "count":5686,"stocks":[{"code":"000001","name":"1","market":"a","full_code":"000001.SH","industry":"","list_date":""}]}
 """
 
 from typing import Dict, List, Optional, Any
@@ -11,7 +11,7 @@ from datetime import datetime, timedelta
 import os
 
 
-def get_cn_stocks_by_baostock() -> Optional[Dict[str, Any]]:
+def get_a_stocks_by_baostock() -> Optional[Dict[str, Any]]:
     """
     使用baostock获取中国A股市场所有股票列表
 
@@ -146,7 +146,7 @@ if __name__ == "__main__":
     print(f"baostock可用: {is_baostock_available()}")
 
     if is_baostock_available():
-        result = get_cn_stocks_by_baostock()
+        result = get_a_stocks_by_baostock()
         if result:
             print(f"测试成功: 获取到 {result['count']} 只A股股票")
             print(f"数据源: {result['source']}")

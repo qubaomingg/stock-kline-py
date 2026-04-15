@@ -21,7 +21,7 @@ import os
 # 添加service/stocks目录到Python路径
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-from cn.cn_stocks import get_cn_stocks
+from a.a_stocks import get_a_stocks
 from hk.hk_stocks import get_hk_stocks
 from us.us_stocks import get_us_stocks
 
@@ -63,7 +63,7 @@ def get_stock_by_market(marketcode: str) -> Optional[Dict[str, Any]]:
     marketcode = marketcode.lower()
 
     if marketcode == 'a':
-        return get_cn_stocks()
+        return get_a_stocks()
     elif marketcode == 'hk':
         return get_hk_stocks()
     elif marketcode == 'us':

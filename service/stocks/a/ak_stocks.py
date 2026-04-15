@@ -10,7 +10,7 @@ from datetime import datetime
 import akshare as ak
 
 
-def get_cn_stocks_by_ak() -> Optional[Dict[str, Any]]:
+def get_a_stocks_by_ak() -> Optional[Dict[str, Any]]:
     """
     使用akshare获取中国A股市场所有股票列表
 
@@ -55,7 +55,7 @@ def get_cn_stocks_by_ak() -> Optional[Dict[str, Any]]:
 
 
 if __name__ == "__main__":
-    result = get_cn_stocks_by_ak()
+    result = get_a_stocks_by_ak()
     if result:
         print(f"测试成功: 获取到 {result['count']} 只A股股票")
         print(f"数据源: {result['source']}")

@@ -73,6 +73,22 @@ def get_hk_stocks() -> Optional[Dict[str, Any]]:
             continue
 
     print("[hk_stocks] 所有数据源均失败，无法获取港股股票列表")
+    
+    # 兜底返回200个常见港股
+    try:
+        import sys
+        import os
+        module_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'fallback_stocks.py')
+        if os.path.exists(module_path):
+            import importlib.util
+            spec = importlib.util.spec_from_file_location('fallback_stocks', module_path)
+            module = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(module)
+            print("[hk_stocks] 使用兜底数据源返回200个常见港股")
+            return module.get_fallback_hk_stocks()
+    except Exception as e:
+        print(f"[hk_stocks] 获取兜底数据失败: {e}")
+        
     return None
 
 

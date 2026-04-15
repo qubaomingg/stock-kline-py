@@ -12,6 +12,10 @@ from datetime import datetime, timedelta
 from typing import Dict, Any, Optional, Union
 import json
 from bson import json_util
+from dotenv import load_dotenv
+
+# 加载 .env 文件
+load_dotenv()
 
 from pymongo import MongoClient, ASCENDING
 from pymongo.errors import ConnectionFailure, ServerSelectionTimeoutError
@@ -32,7 +36,7 @@ class MongoDBCache:
         """
         self.connection_string = connection_string or os.environ.get(
             "MONGODB_URL"
-        )
+        ) or os.environ.get("DIRECT_URL")
         self.client = None
         self.db = None
         self.collection = None
@@ -191,6 +195,10 @@ class MongoDBCache:
         expires_at = datetime.utcnow() + timedelta(days=ttl_days)
 
         try:
+            # 记录数据大小和部分内容用于调试
+            data_size = len(str(data))
+            logger.debug(f"尝试缓存数据，键: {cache_key}, 数据大小约: {data_size} 字符")
+
             # 使用upsert操作，如果存在则更新，不存在则插入
             result = self.collection.update_one(
                 {"cache_key": cache_key},

@@ -16,7 +16,7 @@ import os
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from utils import process_kline_data
 
-def get_kline_data_from_eastmoney_cn(
+def get_kline_data_from_eastmoney_a(
     code: str,
     formatted_code: str,
     market_type: str,
@@ -38,7 +38,7 @@ def get_kline_data_from_eastmoney_cn(
     """
 
     try:
-        print(f"[eastmoney_cn] 正在获取A股 {code} K线数据...")
+        print(f"[eastmoney_a] 正在获取A股 {code} K线数据...")
 
         # 确定市场后缀
         if code.startswith(('60', '68', '900')):
@@ -46,7 +46,7 @@ def get_kline_data_from_eastmoney_cn(
         elif code.startswith(('00', '30', '200')):
             secid = f"0.{code}"  # 深圳
         else:
-            print(f"[eastmoney_cn] 无法识别的A股代码格式: {code}")
+            print(f"[eastmoney_a] 无法识别的A股代码格式: {code}")
             return None
 
         # 东方财富K线API
@@ -75,16 +75,16 @@ def get_kline_data_from_eastmoney_cn(
         data = response.json()
 
         if data.get('data') is None or data['data'].get('klines') is None:
-            print(f"[eastmoney_cn] 获取K线数据失败: {data}")
+            print(f"[eastmoney_a] 获取K线数据失败: {data}")
             return None
 
         klines = data['data']['klines']
 
         if not klines:
-            print(f"[eastmoney_cn] 没有获取到K线数据")
+            print(f"[eastmoney_a] 没有获取到K线数据")
             return None
 
-        print(f"[eastmoney_cn] 成功获取 {len(klines)} 条K线数据")
+        print(f"[eastmoney_a] 成功获取 {len(klines)} 条K线数据")
 
         # 解析数据
         records = []
@@ -109,27 +109,27 @@ def get_kline_data_from_eastmoney_cn(
         df = pd.DataFrame(records)
 
         # 处理数据
-        processed_data = process_kline_data(df, 'eastmoney_cn')
+        processed_data = process_kline_data(df, 'eastmoney_a')
 
         return {
             "code": code,
             "formatted_code": formatted_code,
             "market": market_type,
-            "data_source": "eastmoney_cn",
+            "data_source": "eastmoney_a",
             "data": processed_data
         }
 
     except Exception as e:
-        print(f"[eastmoney_cn] 获取K线数据时发生错误: {e}")
+        print(f"[eastmoney_a] 获取K线数据时发生错误: {e}")
         return None
 
 
-def is_eastmoney_cn_available() -> bool:
+def is_eastmoney_a_available() -> bool:
     """
-    检查eastmoney_cn数据源是否可用
+    检查eastmoney_a数据源是否可用
 
     Returns:
-        如果eastmoney_cn数据源可用返回True，否则返回False
+        如果eastmoney_a数据源可用返回True，否则返回False
     """
     try:
         import requests
@@ -138,7 +138,7 @@ def is_eastmoney_cn_available() -> bool:
         return False
 
 
-def get_kline_data_from_eastmoney_cn_with_env(
+def get_kline_data_from_eastmoney_a_with_env(
     code: str,
     formatted_code: str,
     market_type: str,
@@ -148,12 +148,12 @@ def get_kline_data_from_eastmoney_cn_with_env(
     """
     使用环境变量配置的eastmoney数据源获取A股K线数据
     """
-    return get_kline_data_from_eastmoney_cn(code, formatted_code, market_type, start_date, end_date)
+    return get_kline_data_from_eastmoney_a(code, formatted_code, market_type, start_date, end_date)
 
 
 if __name__ == "__main__":
     # 测试代码
-    result = get_kline_data_from_eastmoney_cn(
+    result = get_kline_data_from_eastmoney_a(
         code="000001",
         formatted_code="000001.SZ",
         market_type="A",

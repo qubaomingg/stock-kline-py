@@ -20,13 +20,13 @@ sys.path.insert(0, project_root)
 
 # 导入数据源模块
 from service.kline.us.yfinance import get_kline_data_from_yfinance, is_yfinance_available
-from service.kline.cn.akshare import get_kline_data_from_akshare, is_akshare_available
+from service.kline.a.akshare import get_kline_data_from_akshare, is_akshare_available
 from service.kline.hk.akshare_hk import get_kline_data_from_akshare_hk, is_akshare_hk_available
 from service.kline.us.alpha_vantage import get_kline_data_from_alpha_vantage, is_alpha_vantage_available
 from service.kline.us.tiingo import get_kline_data_from_tiingo, is_tiingo_available
-from service.kline.cn.baostock import get_kline_data_from_baostock, is_baostock_available
+from service.kline.a.baostock import get_kline_data_from_baostock, is_baostock_available
 from service.kline.hk.eastmoney_hk import get_kline_data_from_eastmoney_hk, is_eastmoney_hk_available
-from service.kline.cn.eastmoney_cn import get_kline_data_from_eastmoney_cn, is_eastmoney_cn_available
+from service.kline.a.eastmoney_a import get_kline_data_from_eastmoney_a, is_eastmoney_a_available
 
 # 导入缓存装饰器
 from service.cache.decorators import cache_kline_data
@@ -46,7 +46,7 @@ except ImportError:
 
 # 数据源配置
 DATA_SOURCES_CONFIG = {
-    'A': ['eastmoney_cn', 'akshare', 'baostock'],
+    'A': ['eastmoney_a', 'akshare', 'baostock'],
     'HK': ['eastmoney_hk', 'akshare_hk'],
     'US': ['yfinance', 'alpha_vantage', 'tiingo']
 }
@@ -223,12 +223,12 @@ def get_kline_data(
                     end_date=end_date
                 )
 
-            elif source == 'eastmoney_cn':
-                if not is_eastmoney_cn_available():
-                    print("eastmoney_cn不可用，跳过")
+            elif source == 'eastmoney_a':
+                if not is_eastmoney_a_available():
+                    print("eastmoney_a不可用，跳过")
                     continue
 
-                result = get_kline_data_from_eastmoney_cn(
+                result = get_kline_data_from_eastmoney_a(
                     code=code,
                     market_type=market_type,
                     formatted_code=formatted_code,

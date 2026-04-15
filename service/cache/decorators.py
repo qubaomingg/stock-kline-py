@@ -85,7 +85,7 @@ def cache_market_stocks(market_code_param: str = "market"):
 
                 # 缓存结果
                 logger.info(f"正在缓存 {market_code.upper()} 市场数据")
-                cache_success = cache.set(market_code, data=result, ttl_days=3)
+                cache_success = cache.set(market_code, data=result, ttl_days=5)
 
                 if cache_success:
                     logger.info(f"成功缓存 {market_code.upper()} 市场数据")
@@ -165,7 +165,7 @@ def get_market_stocks(market_code: str) -> Dict[str, Any]:
     获取指定市场的股票列表
 
     Args:
-        market_code: 市场代码 (hk, us, cn)
+        market_code: 市场代码 (hk, us, a)
 
     Returns:
         股票列表数据

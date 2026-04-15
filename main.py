@@ -61,13 +61,14 @@ async def get_kline(code: str, start_date: str = None, end_date: str = None, nam
 
 
 from service.stocks.stocks import get_stock_by_market
+from service.stocks.basic_info import get_stock_basic_info
 
 
 @app.get("/api/stock/market")
 async def get_stock_market(marketCode: str):
     """
     获取指定市场的所有股票列表
-    :param marketCode: 市场代码 (cn, hk, us)
+    :param marketCode: 市场代码 (a, hk, us)
     :return: 股票列表数据
     """
     print(f'获取市场股票列表，市场代码：{marketCode}')
@@ -93,7 +94,28 @@ async def get_stock_market(marketCode: str):
         print(f'获取市场股票列表出错：{e}')
         raise HTTPException(status_code=500, detail=f"获取市场股票列表失败：{str(e)}")
 
+@app.get("/api/stock-basic-info")
+async def api_get_stock_basic_info(code: str):
+    """
+    获取股票基本信息
+    :param code: 股票代码
+    :return: 股票基本信息
+    """
+    print(f'获取股票基本信息，股票代码：{code}')
 
+    try:
+        result = get_stock_basic_info(code)
+
+        if result is None:
+            raise HTTPException(status_code=404, detail=f"未找到股票 {code} 的基本信息")
+
+        return result
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f'获取股票基本信息出错：{e}')
+        raise HTTPException(status_code=500, detail=f"获取股票基本信息失败：{str(e)}")
 
 if __name__ == "__main__":
     import uvicorn

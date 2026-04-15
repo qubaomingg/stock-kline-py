@@ -64,6 +64,22 @@ def get_us_stocks(data_source: str = None) -> Optional[Dict[str, Any]]:
                 print(f"{source} 数据源获取失败，尝试下一个数据源...")
 
         print("所有数据源获取美股列表失败")
+        
+        # 兜底返回200个常见美股
+        try:
+            import sys
+            import os
+            module_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'fallback_stocks.py')
+            if os.path.exists(module_path):
+                import importlib.util
+                spec = importlib.util.spec_from_file_location('fallback_stocks', module_path)
+                module = importlib.util.module_from_spec(spec)
+                spec.loader.exec_module(module)
+                print("[us_stocks] 使用兜底数据源返回200个常见美股")
+                return module.get_fallback_us_stocks()
+        except Exception as e:
+            print(f"[us_stocks] 获取兜底数据失败: {e}")
+            
         return None
 
     except Exception as e:
@@ -122,6 +138,22 @@ def get_us_stocks_by_exchange(exchange: str = "N", data_source: str = None) -> O
                 print(f"{source} 数据源获取失败，尝试下一个数据源...")
 
         print(f"所有数据源获取 {exchange} 交易所股票列表失败")
+        
+        # 兜底返回200个常见美股
+        try:
+            import sys
+            import os
+            module_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'fallback_stocks.py')
+            if os.path.exists(module_path):
+                import importlib.util
+                spec = importlib.util.spec_from_file_location('fallback_stocks', module_path)
+                module = importlib.util.module_from_spec(spec)
+                spec.loader.exec_module(module)
+                print("[us_stocks] 使用兜底数据源返回200个常见美股")
+                return module.get_fallback_us_stocks()
+        except Exception as e:
+            print(f"[us_stocks] 获取兜底数据失败: {e}")
+            
         return None
 
     except Exception as e:

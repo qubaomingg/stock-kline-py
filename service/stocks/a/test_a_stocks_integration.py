@@ -1,19 +1,19 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-测试cn_stocks.py集成eastmoney数据源
+测试a_stocks.py集成eastmoney数据源
 """
 
 import sys
 import os
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-from cn_stocks import get_cn_stocks
+from a_stocks import get_a_stocks
 
 def main():
-    print("开始测试cn_stocks.py集成eastmoney数据源...")
+    print("开始测试a_stocks.py集成eastmoney数据源...")
 
-    result = get_cn_stocks()
+    result = get_a_stocks()
 
     if result:
         print(f"\n测试成功!")
