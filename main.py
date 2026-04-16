@@ -73,6 +73,31 @@ async def get_kline(code: str, start_date: str = None, end_date: str = None, nam
 from service.stocks.stocks import get_stock_by_market
 from service.stocks.basic_info import get_stock_basic_info
 from service.baseinfo.baseinfo import get_stock_baseinfo
+from service.main_force.main_force import get_main_force_analysis
+
+
+@app.get("/api/stock/main-force")
+async def api_get_main_force(code: str):
+    """
+    获取指定股票的主力动向分析数据
+    :param code: 股票代码
+    :return: 主力动向分析结果
+    """
+    print(f'获取股票主力动向分析，股票代码：{code}')
+
+    try:
+        result = get_main_force_analysis(code)
+
+        if result is None:
+            raise HTTPException(status_code=404, detail=f"未找到股票 {code} 的主力动向信息")
+
+        return result
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f'获取股票主力动向分析出错：{e}')
+        raise HTTPException(status_code=500, detail=f"获取股票主力动向分析失败：{str(e)}")
 
 
 @app.get("/api/stock/baseinfo")
