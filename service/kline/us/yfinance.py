@@ -267,7 +267,7 @@ if __name__ == "__main__":
     result = get_kline_data_from_yfinance(
         code="TSLA",
         formatted_code="TSLA",
-        market_type="US",
+        market_type="us",
         start_date="2024-01-01",
         end_date="2024-01-10"
     )

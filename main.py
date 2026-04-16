@@ -62,6 +62,31 @@ async def get_kline(code: str, start_date: str = None, end_date: str = None, nam
 
 from service.stocks.stocks import get_stock_by_market
 from service.stocks.basic_info import get_stock_basic_info
+from service.baseinfo.baseinfo import get_stock_baseinfo
+
+
+@app.get("/api/stock/baseinfo")
+async def api_get_stock_baseinfo(code: str):
+    """
+    获取股票基本信息 (包含静态档案与实时行情)
+    :param code: 股票代码
+    :return: 股票档案数据
+    """
+    print(f'获取股票基本信息，股票代码：{code}')
+
+    try:
+        result = get_stock_baseinfo(code)
+
+        if result is None or not result.get("full_name"):
+            raise HTTPException(status_code=404, detail=f"未找到股票 {code} 的档案信息")
+
+        return result
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f'获取股票基本信息出错：{e}')
+        raise HTTPException(status_code=500, detail=f"获取股票基本信息失败：{str(e)}")
 
 
 @app.get("/api/stock/market")

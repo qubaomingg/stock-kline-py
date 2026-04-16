@@ -87,8 +87,8 @@ def get_kline_data_from_akshare_hk(
         如果获取失败则返回None
     """
 
-    if market_type != 'HK':
-        print(f"akshare_hk模块仅支持港股市场，不支持{market_type}市场")
+    if market_type != 'hk':
+        print(f"akshare_hk 仅支持港股(hk)市场，收到: {market_type}")
         return None
 
     try:

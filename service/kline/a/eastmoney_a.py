@@ -154,12 +154,12 @@ def get_kline_data_from_eastmoney_a_with_env(
 if __name__ == "__main__":
     # 测试代码
     result = get_kline_data_from_eastmoney_a(
-        code="000001",
-        formatted_code="000001.SZ",
-        market_type="A",
-        start_date="2024-01-01",
-        end_date="2024-12-31"
-    )
+            code="000001",
+            formatted_code="000001.SZ",
+            market_type="a",
+            start_date="2024-01-01",
+            end_date="2024-12-31"
+        )
 
     if result:
         print(f"测试成功: 获取到 {len(result['data'])} 条K线数据")

@@ -111,7 +111,7 @@ def get_kline_data_from_baostock(
             return None
 
         # 根据市场类型确定股票代码
-        if market_type == 'A':
+        if market_type == 'a':
             # Baostock使用格式：sz.000001 或 sh.600000
             # 使用原始code判断，因为formatted_code移除了后缀
             if code.endswith('.SH') or code.endswith('.sh'):
@@ -287,7 +287,7 @@ if __name__ == "__main__":
         result = get_kline_data_from_baostock(
             code="000001",
             formatted_code="000001.SZ",
-            market_type="A",
+            market_type="a",
             start_date="2024-01-01",
             end_date="2024-01-10"
         )

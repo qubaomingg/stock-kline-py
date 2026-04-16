@@ -34,7 +34,7 @@ from service.cache.decorators import cache_kline_data
 # 导入工具函数
 # 使用绝对导入避免与本地utils.py冲突
 try:
-    from utils.stock import get_market_type, format_stock_code
+    from utils_stock.stock import get_market_type, format_stock_code
 except ImportError:
     # 如果无法导入，尝试从项目根目录直接导入
     import importlib.util
@@ -46,9 +46,9 @@ except ImportError:
 
 # 数据源配置
 DATA_SOURCES_CONFIG = {
-    'A': ['eastmoney_a', 'akshare', 'baostock'],
-    'HK': ['eastmoney_hk', 'akshare_hk'],
-    'US': ['yfinance', 'alpha_vantage', 'tiingo']
+    'a': ['eastmoney_a', 'akshare', 'baostock'],
+    'hk': ['eastmoney_hk', 'akshare_hk'],
+    'us': ['yfinance', 'alpha_vantage', 'tiingo']
 }
 
 # API密钥配置
@@ -146,8 +146,9 @@ def get_kline_data(
     Returns:
         包含K线数据的字典
     """
-    # 判断市场类型
-    market_type = get_market_type(code)
+    # 为了兼容带后缀的代码，在判断市场类型前先提取无后缀代码
+    clean_code = code.split('.')[0] if '.' in code else code
+    market_type = get_market_type(clean_code)
 
     print(f"股票代码: {code} 市场类型：{market_type}")
 
@@ -346,10 +347,13 @@ def set_api_credentials(source: str, api_key: str):
 
 def test_kline_service():
     """测试K线数据服务"""
+    # 测试用例
     test_cases = [
-        ('TSLA', 'US'),
-        ('03690', 'HK'),
-        ('600036', 'A'),
+        ('00700', 'hk'),  # 腾讯控股 (不带后缀)
+        ('00700.HK', 'hk'),  # 腾讯控股 (带后缀)
+        ('600036', 'a'),  # 招商银行 (不带后缀)
+        ('600036.SH', 'a'),  # 招商银行 (带后缀)
+        ('AAPL', 'us'),   # 苹果公司
     ]
 
     for code, expected_market in test_cases:

@@ -65,7 +65,7 @@ def get_kline_data_from_akshare(
 
     try:
         # 根据市场类型选择不同的akshare函数
-        if market_type == 'A':
+        if market_type == 'a':
             # A股数据
             data = ak.stock_zh_a_hist(
                 symbol=code,  # 使用原始代码，如'000001'
@@ -74,7 +74,7 @@ def get_kline_data_from_akshare(
                 end_date=end_date.replace('-', ''),
                 adjust='qfq'  # 前复权
             )
-        elif market_type == 'HK':
+        elif market_type == 'hk':
             # 港股数据
             data = ak.stock_hk_hist(
                 symbol=code,  # 使用原始代码，如'03690'
@@ -126,7 +126,7 @@ if __name__ == "__main__":
     result = get_kline_data_from_akshare(
         code="000001",
         formatted_code="000001.SZ",
-        market_type="A",
+        market_type="a",
         start_date="2024-01-01",
         end_date="2024-01-10"
     )
@@ -140,7 +140,7 @@ if __name__ == "__main__":
     result = get_kline_data_from_akshare(
         code="03690",
         formatted_code="03690.HK",
-        market_type="HK",
+        market_type="hk",
         start_date="2024-01-01",
         end_date="2024-01-10"
     )
