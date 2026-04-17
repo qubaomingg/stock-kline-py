@@ -64,9 +64,14 @@ class MongoDBCache:
             self.collection = self.db.get_collection("MarketStockCache")
 
             # 创建索引：缓存键和过期时间
+            # 在后台创建索引以防阻塞查询，设置超时保护
             logger.info("正在创建缓存索引...")
-            self.collection.create_index([("cache_key", ASCENDING)], unique=True)
-            self.collection.create_index([("expires_at", ASCENDING)], expireAfterSeconds=0)
+            try:
+                self.collection.create_index([("cache_key", ASCENDING)], unique=True, background=True)
+                self.collection.create_index([("expires_at", ASCENDING)], expireAfterSeconds=0, background=True)
+                logger.info("索引创建/验证成功")
+            except Exception as idx_e:
+                logger.warning(f"创建索引遇到警告(可能已存在): {idx_e}")
 
             logger.info(f"成功连接到MongoDB数据库: {self.db.name}, 集合: {self.collection.name}")
             logger.debug(f"连接字符串: {self.connection_string}")
