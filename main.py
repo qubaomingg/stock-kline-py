@@ -17,6 +17,12 @@ logging.basicConfig(
     datefmt='%Y-%m-%d %H:%M:%S'
 )
 
+# 抑制 pymongo 的噪音日志
+logging.getLogger('pymongo').setLevel(logging.WARNING)
+logging.getLogger('pymongo.server').setLevel(logging.WARNING)
+logging.getLogger('pymongo.topology').setLevel(logging.WARNING)
+logging.getLogger('pymongo.pool').setLevel(logging.WARNING)
+
 app = FastAPI()
 
 # 添加 CORS 中间件配置

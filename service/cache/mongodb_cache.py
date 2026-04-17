@@ -3,6 +3,7 @@
 """
 MongoDB缓存服务
 用于缓存股票市场列表查询结果，缓存有效期2天
+优化版本：添加内存LRU缓存层，大幅提升读取性能
 """
 
 import os
@@ -10,6 +11,8 @@ import logging
 import time
 from datetime import datetime, timedelta
 from typing import Dict, Any, Optional, Union
+from functools import lru_cache
+from collections import OrderedDict
 import json
 from bson import json_util
 from dotenv import load_dotenv
@@ -24,8 +27,65 @@ from pymongo.errors import ConnectionFailure, ServerSelectionTimeoutError
 logger = logging.getLogger(__name__)
 
 
+class MemoryLRUCache:
+    """内存LRU缓存，用于快速访问热点数据"""
+    
+    def __init__(self, max_size: int = 100, ttl_seconds: int = 3600):
+        """
+        初始化内存LRU缓存
+        
+        Args:
+            max_size: 最大缓存条目数
+            ttl_seconds: 缓存有效期（秒）
+        """
+        self.cache = OrderedDict()
+        self.max_size = max_size
+        self.ttl_seconds = ttl_seconds
+        self.timestamps = {}
+    
+    def get(self, key: str) -> Optional[Any]:
+        """从内存缓存获取数据"""
+        if key not in self.cache:
+            return None
+        
+        # 检查是否过期
+        if time.time() - self.timestamps.get(key, 0) > self.ttl_seconds:
+            self.delete(key)
+            return None
+        
+        # 移动到末尾表示最近使用
+        self.cache.move_to_end(key)
+        return self.cache[key]
+    
+    def set(self, key: str, value: Any) -> None:
+        """设置内存缓存"""
+        # 如果已存在，先删除
+        if key in self.cache:
+            self.cache.move_to_end(key)
+        else:
+            # 如果超过最大大小，删除最旧的
+            if len(self.cache) >= self.max_size:
+                oldest_key = next(iter(self.cache))
+                self.delete(oldest_key)
+        
+        self.cache[key] = value
+        self.timestamps[key] = time.time()
+    
+    def delete(self, key: str) -> None:
+        """删除内存缓存"""
+        if key in self.cache:
+            del self.cache[key]
+        if key in self.timestamps:
+            del self.timestamps[key]
+    
+    def clear(self) -> None:
+        """清空内存缓存"""
+        self.cache.clear()
+        self.timestamps.clear()
+
+
 class MongoDBCache:
-    """MongoDB缓存管理器"""
+    """MongoDB缓存管理器 - 优化版本，包含内存缓存层"""
 
     def __init__(self, connection_string: Optional[str] = None):
         """
@@ -40,44 +100,56 @@ class MongoDBCache:
         self.client = None
         self.db = None
         self.collection = None
+        
+        # 初始化内存缓存 - 市场数据比较大，设置合理的TTL
+        self.memory_cache = MemoryLRUCache(max_size=20, ttl_seconds=1800)  # 30分钟
+        
         self._connect()
 
     def _connect(self):
-        """连接到MongoDB数据库"""
+        """连接到MongoDB数据库 - 优化版本：更好的超时处理"""
         if not self.connection_string:
-            logger.warning("MongoDB连接字符串未设置，跳过连接")
+            logger.warning("MongoDB连接字符串未设置，仅使用内存缓存")
             return
 
         try:
-            logger.info(f"正在连接MongoDB: {self.connection_string[:50]}...")
+            logger.info(f"正在连接MongoDB...")
             self.client = MongoClient(
                 self.connection_string,
-                serverSelectionTimeoutMS=10000,  # 增加到10秒
-                connectTimeoutMS=10000,          # 连接超时10秒
-                socketTimeoutMS=30000,           # socket超时30秒
-                maxPoolSize=50,                  # 连接池大小
-                minPoolSize=10                   # 最小连接数
+                serverSelectionTimeoutMS=5000,   # 服务器选择超时5秒（更短）
+                connectTimeoutMS=5000,            # 连接超时5秒
+                socketTimeoutMS=10000,            # socket超时10秒
+                maxPoolSize=10,                   # 减小连接池大小
+                minPoolSize=0,                    # 最小连接数0
+                maxIdleTimeMS=30000,              # 空闲连接30秒后关闭
+                waitQueueTimeoutMS=5000,          # 等待队列超时5秒
+                heartbeatFrequencyMS=10000,        # 心跳频率10秒
+                retryWrites=False,                 # 禁用写入重试
+                retryReads=False                   # 禁用读取重试
             )
-            # 测试连接
-            self.client.admin.command('ping')
+            # 测试连接 - 快速失败
+            self.client.admin.command('ping', maxTimeMS=2000)
             self.db = self.client.get_database("stock")
             self.collection = self.db.get_collection("MarketStockCache")
 
             # 创建索引：缓存键和过期时间
             # 在后台创建索引以防阻塞查询，设置超时保护
-            logger.info("正在创建缓存索引...")
+            logger.debug("正在验证缓存索引...")
             try:
                 self.collection.create_index([("cache_key", ASCENDING)], unique=True, background=True)
                 self.collection.create_index([("expires_at", ASCENDING)], expireAfterSeconds=0, background=True)
-                logger.info("索引创建/验证成功")
             except Exception as idx_e:
-                logger.warning(f"创建索引遇到警告(可能已存在): {idx_e}")
+                logger.debug(f"索引验证: {idx_e}")
 
-            logger.info(f"成功连接到MongoDB数据库: {self.db.name}, 集合: {self.collection.name}")
-            logger.debug(f"连接字符串: {self.connection_string}")
+            logger.info("MongoDB连接成功")
 
-        except (ConnectionFailure, ServerSelectionTimeoutError) as e:
-            logger.error(f"连接MongoDB失败: {e}")
+        except (ConnectionFailure, ServerSelectionTimeoutError, TimeoutError) as e:
+            logger.warning(f"MongoDB连接失败，仅使用内存缓存: {type(e).__name__}")
+            self.client = None
+            self.db = None
+            self.collection = None
+        except Exception as e:
+            logger.warning(f"MongoDB连接异常，仅使用内存缓存: {type(e).__name__}")
             self.client = None
             self.db = None
             self.collection = None
@@ -113,7 +185,7 @@ class MongoDBCache:
 
     def get(self, code: str, start_date: Optional[str] = None, end_date: Optional[str] = None) -> Optional[Dict[str, Any]]:
         """
-        从缓存获取数据
+        从缓存获取数据 - 优化版本：优先从内存缓存读取
 
         Args:
             code: 股票代码
@@ -123,48 +195,49 @@ class MongoDBCache:
         Returns:
             缓存数据或None
         """
+        cache_key = self._generate_cache_key(code, start_date, end_date)
+        
+        # 第一步：优先从内存缓存获取（微秒级响应）
+        memory_data = self.memory_cache.get(cache_key)
+        if memory_data is not None:
+            return memory_data
+        
+        # 内存缓存未命中，检查MongoDB连接
         if not self.is_connected():
-            logger.warning("MongoDB未连接，无法获取缓存")
             return None
 
         try:
-            cache_key = self._generate_cache_key(code, start_date, end_date)
-            logger.info(f"尝试从缓存获取 {code.upper()} 数据")
-            logger.info(f"缓存键: {cache_key}")
-
             from datetime import datetime
             now = datetime.utcnow()
 
-            # 添加查询超时
-            query_start = time.time()
+            # 添加查询超时，优化查询 - 只返回需要的字段
             cache_item = self.collection.find_one(
                 {
                     'cache_key': cache_key,
                     'expires_at': {'$gt': now}
                 },
-                max_time_ms=5000  # 查询超时5秒
+                projection={'data': 1, '_id': 0},  # 只返回data字段，减少数据传输
+                max_time_ms=2000  # 查询超时2秒（更短）
             )
-            query_end = time.time()
-            logger.info(f"MongoDB查询耗时: {query_end - query_start:.3f}秒")
 
-            if cache_item:
-                logger.info(f"从缓存获取 {code.upper()} 数据")
-                logger.info(f"缓存键: {cache_key}, 过期时间: {cache_item.get('expires_at')}")
-                logger.info(f"缓存数据: {cache_item.get('data')}")
-                # 优化：直接返回BSON数据，避免JSON转换开销
-                return cache_item["data"]
+            if cache_item and cache_item.get("data"):
+                logger.info(f"MongoDB缓存命中: {cache_key}")
+                
+                # 同步到内存缓存，加速下次访问
+                data = cache_item["data"]
+                self.memory_cache.set(cache_key, data)
+                
+                return data
             else:
-                logger.info(f"缓存未找到或已过期: {code.upper()}")
-                logger.info(f"缓存键: {cache_key}")
                 return None
 
         except Exception as e:
-            logger.error(f"获取缓存失败: {e}", exc_info=True)
+            logger.debug(f"MongoDB查询失败: {type(e).__name__}")
             return None
 
     def set(self, code: str, start_date: Optional[str] = None, end_date: Optional[str] = None, data: Dict[str, Any] = None, ttl_days: int = 2) -> bool:
         """
-        设置K线数据缓存
+        设置K线数据缓存 - 优化版本：同时写入内存缓存
 
         Args:
             code: 股票代码
@@ -176,34 +249,31 @@ class MongoDBCache:
         Returns:
             是否成功
         """
-        if not self.is_connected():
-            return False
-
         # 检查数据是否为空，如果为空则不进行缓存
         if not data:
-            logger.warning(f"数据为空，跳过缓存: {code.upper()}")
             return False
 
         # 检查如果是字典且包含data字段，data字段是否为空数组
         if isinstance(data, dict) and 'data' in data and isinstance(data['data'], list) and len(data['data']) == 0:
-            logger.warning(f"数据中的data字段为空数组，跳过缓存: {code.upper()}")
             return False
 
         # 检查如果是字典且包含stocks字段，stocks字段是否为空数组
         if isinstance(data, dict) and 'stocks' in data and isinstance(data['stocks'], list) and len(data['stocks']) == 0:
-            logger.warning(f"数据中的stocks字段为空数组，跳过缓存: {code.upper()}")
             return False
 
         # 统一使用_generate_cache_key生成缓存键
         cache_key = self._generate_cache_key(code, start_date, end_date)
+        
+        # 第一步：优先写入内存缓存（微秒级）
+        self.memory_cache.set(cache_key, data)
+        
+        # 如果MongoDB未连接，只使用内存缓存
+        if not self.is_connected():
+            return True
 
         expires_at = datetime.utcnow() + timedelta(days=ttl_days)
 
         try:
-            # 记录数据大小和部分内容用于调试
-            data_size = len(str(data))
-            logger.debug(f"尝试缓存数据，键: {cache_key}, 数据大小约: {data_size} 字符")
-
             # 使用upsert操作，如果存在则更新，不存在则插入
             result = self.collection.update_one(
                 {"cache_key": cache_key},
@@ -222,17 +292,17 @@ class MongoDBCache:
                 upsert=True
             )
 
-            logger.info(f"缓存 {code.upper()} 数据，有效期 {ttl_days} 天")
-            logger.debug(f"缓存键: {cache_key}, 过期时间: {expires_at}")
+            logger.info(f"MongoDB缓存已写入: {cache_key}")
             return result.acknowledged
 
         except Exception as e:
-            logger.error(f"设置缓存失败: {e}", exc_info=True)
-            return False
+            logger.debug(f"MongoDB写入失败: {type(e).__name__}")
+            # MongoDB失败没关系，内存缓存已经可以用了
+            return True
 
     def delete(self, code: str, start_date: Optional[str] = None, end_date: Optional[str] = None) -> bool:
         """
-        删除K线数据缓存
+        删除K线数据缓存 - 优化版本：同时删除内存缓存
 
         Args:
             code: 股票代码
@@ -242,39 +312,40 @@ class MongoDBCache:
         Returns:
             是否成功
         """
-        if not self.is_connected():
-            return False
-
         # 统一使用_generate_cache_key生成缓存键
         cache_key = self._generate_cache_key(code, start_date, end_date)
+        
+        # 第一步：删除内存缓存
+        self.memory_cache.delete(cache_key)
+
+        if not self.is_connected():
+            return True
 
         try:
-            logger.info(f"删除 {code.upper()} K线数据缓存")
-            result = self.collection.delete_one({"cache_key": cache_key})
-            if result.deleted_count > 0:
-                logger.info(f"成功删除 {code.upper()} K线数据缓存")
-            else:
-                logger.info(f"{code.upper()} K线数据缓存不存在")
-            return result.deleted_count > 0
+            self.collection.delete_one({"cache_key": cache_key})
+            return True
 
         except Exception as e:
-            logger.error(f"删除缓存失败: {e}", exc_info=True)
-            return False
+            logger.debug(f"MongoDB删除失败: {type(e).__name__}")
+            # 内存缓存已经删除，返回成功
+            return True
 
     def clear_all(self) -> bool:
-        """清除所有缓存"""
+        """清除所有缓存 - 优化版本：同时清空内存缓存"""
+        # 第一步：清空内存缓存
+        self.memory_cache.clear()
+        
         if not self.is_connected():
-            return False
+            return True
 
         try:
-            logger.info("清除所有缓存")
-            result = self.collection.delete_many({})
-            logger.info(f"清除所有缓存，删除 {result.deleted_count} 条记录")
-            return result.acknowledged
+            self.collection.delete_many({})
+            return True
 
         except Exception as e:
-            logger.error(f"清除缓存失败: {e}", exc_info=True)
-            return False
+            logger.debug(f"MongoDB清空失败: {type(e).__name__}")
+            # 内存缓存已清空，返回成功
+            return True
 
     def get_stats(self) -> Dict[str, Any]:
         """获取缓存统计信息"""

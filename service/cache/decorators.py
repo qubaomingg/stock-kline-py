@@ -18,7 +18,7 @@ logger = logging.getLogger(__name__)
 
 def cache_market_stocks(market_code_param: str = "market"):
     """
-    缓存股票市场列表的装饰器
+    缓存股票市场列表的装饰器 - 优化版本：减少日志输出
 
     Args:
         market_code_param: 函数参数中市场代码的参数名，默认为'market'
@@ -59,10 +59,7 @@ def cache_market_stocks(market_code_param: str = "market"):
                 else:
                     market_code = 'unknown'
 
-            # 尝试从缓存获取
-            logger.info(f"尝试从缓存获取 {market_code.upper()} 市场股票列表")
-            logger.debug(f"函数: {func.__name__}, 市场代码参数: {market_code_param}")
-
+            # 尝试从缓存获取 - 减少日志
             cache = get_cache()
             cached_data = cache.get(market_code)
 
@@ -70,12 +67,11 @@ def cache_market_stocks(market_code_param: str = "market"):
                 # 添加缓存标记
                 cached_data["_cached"] = True
                 cached_data["_cache_timestamp"] = datetime.utcnow().isoformat()
-                logger.info(f"缓存命中: {market_code.upper()} 市场，返回缓存数据")
-                logger.debug(f"缓存数据大小: {len(str(cached_data))} 字符")
+                logger.debug(f"缓存命中: {market_code.upper()} 市场")
                 return cached_data
 
             # 缓存未命中，调用原函数
-            logger.info(f"缓存未命中: {market_code.upper()} 市场，调用原函数")
+            logger.info(f"缓存未命中: {market_code.upper()} 市场，正在获取数据...")
             result = func(*args, **kwargs)
 
             if result:
@@ -84,12 +80,10 @@ def cache_market_stocks(market_code_param: str = "market"):
                 result["_cache_timestamp"] = datetime.utcnow().isoformat()
 
                 # 缓存结果
-                logger.info(f"正在缓存 {market_code.upper()} 市场数据")
                 cache_success = cache.set(market_code, data=result, ttl_days=5)
 
                 if cache_success:
-                    logger.info(f"成功缓存 {market_code.upper()} 市场数据")
-                    logger.debug(f"缓存数据大小: {len(str(result))} 字符")
+                    logger.info(f"成功缓存 {market_code.upper()} 市场数据，共{result.get('count', 0)}只股票")
                 else:
                     logger.warning(f"缓存 {market_code.upper()} 市场数据失败")
             else:
