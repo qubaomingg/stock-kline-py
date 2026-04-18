@@ -29,47 +29,61 @@ def get_a_stocks_by_baostock() -> Optional[Dict[str, Any]]:
         # 获取所有股票列表
         # query_all_stock()返回指定日期的所有股票列表
         # 使用当前日期作为查询日期，如果当前日期没有数据，尝试前一个交易日
-        current_date = datetime.now().strftime('%Y-%m-%d')
-        rs = bs.query_all_stock(current_date)
-        if rs.error_code != '0':
-            print(f"[baostock] 查询股票列表失败: {rs.error_msg}")
+        # 先尝试不指定日期（或者使用最新可用日期）
+        print("[baostock] 尝试不指定日期查询...")
+        rs = bs.query_all_stock()
+        if rs.error_code == '0':
+            data_list = []
+            while (rs.error_code == '0') and rs.next():
+                data_list.append(rs.get_row_data())
+            if len(data_list) > 0:
+                print(f"[baostock] 不指定日期查询成功，获取到 {len(data_list)} 条数据")
+            else:
+                print("[baostock] 不指定日期查询为空，尝试指定日期")
+        else:
+            data_list = []
+
+        if not data_list:
+            # 如果不指定日期没获取到，再尝试日期策略
+            print("[baostock] 尝试按日期查询...")
+            # 先尝试最近几个月
+            test_dates = [
+                datetime.now().strftime('%Y-%m-%d'),
+                (datetime.now() - timedelta(days=1)).strftime('%Y-%m-%d'),
+                (datetime.now() - timedelta(days=2)).strftime('%Y-%m-%d'),
+                (datetime.now() - timedelta(days=3)).strftime('%Y-%m-%d'),
+                (datetime.now() - timedelta(days=7)).strftime('%Y-%m-%d'),
+                (datetime.now() - timedelta(days=30)).strftime('%Y-%m-%d'),
+                '2024-12-31',
+                '2023-12-31'
+            ]
+            
+            for test_date in test_dates:
+                try:
+                    print(f"[baostock] 尝试日期: {test_date}")
+                    rs = bs.query_all_stock(test_date)
+                    if rs.error_code == '0':
+                        data_list = []
+                        while (rs.error_code == '0') and rs.next():
+                            data_list.append(rs.get_row_data())
+                        if data_list:
+                            print(f"[baostock] 成功使用 {test_date} 获取到 {len(data_list)} 条数据")
+                            break
+                except Exception as e:
+                    print(f"[baostock] 日期 {test_date} 查询异常: {e}")
+                    continue
+
+        if not data_list:
+            print("[baostock] 所有日期均无数据")
             bs.logout()
             return None
-
-        # 转换为DataFrame
-        data_list = []
-        while (rs.error_code == '0') and rs.next():
-            data_list.append(rs.get_row_data())
-
-        # 如果当前日期没有数据，尝试前一个交易日
-        if not data_list:
-            print(f"[baostock] 当前日期 {current_date} 无数据，尝试前一个交易日")
-            # 尝试前7天内的交易日
-            for days_back in range(1, 8):
-                prev_date = (datetime.now() - timedelta(days=days_back)).strftime('%Y-%m-%d')
-                rs = bs.query_all_stock(prev_date)
-                if rs.error_code == '0':
-                    data_list = []
-                    while rs.next():
-                        data_list.append(rs.get_row_data())
-                    if data_list:
-                        print(f"[baostock] 使用交易日 {prev_date} 获取到 {len(data_list)} 条数据")
-                        break
-                    else:
-                        print(f"[baostock] 日期 {prev_date} 也无数据")
-                else:
-                    print(f"[baostock] 查询日期 {prev_date} 失败: {rs.error_msg}")
-
-            if not data_list:
-                print("[baostock] 获取A股股票列表失败: 最近7天均无数据")
-                bs.logout()
-                return None
 
         # 登出
         bs.logout()
 
         # 转换为DataFrame
-        df = pd.DataFrame(data_list, columns=['code', 'code_name', 'tradeStatus'])
+        # baostock返回列顺序是 [code, tradeStatus, code_name]
+        df = pd.DataFrame(data_list, columns=['code', 'tradeStatus', 'code_name'])
 
         # 过滤出A股股票（代码以sh.或sz.开头）
         a_shares_df = df[df['code'].str.startswith(('sh.', 'sz.'))]

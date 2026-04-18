@@ -14,9 +14,9 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 # 数据源列表（按优先级顺序）
 DATA_SOURCES = [
-    'eastmoney_stocks',  # 东方财富数据源（无需API密钥，数据完整）
+    'bs_stocks',         # baostock数据源（现在可用，数据完整）
     'ak_stocks',         # akshare数据源
-    'bs_stocks',         # baostock数据源
+    'eastmoney_stocks',  # 东方财富数据源（作为备选）
     # 未来可以添加更多数据源，如：'finnhub_stocks', 'yahoo_stocks'
 ]
 
