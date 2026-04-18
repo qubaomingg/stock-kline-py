@@ -22,12 +22,14 @@ DATA_SOURCES = [
 
 def get_hk_stocks() -> Optional[Dict[str, Any]]:
     """
-    获取港股市场所有股票列表
+    获取港股市场所有股票列表（组合真实数据 + 兜底数据去重）
 
     Returns:
         包含港股股票列表的字典
     """
-    # 首先尝试真实数据源
+    # 1. 先获取真实数据
+    real_stocks = []
+    real_source = ''
     for source_name in DATA_SOURCES:
         try:
             if source_name == 'ak_stocks':
@@ -58,16 +60,17 @@ def get_hk_stocks() -> Optional[Dict[str, Any]]:
                 continue
 
             if result:
-                print(f"[hk_stocks] 使用数据源 '{source_name}' 成功获取 {result['count']} 只港股股票")
-                return result
+                real_stocks = result['stocks']
+                real_source = result.get('source', 'unknown')
+                print(f"[hk_stocks] 从数据源 '{source_name}' 获取 {len(real_stocks)} 只真实港股")
+                break
 
         except Exception as e:
             print(f"[hk_stocks] 数据源 '{source_name}' 获取数据失败: {e}")
             continue
 
-    print("[hk_stocks] 所有真实数据源均失败，使用兜底数据")
-    
-    # 兜底数据作为最后保障
+    # 2. 获取兜底数据
+    fallback_stocks = []
     try:
         import sys
         import os
@@ -77,13 +80,38 @@ def get_hk_stocks() -> Optional[Dict[str, Any]]:
             spec = importlib.util.spec_from_file_location('fallback_stocks', module_path)
             module = importlib.util.module_from_spec(spec)
             spec.loader.exec_module(module)
-            print("[hk_stocks] 使用兜底数据源返回港股数据")
-            return module.get_fallback_hk_stocks()
+            fallback = module.get_fallback_hk_stocks()
+            fallback_stocks = fallback['stocks']
+            print(f"[hk_stocks] 兜底数据有 {len(fallback_stocks)} 只港股")
     except Exception as e:
         print(f"[hk_stocks] 获取兜底数据失败: {e}")
 
-    print("[hk_stocks] 所有数据源均失败")
-    return None
+    # 3. 合并去重：真实数据优先 + 兜底补充
+    final_stocks = []
+    seen_codes = set()
+    
+    for stock in real_stocks:
+        final_stocks.append(stock)
+        seen_codes.add(stock['code'])
+    
+    for stock in fallback_stocks:
+        if stock['code'] not in seen_codes:
+            final_stocks.append(stock)
+            seen_codes.add(stock['code'])
+    
+    print(f"[hk_stocks] 合并后共 {len(final_stocks)} 只港股（真实 {len(real_stocks)} + 兜底补充 {len(final_stocks)-len(real_stocks)}）")
+    
+    if len(final_stocks) > 0:
+        return {
+            'market': 'hk',
+            'count': len(final_stocks),
+            'stocks': final_stocks,
+            'timestamp': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+            'source': real_source if real_source else 'fallback'
+        }
+    else:
+        print("[hk_stocks] 没有获取到任何港股数据")
+        return None
 
 
 if __name__ == "__main__":
