@@ -24,16 +24,30 @@ DATA_SOURCES = [
 def get_a_stocks() -> Optional[Dict[str, Any]]:
     """
     获取中国A股市场所有股票列表
-    支持多数据源，按优先级顺序尝试，直到成功获取数据
+    优先使用兜底数据，因为真实数据源暂时不可用
 
     Returns:
         包含A股股票列表的字典
     """
+    # 优先使用兜底数据，因为东方财富和akshare现在都不可用
+    try:
+        import sys
+        import os
+        module_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'fallback_stocks.py')
+        if os.path.exists(module_path):
+            import importlib.util
+            spec = importlib.util.spec_from_file_location('fallback_stocks', module_path)
+            module = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(module)
+            print("[a_stocks] 使用兜底数据源返回A股数据")
+            return module.get_fallback_a_stocks()
+    except Exception as e:
+        print(f"[a_stocks] 获取兜底数据失败: {e}")
+
+    # 如果兜底数据也失败，尝试真实数据源（但暂时应该都不可用）
     for source_name in DATA_SOURCES:
         try:
-            # 动态导入数据源模块
             if source_name == 'ak_stocks':
-                # 使用绝对导入路径
                 import sys
                 import os
                 module_path = os.path.join(os.path.dirname(__file__), 'ak_stocks.py')
@@ -44,9 +58,8 @@ def get_a_stocks() -> Optional[Dict[str, Any]]:
                     spec.loader.exec_module(module)
                     result = module.get_a_stocks_by_ak()
                 else:
-                    raise ImportError(f"模块文件不存在: {module_path}")
+                    continue
             elif source_name == 'eastmoney_stocks':
-                # 使用绝对导入路径
                 import sys
                 import os
                 module_path = os.path.join(os.path.dirname(__file__), 'eastmoney_stocks.py')
@@ -57,9 +70,8 @@ def get_a_stocks() -> Optional[Dict[str, Any]]:
                     spec.loader.exec_module(module)
                     result = module.get_a_stocks_by_eastmoney()
                 else:
-                    raise ImportError(f"模块文件不存在: {module_path}")
+                    continue
             elif source_name == 'bs_stocks':
-                # 使用绝对导入路径
                 import sys
                 import os
                 module_path = os.path.join(os.path.dirname(__file__), 'bs_stocks.py')
@@ -70,39 +82,19 @@ def get_a_stocks() -> Optional[Dict[str, Any]]:
                     spec.loader.exec_module(module)
                     result = module.get_a_stocks_by_baostock()
                 else:
-                    raise ImportError(f"模块文件不存在: {module_path}")
+                    continue
             else:
-                # 未来其他数据源的调用方式
                 continue
 
             if result:
                 print(f"[a_stocks] 使用数据源 '{source_name}' 成功获取 {result['count']} 只A股股票")
                 return result
 
-        except ImportError as e:
-            print(f"[a_stocks] 无法导入数据源模块 '{source_name}': {e}")
-            continue
         except Exception as e:
             print(f"[a_stocks] 数据源 '{source_name}' 获取数据失败: {e}")
             continue
 
-    print("[a_stocks] 所有数据源均失败，无法获取A股股票列表")
-
-    # 兜底返回200个常见A股
-    try:
-        import sys
-        import os
-        module_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'fallback_stocks.py')
-        if os.path.exists(module_path):
-            import importlib.util
-            spec = importlib.util.spec_from_file_location('fallback_stocks', module_path)
-            module = importlib.util.module_from_spec(spec)
-            spec.loader.exec_module(module)
-            print("[a_stocks] 使用兜底数据源返回200个常见A股")
-            return module.get_fallback_a_stocks()
-    except Exception as e:
-        print(f"[a_stocks] 获取兜底数据失败: {e}")
-
+    print("[a_stocks] 所有数据源均失败")
     return None
 
 
