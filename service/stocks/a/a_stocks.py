@@ -24,27 +24,11 @@ DATA_SOURCES = [
 def get_a_stocks() -> Optional[Dict[str, Any]]:
     """
     获取中国A股市场所有股票列表
-    优先使用兜底数据，因为真实数据源暂时不可用
 
     Returns:
         包含A股股票列表的字典
     """
-    # 优先使用兜底数据，因为东方财富和akshare现在都不可用
-    try:
-        import sys
-        import os
-        module_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'fallback_stocks.py')
-        if os.path.exists(module_path):
-            import importlib.util
-            spec = importlib.util.spec_from_file_location('fallback_stocks', module_path)
-            module = importlib.util.module_from_spec(spec)
-            spec.loader.exec_module(module)
-            print("[a_stocks] 使用兜底数据源返回A股数据")
-            return module.get_fallback_a_stocks()
-    except Exception as e:
-        print(f"[a_stocks] 获取兜底数据失败: {e}")
-
-    # 如果兜底数据也失败，尝试真实数据源（但暂时应该都不可用）
+    # 先尝试真实的数据源
     for source_name in DATA_SOURCES:
         try:
             if source_name == 'ak_stocks':
@@ -94,7 +78,23 @@ def get_a_stocks() -> Optional[Dict[str, Any]]:
             print(f"[a_stocks] 数据源 '{source_name}' 获取数据失败: {e}")
             continue
 
-    print("[a_stocks] 所有数据源均失败")
+    print("[a_stocks] 所有真实数据源均失败，使用兜底数据")
+    
+    # 兜底数据
+    try:
+        import sys
+        import os
+        module_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'fallback_stocks.py')
+        if os.path.exists(module_path):
+            import importlib.util
+            spec = importlib.util.spec_from_file_location('fallback_stocks', module_path)
+            module = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(module)
+            print("[a_stocks] 使用兜底数据源返回A股数据")
+            return module.get_fallback_a_stocks()
+    except Exception as e:
+        print(f"[a_stocks] 获取兜底数据失败: {e}")
+
     return None
 
 
