@@ -15,6 +15,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 # 数据源列表（按优先级顺序）
 DATA_SOURCES = [
+    'extended_hk_stocks',  # 增强版港股数据源（新增，包含真实数据 + 扩展数据）
     'finnhub_stocks',      # finnhub数据源（新增，支持 exchange=HK）
     'openbb_stocks',       # openbb-china数据源（新增，配合 openbb）
     'ak_stocks',           # akshare数据源
@@ -51,7 +52,11 @@ def get_hk_stocks() -> Optional[Dict[str, Any]]:
         try:
             module = None
             result = None
-            if source_name == 'finnhub_stocks':
+            if source_name == 'extended_hk_stocks':
+                module = _load_module('extended_hk_stocks.py')
+                if module and hasattr(module, 'get_hk_stocks_by_extended'):
+                    result = module.get_hk_stocks_by_extended()
+            elif source_name == 'finnhub_stocks':
                 module = _load_module('finnhub_stocks.py')
                 if module and hasattr(module, 'get_hk_stocks_by_finnhub'):
                     result = module.get_hk_stocks_by_finnhub()
