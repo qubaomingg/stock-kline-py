@@ -24,6 +24,7 @@ from service.kline.a.akshare import get_kline_data_from_akshare, is_akshare_avai
 from service.kline.hk.akshare_hk import get_kline_data_from_akshare_hk, is_akshare_hk_available
 from service.kline.us.alpha_vantage import get_kline_data_from_alpha_vantage, is_alpha_vantage_available
 from service.kline.us.tiingo import get_kline_data_from_tiingo, is_tiingo_available
+from service.kline.us.finnhub import get_kline_data_from_finnhub, is_finnhub_available
 from service.kline.a.baostock import get_kline_data_from_baostock, is_baostock_available
 from service.kline.hk.eastmoney_hk import get_kline_data_from_eastmoney_hk, is_eastmoney_hk_available
 from service.kline.a.eastmoney_a import get_kline_data_from_eastmoney_a, is_eastmoney_a_available
@@ -48,13 +49,14 @@ except ImportError:
 DATA_SOURCES_CONFIG = {
     'a': ['eastmoney_a', 'akshare', 'baostock'],
     'hk': ['eastmoney_hk', 'akshare_hk'],
-    'us': ['yfinance', 'alpha_vantage', 'tiingo']
+    'us': ['yfinance', 'alpha_vantage', 'tiingo', 'finnhub']
 }
 
 # API密钥配置
 API_KEYS = {
     'alpha_vantage': os.getenv('ALPHA_VANTAGE_API_KEY', ''),
     'tiingo': os.getenv('TIINGO_API_KEY', ''),
+    'finnhub': os.getenv('FINNHUB_API_KEY', ''),
 }
 
 
@@ -268,6 +270,26 @@ def get_kline_data(
                     continue
 
                 result = get_kline_data_from_tiingo(
+                    code=code,
+                    market_type=market_type,
+                    formatted_code=formatted_code,
+                    start_date=start_date,
+                    end_date=end_date,
+                    api_key=api_key
+                )
+
+            elif source == 'finnhub':
+                if not is_finnhub_available():
+                    print("finnhub不可用，跳过")
+                    continue
+
+                api_key = API_KEYS.get('finnhub', '')
+                print(f"finnhub API密钥: {api_key}")
+                if not api_key:
+                    print("finnhub需要API密钥，跳过")
+                    continue
+
+                result = get_kline_data_from_finnhub(
                     code=code,
                     market_type=market_type,
                     formatted_code=formatted_code,
