@@ -37,30 +37,45 @@ app.add_middleware(
 
 @app.get("/api/health")
 async def health_check():
-    """
-    健康检查接口
-    :return: 返回it works
-    """
     return JSONResponse(content={"message": "it works"})
 
 
+@app.delete("/api/cache/clear")
+async def clear_all_cache():
+    from service.cache.mongodb_cache import get_cache
+    cache = get_cache()
+    cache.clear_all()
+    return JSONResponse(content={"message": "所有K线缓存已清除"})
+
+
+def normalize_date(date_str: str) -> str:
+    if not date_str:
+        return None
+    date_str = str(date_str).strip()
+    if len(date_str) == 8 and date_str.isdigit():
+        return f"{date_str[:4]}-{date_str[4:6]}-{date_str[6:]}"
+    return date_str
+
+
 @app.get("/api/kline")
-async def get_kline(code: str, start_date: str = None, end_date: str = None, name: str = None):
+async def get_kline(code: str, start_date: str = None, end_date: str = None, start: str = None, end: str = None, name: str = None):
     """
     获取股票K线数据
     :param code: 股票代码
     :param start_date: 开始日期（格式：YYYY-MM-DD）
     :param end_date: 结束日期（格式：YYYY-MM-DD）
+    :param start: 开始日期（兼容参数，支持 YYYY-MM-DD 或 YYYYMMDD 格式）
+    :param end: 结束日期（兼容参数，支持 YYYY-MM-DD 或 YYYYMMDD 格式）
     :param name: 股票名称（可选）
     :return: K线数据
     """
-    print(f'获取股票K线数据，股票代码：{code}，开始日期：{start_date}，结束日期：{end_date}，股票名称：{name}')
+    final_start_date = normalize_date(start_date) or normalize_date(start)
+    final_end_date = normalize_date(end_date) or normalize_date(end)
+    print(f'获取股票K线数据，股票代码：{code}，开始日期：{final_start_date}，结束日期：{final_end_date}，股票名称：{name}')
 
     try:
-        # 调用新的kline服务获取数据
-        result = get_kline_data(code, start_date, end_date)
+        result = get_kline_data(code, final_start_date, final_end_date)
 
-        # 转换结果为API响应格式
         return {
             "code": code,
             "name": name or code,
