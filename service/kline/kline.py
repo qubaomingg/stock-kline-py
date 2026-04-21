@@ -161,7 +161,7 @@ def get_kline_data(
     if end_date is None:
         end_date = datetime.now().strftime('%Y-%m-%d')
     if start_date is None:
-        start_date = (datetime.now() - timedelta(days=30)).strftime('%Y-%m-%d')
+        start_date = (datetime.now() - timedelta(days=90)).strftime('%Y-%m-%d')
 
     # 确定使用的数据源
     if data_sources is None:

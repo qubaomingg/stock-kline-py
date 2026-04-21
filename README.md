@@ -151,7 +151,7 @@ def some_function():
 对于这个FastAPI项目，可以在`main.py`中的任何位置添加断点来调试API请求处理逻辑。例如：
 
 ```python
-@app.get("/api/stock/kline")
+@app.get("/api/kline")
 async def get_stock_kline(code: str, name: str = None):
     """
     获取股票K线数据
