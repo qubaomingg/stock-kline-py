@@ -85,7 +85,7 @@ class MemoryLRUCache:
 
 
 class MongoDBCache:
-    """MongoDB缓存管理器 - 优化版本，包含内存缓存层"""
+    """MongoDB缓存管理器 - 优化版本，包含内存缓存层和延迟连接"""
 
     def __init__(self, connection_string: Optional[str] = None):
         """
@@ -100,11 +100,38 @@ class MongoDBCache:
         self.client = None
         self.db = None
         self.collection = None
-        
+
         # 初始化内存缓存 - 市场数据比较大，设置合理的TTL
         self.memory_cache = MemoryLRUCache(max_size=20, ttl_seconds=1800)  # 30分钟
-        
-        self._connect()
+
+        # 标记：是否已尝试连接（用于延迟连接）
+        self._connection_attempted = False
+        self._connect_error = None
+
+        # 注意：不在构造函数中立即连接！
+        # 连接推迟到首次实际使用时进行
+
+    def _ensure_connected(self):
+        """确保MongoDB已连接（延迟连接）- 首次使用时才建立连接"""
+        if self._connection_attempted:
+            # 已经尝试过连接，无论成功失败都不再尝试
+            return
+
+        self._connection_attempted = True
+
+        if not self.connection_string:
+            logger.warning("MongoDB连接字符串未设置，仅使用内存缓存")
+            return
+
+        try:
+            logger.info(f"正在延迟连接MongoDB...")
+            start_time = time.time()
+            self._connect()
+            connect_time = time.time() - start_time
+            logger.info(f"MongoDB延迟连接完成，耗时 {connect_time:.2f}s")
+        except Exception as e:
+            self._connect_error = e
+            logger.warning(f"MongoDB延迟连接失败，仅使用内存缓存: {type(e).__name__}")
 
     def _connect(self):
         """连接到MongoDB数据库 - 优化版本：更好的超时处理"""
@@ -185,7 +212,7 @@ class MongoDBCache:
 
     def get(self, code: str, start_date: Optional[str] = None, end_date: Optional[str] = None) -> Optional[Dict[str, Any]]:
         """
-        从缓存获取数据 - 优化版本：优先从内存缓存读取
+        从缓存获取数据 - 优化版本：优先从内存缓存读取，延迟连接MongoDB
 
         Args:
             code: 股票代码
@@ -196,12 +223,15 @@ class MongoDBCache:
             缓存数据或None
         """
         cache_key = self._generate_cache_key(code, start_date, end_date)
-        
+
         # 第一步：优先从内存缓存获取（微秒级响应）
         memory_data = self.memory_cache.get(cache_key)
         if memory_data is not None:
             return memory_data
-        
+
+        # 确保MongoDB已连接（延迟连接）
+        self._ensure_connected()
+
         # 内存缓存未命中，检查MongoDB连接
         if not self.is_connected():
             return None
@@ -237,7 +267,7 @@ class MongoDBCache:
 
     def set(self, code: str, start_date: Optional[str] = None, end_date: Optional[str] = None, data: Dict[str, Any] = None, ttl_days: int = 2) -> bool:
         """
-        设置K线数据缓存 - 优化版本：同时写入内存缓存
+        设置K线数据缓存 - 优化版本：同时写入内存缓存，延迟连接MongoDB
 
         Args:
             code: 股票代码
@@ -263,10 +293,13 @@ class MongoDBCache:
 
         # 统一使用_generate_cache_key生成缓存键
         cache_key = self._generate_cache_key(code, start_date, end_date)
-        
+
         # 第一步：优先写入内存缓存（微秒级）
         self.memory_cache.set(cache_key, data)
-        
+
+        # 确保MongoDB已连接（延迟连接）
+        self._ensure_connected()
+
         # 如果MongoDB未连接，只使用内存缓存
         if not self.is_connected():
             return True

@@ -1,11 +1,10 @@
 from dotenv import load_dotenv
 import logging
+import time
 
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
-
-from service.kline.kline import get_kline_data
 
 # 加载环境变量
 load_dotenv()
@@ -37,7 +36,43 @@ app.add_middleware(
 
 @app.get("/api/health")
 async def health_check():
-    return JSONResponse(content={"message": "it works"})
+    """
+    健康检查接口 - 必须快速响应（<100ms）
+
+    注意：此接口不导入任何重型模块，确保冷启动时也能快速响应
+    """
+    start_time = time.time()
+    result = {
+        "status": "healthy",
+        "message": "it works",
+        "response_time_ms": round((time.time() - start_time) * 1000, 2)
+    }
+    return JSONResponse(content=result)
+
+
+@app.get("/api/health/detailed")
+async def detailed_health_check():
+    """
+    详细健康检查 - 包含服务状态信息
+
+    此接口会检查各服务的初始化状态，可能较慢
+    仅用于运维监控，不建议频繁调用
+    """
+    from service.utils.lazy_loader import get_all_service_stats
+
+    start_time = time.time()
+
+    # 获取服务状态
+    service_stats = get_all_service_stats()
+
+    result = {
+        "status": "healthy",
+        "message": "detailed health check",
+        "response_time_ms": round((time.time() - start_time) * 1000, 2),
+        "services": service_stats,
+        "timestamp": time.strftime('%Y-%m-%d %H:%M:%S')
+    }
+    return JSONResponse(content=result)
 
 
 @app.delete("/api/cache/clear")
@@ -61,6 +96,8 @@ def normalize_date(date_str: str) -> str:
 async def get_kline(code: str, start_date: str = None, end_date: str = None, start: str = None, end: str = None, name: str = None):
     """
     获取股票K线数据
+
+    注意：此接口会触发kline模块的延迟加载（首次调用较慢）
     :param code: 股票代码
     :param start_date: 开始日期（格式：YYYY-MM-DD）
     :param end_date: 结束日期（格式：YYYY-MM-DD）
@@ -69,6 +106,9 @@ async def get_kline(code: str, start_date: str = None, end_date: str = None, sta
     :param name: 股票名称（可选）
     :return: K线数据
     """
+    # 延迟导入 - 仅在首次调用时加载重型模块
+    from service.kline.kline import get_kline_data
+
     final_start_date = normalize_date(start_date) or normalize_date(start)
     final_end_date = normalize_date(end_date) or normalize_date(end)
     print(f'获取股票K线数据，股票代码：{code}，开始日期：{final_start_date}，结束日期：{final_end_date}，股票名称：{name}')
@@ -91,11 +131,6 @@ async def get_kline(code: str, start_date: str = None, end_date: str = None, sta
         raise HTTPException(status_code=500, detail=f"获取股票数据失败：{str(e)}")
 
 
-from service.stocks.stocks import get_stock_by_market
-from service.stocks.basic_info import get_stock_basic_info
-from service.baseinfo.baseinfo import get_stock_baseinfo
-from service.main_force.main_force import get_main_force_analysis
-
 
 @app.get("/api/stock/main-force")
 async def api_get_main_force(code: str):
@@ -104,6 +139,9 @@ async def api_get_main_force(code: str):
     :param code: 股票代码
     :return: 主力动向分析结果
     """
+    # 延迟导入
+    from service.main_force.main_force import get_main_force_analysis
+
     print(f'获取股票主力动向分析，股票代码：{code}')
 
     try:
@@ -128,6 +166,9 @@ async def api_get_stock_baseinfo(code: str):
     :param code: 股票代码
     :return: 股票档案数据
     """
+    # 延迟导入
+    from service.baseinfo.baseinfo import get_stock_baseinfo
+
     print(f'获取股票基本信息，股票代码：{code}')
 
     try:
@@ -152,6 +193,9 @@ async def get_stock_market(marketCode: str):
     :param marketCode: 市场代码 (a, hk, us)
     :return: 股票列表数据
     """
+    # 延迟导入
+    from service.stocks.stocks import get_stock_by_market
+
     print(f'获取市场股票列表，市场代码：{marketCode}')
 
     try:
@@ -182,6 +226,9 @@ async def api_get_stock_basic_info(code: str):
     :param code: 股票代码
     :return: 股票基本信息
     """
+    # 延迟导入
+    from service.stocks.basic_info import get_stock_basic_info
+
     print(f'获取股票基本信息，股票代码：{code}')
 
     try:
@@ -200,4 +247,4 @@ async def api_get_stock_basic_info(code: str):
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    uvicorn.run(app, host="0.0.0.0", port=80)
