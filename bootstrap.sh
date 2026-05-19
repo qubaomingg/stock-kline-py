@@ -439,7 +439,7 @@ usage() {
 }
 
 main() {
-    local command="${1:-help}"
+    local command="${1:-start}"
 
     case "$command" in
         start)
