@@ -192,14 +192,14 @@ start_service() {
     log_info ""
     log_info "✅ 服务启动中..."
 
-    # 前台启动（无 &，Ctrl+C 直接停止）
+    # 前台启动（Ctrl+C 直接停止）
+    # 2>&1: 把 stderr 合并到 stdout
+    # tee -a: 同时显示在终端和写入文件
     $PYTHON_CMD -m hypercorn main:app \
         --bind "${HOST}:${PORT}" \
         --workers $WORKERS \
-        --access-logfile "$LOG_FILE" \
-        --error-logfile "$ERROR_LOG" \
         --log-level info \
-        >> "$LOG_FILE" 2>> "$ERROR_LOG"
+        2>&1 | tee -a "$LOG_FILE"
 }
 
 stop_service() {
@@ -225,6 +225,7 @@ show_status() {
     echo "  服务为前台运行模式"
     echo "  启动命令: $0 start"
     echo "  停止命令: 在服务终端按 Ctrl+C"
+    echo "  日志文件: $LOG_FILE"
     echo ""
 
     # 尝试健康检查（如果服务正在跑）
@@ -254,12 +255,13 @@ show_logs() {
 
     if [ ! -f "$LOG_FILE" ]; then
         log_warn "日志文件不存在: $LOG_FILE"
+        log_warn "请先启动服务: $0 start"
         return 1
     fi
 
     log_info "显示最新日志 (Ctrl+C 退出):"
     echo "----------------------------------------"
-    tail -f "$LOG_FILE" "$ERROR_LOG" 2>/dev/null
+    tail -f "$LOG_FILE"
 }
 
 health_check() {
@@ -336,8 +338,7 @@ usage() {
     echo "  $0 health      # 快速健康检查"
     echo ""
     echo "文件位置:"
-    echo "  访问日志:  ${APP_DIR}/logs/app.log"
-    echo "  错误日志:  ${APP_DIR}/logs/error.log"
+    echo "  日志文件:  ${APP_DIR}/logs/app.log"
     echo ""
 }
 
