@@ -1,14 +1,13 @@
 #!/bin/bash
 #
-# bootstrap.sh - 股票K线数据服务 启动/停止/管理脚本
+# bootstrap.sh - 股票K线数据服务 启动脚本（前台运行模式）
 #
 # 使用方法:
-#   ./bootstrap.sh start     # 后台启动服务
-#   ./bootstrap.sh stop      # 停止服务
-#   ./bootstrap.sh restart   # 重启服务
+#   ./bootstrap.sh start     # 前台启动服务（Ctrl+C 停止）
 #   ./bootstrap.sh status    # 查看状态
 #   ./bootstrap.sh logs      # 查看日志（实时）
 #   ./bootstrap.sh health    # 健康检查
+#   ./bootstrap.sh help      # 查看帮助
 #
 
 set -e
@@ -17,7 +16,6 @@ set -e
 
 APP_NAME="stock-kline-api"
 APP_DIR="$(cd "$(dirname "$0")" && pwd)"
-PID_FILE="${APP_DIR}/app.pid"
 LOG_FILE="${APP_DIR}/logs/app.log"
 ERROR_LOG="${APP_DIR}/logs/error.log"
 
@@ -144,50 +142,25 @@ activate_venv() {
 start_service() {
     log_info "正在启动 ${APP_NAME}..."
 
-    # 检查是否已在运行
-    if is_running; then
-        local pid=$(get_pid)
-        log_warn "服务已经在运行中 (PID: ${pid})"
-        return 1
-    fi
-
     # 检查端口
     if ! check_port; then
-        log_warn "端口 ${PORT} 被占用，正在自动释放..."
-
-        # 检查是否是本服务之前的实例
-        if [ -f "$PID_FILE" ]; then
-            local old_pid=$(cat "$PID_FILE")
-            if kill -0 "$old_pid" 2>/dev/null; then
-                log_info "发现旧实例 (PID: ${old_pid})，正在停止..."
-                stop_service
-                sleep 2
-            fi
-        fi
-
-        # 如果还被占用，强制释放
-        if ! check_port; then
-            log_warn "端口仍被其他进程占用"
-
-            # 询问用户（非交互模式直接强制释放）
-            if [ -t 1 ]; then  # 检查是否是交互式终端
-                read -p "是否强制终止占用端口的进程？(y/N): " answer
-                case $answer in
-                    [Yy]*)
-                        force_free_port || return 1
-                        ;;
-                    *)
-                        log_error "用户取消操作"
-                        return 1
-                        ;;
-                esac
-            else
-                # 非交互模式，自动强制释放
-                log_warn "非交互模式，自动强制释放端口..."
-                force_free_port || return 1
-            fi
-
-            sleep 1
+        log_warn "端口 ${PORT} 被占用"
+        # 非交互模式直接尝试释放
+        if [ -t 1 ]; then  # 交互式终端，询问用户
+            read -p "是否强制终止占用端口的进程？(y/N): " answer
+            case $answer in
+                [Yy]*)
+                    force_free_port || return 1
+                    ;;
+                *)
+                    log_error "用户取消操作，请先手动释放端口 ${PORT}"
+                    return 1
+                    ;;
+            esac
+        else
+            # 非交互模式，自动释放
+            log_warn "非交互模式，自动尝试释放端口..."
+            force_free_port || return 1
         fi
     fi
 
@@ -211,89 +184,32 @@ start_service() {
 
     # 启动命令
     log_info "启动参数: HOST=${HOST}, PORT=${PORT}, WORKERS=${WORKERS}"
+    log_info "监听地址: http://${HOST}:${PORT}"
+    log_info "健康检查: http://${HOST}:${PORT}/api/health"
+    log_info "API文档:  http://${HOST}:${PORT}/docs"
+    log_info "日志文件: $LOG_FILE"
+    log_info "按 Ctrl+C 可停止服务"
+    log_info ""
+    log_info "✅ 服务启动中..."
 
-    # 使用后台启动
+    # 前台启动（无 &，Ctrl+C 直接停止）
     $PYTHON_CMD -m hypercorn main:app \
         --bind "${HOST}:${PORT}" \
         --workers $WORKERS \
         --access-logfile "$LOG_FILE" \
         --error-logfile "$ERROR_LOG" \
         --log-level info \
-        >> "$LOG_FILE" 2>> "$ERROR_LOG" &
-
-    local pid=$!
-    echo $pid > "$PID_FILE"
-
-    # 等待启动完成
-    sleep 3
-
-    # 验证启动成功
-    if is_running; then
-        log_info "✅ 服务启动成功!"
-        log_info "   PID: ${pid}"
-        log_info "   地址: http://${HOST}:${PORT}"
-        log_info "   健康检查: http://${HOST}:${PORT}/api/health"
-        log_info "   API文档: http://${HOST}:${PORT}/docs"
-        log_info ""
-        log_info "   日志文件: $LOG_FILE"
-        log_info "   PID文件: $PID_FILE"
-
-        # 自动执行健康检查
-        sleep 1
-        health_check
-    else
-        log_error "❌ 服务启动失败，请查看日志:"
-        log_error "   tail -20 ${ERROR_LOG}"
-        rm -f "$PID_FILE"
-        return 1
-    fi
+        >> "$LOG_FILE" 2>> "$ERROR_LOG"
 }
 
 stop_service() {
-    log_info "正在停止 ${APP_NAME}..."
-
-    if ! is_running; then
-        log_warn "服务未在运行"
-        rm -f "$PID_FILE"
-        return 0
-    fi
-
-    local pid=$(get_pid)
-
-    # 尝试优雅停止
-    log_info "发送 SIGTERM 信号 (PID: ${pid})..."
-    kill -TERM "$pid" 2>/dev/null || true
-
-    # 等待进程结束
-    local wait_time=0
-    local max_wait=10
-
-    while [ $wait_time -lt $max_wait ]; do
-        if ! kill -0 "$pid" 2>/dev/null; then
-            break
-        fi
-        sleep 1
-        wait_time=$((wait_time + 1))
-    done
-
-    # 如果还没停止，强制杀死
-    if kill -0 "$pid" 2>/dev/null; then
-        log_warn "优雅停止超时，强制终止..."
-        kill -9 "$pid" 2>/dev/null || true
-        sleep 1
-    fi
-
-    # 清理PID文件
-    rm -f "$PID_FILE"
-
-    log_info "✅ 服务已停止"
+    log_info "服务为前台运行模式"
+    log_warn "请在服务运行的终端窗口按 Ctrl+C 停止服务"
 }
 
 restart_service() {
-    log_info "正在重启 ${APP_NAME}..."
-    stop_service
-    sleep 2
-    start_service
+    log_info "服务为前台运行模式"
+    log_warn "请先按 Ctrl+C 停止当前服务，然后重新执行: $0 start"
 }
 
 show_status() {
@@ -302,45 +218,33 @@ show_status() {
     echo "  ${APP_NAME} 服务状态"
     echo "=========================================="
     echo ""
+    echo -e "  运行模式: ${GREEN}● 前台运行${NC}"
+    echo "  监听地址: http://${HOST}:${PORT}"
+    echo "  工作线程: ${WORKERS}"
+    echo ""
+    echo "  服务为前台运行模式"
+    echo "  启动命令: $0 start"
+    echo "  停止命令: 在服务终端按 Ctrl+C"
+    echo ""
 
-    if is_running; then
-        local pid=$(get_pid)
-        local uptime=""
-        if command -v ps >/dev/null 2>&1; then
-            uptime=$(ps -o etime= -p "$pid" 2>/dev/null | tr -d ' ')
-        fi
+    # 尝试健康检查（如果服务正在跑）
+    if command -v curl >/dev/null 2>&1; then
+        local url="http://${HOST}:${PORT}/api/health"
+        local response
+        response=$(curl -s -w "\n%{http_code}|%{time_total}" --max-time 3 "$url" 2>/dev/null)
+        local http_code
+        local time_total
+        http_code=$(echo "$response" | tail -1 | cut -d'|' -f1)
+        time_total=$(echo "$response" | tail -1 | cut -d'|' -f2)
 
-        echo -e "  状态: ${GREEN}● 运行中${NC}"
-        echo -e "  PID:  ${pid}"
-
-        if [ -n "$uptime" ]; then
-            echo -e "  运行时间: ${uptime}"
-        fi
-
-        echo -e "  监听地址: http://${HOST}:${PORT}"
-        echo ""
-
-        # 显示端口占用情况
-        if command -v lsof >/dev/null 2>&1; then
-            echo "  端口信息:"
-            lsof -i :$PORT 2>/dev/null | grep LISTEN | awk '{printf "    %-8s %s\n", $1, $9}' | head -5
-        fi
-
-        echo ""
-
-        # 自动健康检查
-        health_check
-
-    else
-        echo -e "  状态: ${RED}○ 未运行${NC}"
-        echo ""
-
-        if [ -f "$PID_FILE" ]; then
-            log_warn "发现残留的PID文件，正在清理..."
-            rm -f "$PID_FILE"
+        if [ "$http_code" = "200" ]; then
+            echo -e "  健康检查: ${GREEN}✅ 正常${NC} (HTTP ${http_code}, ${time_total}s)"
+        else
+            echo -e "  健康检查: ${YELLOW}○ 未检测到服务${NC}"
         fi
     fi
 
+    echo ""
     echo "=========================================="
     echo ""
 }
@@ -408,31 +312,30 @@ usage() {
     echo "用法: $0 {start|stop|restart|status|logs|health|help}"
     echo ""
     echo "命令说明:"
-    echo "  start    后台启动服务（自动检测并释放被占用的端口）"
-    echo "  stop     停止服务"
-    echo "  restart  重启服务"
+    echo "  start    前台启动服务（Ctrl+C 停止）"
+    echo "  stop     停止服务（提示：服务在前台运行，按 Ctrl+C 停止）"
+    echo "  restart  重启服务（提示：先按 Ctrl+C 再执行 start）"
     echo "  status   查看服务状态和健康检查"
     echo "  logs     实时查看日志 (Ctrl+C退出)"
     echo "  health   执行健康检查"
     echo "  help     显示帮助信息"
     echo ""
     echo "特性:"
+    echo "  ✅ 前台运行模式：直接在当前终端运行，Ctrl+C 可停止"
     echo "  ✅ 自动端口管理：启动时自动检测并释放被占用的端口"
-    echo "  ✅ 优雅停止：先发送SIGTERM，超时后强制终止"
     echo "  ✅ 日志管理：自动创建日志目录，分离访问/错误日志"
-    echo "  ✅ 健康检查：启动后自动执行健康检查"
-    echo "  ✅ 状态监控：显示PID、运行时间、端口占用情况"
+    echo "  ✅ 健康检查：随时可执行健康检查"
+    echo "  ✅ 状态监控：显示监听地址、工作线程、健康状态"
     echo ""
     echo "示例:"
-    echo "  $0 start       # 启动服务（如果端口被占用会自动处理）"
-    echo "  $0 stop        # 停止服务"
-    echo "  $0 restart     # 重启服务（等同于 stop + start）"
-    echo "  $0 status      # 查看详细状态"
+    echo "  $0 start       # 前台启动服务（Ctrl+C 停止）"
+    echo "  $0 stop        # 停止服务提示"
+    echo "  $0 restart     # 重启服务提示"
+    echo "  $0 status      # 查看详细状态和健康检查"
     echo "  $0 logs        # 实时查看日志"
     echo "  $0 health      # 快速健康检查"
     echo ""
     echo "文件位置:"
-    echo "  PID文件:   ${APP_DIR}/app.pid"
     echo "  访问日志:  ${APP_DIR}/logs/app.log"
     echo "  错误日志:  ${APP_DIR}/logs/error.log"
     echo ""
