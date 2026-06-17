@@ -111,27 +111,51 @@ class MongoDBCache:
         # 注意：不在构造函数中立即连接！
         # 连接推迟到首次实际使用时进行
 
-    def _ensure_connected(self):
-        """确保MongoDB已连接（延迟连接）- 首次使用时才建立连接"""
-        if self._connection_attempted:
-            # 已经尝试过连接，无论成功失败都不再尝试
+    def _ensure_connected(self, force_retry: bool = False):
+        """确保MongoDB已连接（延迟连接）- 首次使用时才建立连接
+
+        Args:
+            force_retry: 如果为 True，即使之前连接失败也会重试
+        """
+        if self._connection_attempted and not force_retry:
+            # 已经尝试过连接，且不强制重试 → 直接返回
             return
+
+        # 如果是强制重试，重置状态
+        if force_retry:
+            self._connection_attempted = False
+            self._connect_error = None
+            # 关闭旧连接
+            if self.client:
+                try:
+                    self.client.close()
+                except Exception:
+                    pass
+                self.client = None
+                self.db = None
+                self.collection = None
 
         self._connection_attempted = True
 
-        if not self.connection_string:
-            logger.warning("MongoDB连接字符串未设置，仅使用内存缓存")
+        # 打印正在使用的连接串（脱敏：只显示前15个字符）
+        if self.connection_string:
+            display_url = self.connection_string[:20] + "..." if len(self.connection_string) > 20 else self.connection_string
+            logger.info(f"[Cache] MongoDB连接串: {display_url}")
+        else:
+            logger.warning("[Cache] MongoDB连接串未设置！环境变量 MONGODB_URL / DIRECT_URL 都为空")
+            logger.info(f"[Cache] 当前环境 MONGODB_URL = {os.environ.get('MONGODB_URL', '(未设置)')}")
+            logger.info(f"[Cache] 当前环境 DIRECT_URL = {os.environ.get('DIRECT_URL', '(未设置)')}")
             return
 
         try:
-            logger.info(f"正在延迟连接MongoDB...")
+            logger.info(f"[Cache] 正在连接MongoDB...")
             start_time = time.time()
             self._connect()
             connect_time = time.time() - start_time
-            logger.info(f"MongoDB延迟连接完成，耗时 {connect_time:.2f}s")
+            logger.info(f"[Cache] ✅ MongoDB连接成功，耗时 {connect_time:.2f}s，集合: {self.db.name}.{self.collection.name}")
         except Exception as e:
             self._connect_error = e
-            logger.warning(f"MongoDB延迟连接失败，仅使用内存缓存: {type(e).__name__}")
+            logger.warning(f"[Cache] ❌ MongoDB连接失败，仅使用内存缓存: {type(e).__name__}: {e}")
 
     def _connect(self):
         """连接到MongoDB数据库 - 优化版本：更好的超时处理"""
@@ -187,10 +211,15 @@ class MongoDBCache:
 
     def _generate_cache_key(self, code: str, start_date: Optional[str] = None, end_date: Optional[str] = None) -> str:
         """
-        生成缓存键
+        生成缓存键 — 正确区分K线数据与市场列表数据
+
+        规则:
+        1. 只要提供了 start_date 或 end_date → K线数据 → kline:{code}:{start}:{end}
+        2. 未提供日期 + code 是已知市场代码 (hk/us/a/sh/sz/hsi/csi300 等) → 市场列表 → market:{code}
+        3. 未提供日期 + code 看起来像股票代码 → K线数据（默认日期范围）→ kline:{code}:default:default
 
         Args:
-            code: 股票代码
+            code: 股票代码 或 市场代码
             start_date: 开始日期 (YYYY-MM-DD格式)
             end_date: 结束日期 (YYYY-MM-DD格式)
 
@@ -198,17 +227,23 @@ class MongoDBCache:
             缓存键字符串
         """
         # 标准化参数
-        code_lower = code.lower()
+        code_lower = code.lower() if code else ""
         start_str = start_date or ""
         end_str = end_date or ""
 
-        # 生成缓存键：格式为 {type}:{code}:{start_date}:{end_date}
-        # 单参数调用（市场股票数据）：market:{code}
-        # 三参数调用（K线数据）：kline:{code}:{start_date}:{end_date}
-        if start_str == "" and end_str == "":
-            return f"market:{code_lower}"
-        else:
+        # 规则1：只要有任何日期参数 → 一定是K线数据
+        if start_str != "" or end_str != "":
             return f"kline:{code_lower}:{start_str}:{end_str}"
+
+        # 规则2：无日期参数 → 根据 code 内容判断
+        # 已知市场代码列表（小写）
+        known_market_codes = {"hk", "us", "a", "sh", "sz", "hsi", "csi300", "sse50", "csi500"}
+        if code_lower in known_market_codes:
+            return f"market:{code_lower}"
+
+        # 规则3：其余情况都按股票代码处理 → K线数据（默认日期范围）
+        # 避免 K线数据被错存为 market:{code}，导致 delete_all_kline 找不到它
+        return f"kline:{code_lower}:default:default"
 
     def get(self, code: str, start_date: Optional[str] = None, end_date: Optional[str] = None) -> Optional[Dict[str, Any]]:
         """
@@ -347,11 +382,15 @@ class MongoDBCache:
         """
         # 统一使用_generate_cache_key生成缓存键
         cache_key = self._generate_cache_key(code, start_date, end_date)
-        
+
         # 第一步：删除内存缓存
         self.memory_cache.delete(cache_key)
 
+        # 确保已连接MongoDB（可能之前连不上现在可以了）
+        self._ensure_connected()
+
         if not self.is_connected():
+            logger.warning(f"[Cache] ⚠️  delete({code}): MongoDB未连接，仅清理内存缓存")
             return True
 
         try:
@@ -359,26 +398,205 @@ class MongoDBCache:
             return True
 
         except Exception as e:
-            logger.debug(f"MongoDB删除失败: {type(e).__name__}")
+            logger.debug(f"[Cache] MongoDB删除失败: {type(e).__name__}")
             # 内存缓存已经删除，返回成功
             return True
 
     def clear_all(self) -> bool:
         """清除所有缓存 - 优化版本：同时清空内存缓存"""
+        logger.info("[Cache] 🗑️  清空所有缓存（内存 + MongoDB）")
         # 第一步：清空内存缓存
         self.memory_cache.clear()
-        
+
+        # 确保已连接MongoDB
+        self._ensure_connected()
+
         if not self.is_connected():
+            logger.warning("[Cache] ⚠️  clear_all(): MongoDB未连接，仅清理了内存缓存")
             return True
 
         try:
-            self.collection.delete_many({})
+            result = self.collection.delete_many({})
+            logger.info(f"[Cache] ✅ clear_all(): MongoDB中删除 {result.deleted_count} 条记录")
             return True
 
         except Exception as e:
-            logger.debug(f"MongoDB清空失败: {type(e).__name__}")
+            logger.warning(f"[Cache] ❌ MongoDB清空失败: {type(e).__name__}")
             # 内存缓存已清空，返回成功
             return True
+
+    def reconnect(self) -> Dict[str, Any]:
+        """
+        强制重试 MongoDB 连接（即使之前失败过也会重新尝试）
+
+        Returns:
+            { "success": bool, "connected": bool, "message": str }
+        """
+        logger.info("[Cache] 🔄 强制重连MongoDB...")
+        self._ensure_connected(force_retry=True)
+        connected = self.is_connected()
+        return {
+            "success": connected,
+            "connected": connected,
+            "message": "✅ 已连接" if connected else f"❌ 连接失败: {self._connect_error}",
+        }
+
+    def get_connection_info(self) -> Dict[str, Any]:
+        """获取当前连接状态信息（用于诊断接口）"""
+        connected = self.is_connected()
+        display_url = None
+        if self.connection_string:
+            display_url = self.connection_string[:20] + "..." if len(self.connection_string) > 20 else self.connection_string
+        return {
+            "connected": connected,
+            "connection_string": display_url or "(未设置)",
+            "env_MONGODB_URL": os.environ.get("MONGODB_URL", "(未设置)")[:30] + "..." if os.environ.get("MONGODB_URL") and len(os.environ.get("MONGODB_URL", "")) > 30 else os.environ.get("MONGODB_URL", "(未设置)"),
+            "env_DIRECT_URL": os.environ.get("DIRECT_URL", "(未设置)")[:30] + "..." if os.environ.get("DIRECT_URL") and len(os.environ.get("DIRECT_URL", "")) > 30 else os.environ.get("DIRECT_URL", "(未设置)"),
+            "database": self.db.name if self.db else None,
+            "collection": self.collection.name if self.collection else None,
+            "connect_error": str(self._connect_error) if self._connect_error else None,
+        }
+
+    def delete_all_kline(self) -> Dict[str, Any]:
+        """
+        清空所有 K线 缓存（匹配 kline:* 前缀 + 旧格式 market:{股票代码} 中非市场代码）
+
+        旧格式说明：此前的 bug 会让无日期的 K线数据存成 market:{code}，与真实的市场列表数据混淆。
+        本方法会删除：
+          1. ^kline:.* （正确的新格式）
+          2. market:{非市场代码}.* （旧格式中错存的 K线数据）
+
+        Returns:
+            { "success": bool, "deleted": int, "message": str }
+        """
+        result = {"success": True, "deleted": 0, "message": ""}
+        logger.info("[Cache] 🗑️  开始清空所有 K线 缓存 (匹配 ^kline: 和旧格式 market:{非市场代码})")
+        self.memory_cache.clear()
+        # 确保已连接 MongoDB（之前没连上的话现在重试）
+        self._ensure_connected()
+        if not self.is_connected():
+            result["message"] = "MongoDB未连接，仅清理了内存缓存"
+            logger.warning(f"[Cache] ⚠️  {result['message']}")
+            return result
+
+        try:
+            # 删除1：所有以 kline: 开头的正确格式
+            delete_result_1 = self.collection.delete_many({"cache_key": {"$regex": "^kline:"}})
+            deleted_new = delete_result_1.deleted_count
+            logger.info(f"[Cache] 已删除 {deleted_new} 条 kline:* 格式的 K线缓存")
+
+            # 删除2：旧格式中错存的 K线数据（market: + 非市场代码）
+            known_market_codes = {"hk", "us", "a", "sh", "sz", "hsi", "csi300", "sse50", "csi500"}
+            deleted_old = 0
+            try:
+                # 拉取所有 market:* 开头的键，逐一检查是否是非市场代码
+                old_entries = list(self.collection.find(
+                    {"cache_key": {"$regex": "^market:"}},
+                    {"cache_key": 1, "_id": 0}
+                ))
+                to_delete = []
+                for entry in old_entries:
+                    key = entry.get("cache_key", "")
+                    # market:xxx → 提取 xxx
+                    if key.startswith("market:"):
+                        code_part = key[len("market:"):]
+                        if code_part and code_part not in known_market_codes:
+                            # 这个是旧格式中错存的 K线数据，删除它
+                            to_delete.append(key)
+                if to_delete:
+                    delete_result_2 = self.collection.delete_many({"cache_key": {"$in": to_delete}})
+                    deleted_old = delete_result_2.deleted_count
+                    logger.info(f"[Cache] 已删除 {deleted_old} 条旧格式 market:{{股票代码}} 的 K线缓存 (如 {to_delete[:3]})")
+            except Exception as inner_e:
+                logger.warning(f"[Cache] 清理旧格式 K线数据时出错（不影响主流程）: {inner_e}")
+
+            total = deleted_new + deleted_old
+            result["deleted"] = total
+            result["message"] = f"已清空所有 K线 缓存，共 {total} 条 (新格式 {deleted_new} + 旧格式 {deleted_old})"
+            logger.info(f"[Cache] ✅ {result['message']}")
+            return result
+
+        except Exception as e:
+            result["success"] = False
+            result["message"] = f"删除失败: {type(e).__name__}: {e}"
+            logger.error(f"[Cache] ❌ 清空所有 K线 缓存失败: {e}")
+            return result
+
+    def delete_by_code(self, code: str) -> Dict[str, Any]:
+        """
+        按股票代码删除所有相关缓存（kline + market）
+
+        Args:
+            code: 股票代码
+
+        Returns:
+            { "success": bool, "deleted_kline": int, "deleted_market": int, "message": str }
+        """
+        result = {"success": True, "deleted_kline": 0, "deleted_market": 0, "message": ""}
+        code_lower = code.lower()
+        logger.info(f"[Cache] 🗑️  删除股票 {code} 的缓存")
+        self.memory_cache.clear()
+        self._ensure_connected()
+
+        if not self.is_connected():
+            result["message"] = "MongoDB未连接，仅清理了内存缓存"
+            logger.warning(f"[Cache] ⚠️  {result['message']}")
+            return result
+
+        try:
+            kline_pattern = f"^kline:{code_lower}:"
+            kline_result = self.collection.delete_many({"cache_key": {"$regex": kline_pattern}})
+            result["deleted_kline"] = kline_result.deleted_count
+
+            market_key = f"market:{code_lower}"
+            market_result = self.collection.delete_many({"cache_key": market_key})
+            result["deleted_market"] = market_result.deleted_count
+
+            total = result["deleted_kline"] + result["deleted_market"]
+            result["message"] = f"已删除 {total} 条缓存 (K线 {result['deleted_kline']} 条, 市场列表 {result['deleted_market']} 条)"
+            logger.info(f"[Cache] ✅ {code}: {result['message']}")
+            return result
+
+        except Exception as e:
+            result["success"] = False
+            result["message"] = f"删除失败: {type(e).__name__}: {e}"
+            logger.error(f"[Cache] ❌ 按代码 {code} 删除缓存失败: {e}")
+            return result
+
+    def delete_by_market(self, market_code: str) -> Dict[str, Any]:
+        """
+        按市场代码删除 market:{market_code} 缓存
+
+        Args:
+            market_code: 市场代码 (如 hk, us, a)
+
+        Returns:
+            { "success": bool, "deleted": int, "message": str }
+        """
+        result = {"success": True, "deleted": 0, "message": ""}
+        code_lower = market_code.lower()
+        logger.info(f"[Cache] 🗑️  删除 market:{code_lower} 缓存")
+        self.memory_cache.clear()
+        self._ensure_connected()
+
+        if not self.is_connected():
+            result["message"] = "MongoDB未连接，仅清理了内存缓存"
+            logger.warning(f"[Cache] ⚠️  {result['message']}")
+            return result
+
+        try:
+            market_key = f"market:{code_lower}"
+            delete_result = self.collection.delete_many({"cache_key": market_key})
+            result["deleted"] = delete_result.deleted_count
+            result["message"] = f"已删除 market:{market_code} 共 {result['deleted']} 条缓存"
+            logger.info(f"[Cache] ✅ market:{market_code}: {result['message']}")
+            return result
+
+        except Exception as e:
+            result["success"] = False
+            result["message"] = f"删除失败: {type(e).__name__}: {e}"
+            logger.error(f"[Cache] ❌ 按市场 {market_code} 删除缓存失败: {e}")
+            return result
 
     def get_stats(self) -> Dict[str, Any]:
         """获取缓存统计信息"""

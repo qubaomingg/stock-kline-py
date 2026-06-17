@@ -83,6 +83,125 @@ async def clear_all_cache():
     return JSONResponse(content={"message": "所有K线缓存已清除"})
 
 
+@app.get("/api/cache/status")
+async def cache_status():
+    """
+    诊断接口：查看当前缓存连接状态
+    用于排查 "MongoDB未连接" 这类问题
+    """
+    from service.cache.mongodb_cache import get_cache
+    cache = get_cache()
+
+    # 打印到终端日志
+    info = cache.get_connection_info()
+    print(f"[Cache Status] {info}")
+
+    # 统计一下库里有多少数据
+    stats = {"mongodb_records": None}
+    try:
+        if cache.is_connected():
+            stats["mongodb_records"] = cache.collection.count_documents({})
+    except Exception as e:
+        stats["count_error"] = str(e)
+
+    return {
+        "status": "ok",
+        "connection": info,
+        "stats": stats,
+    }
+
+
+@app.get("/api/cache/reconnect")
+async def cache_reconnect():
+    """
+    强制重连 MongoDB（之前连接失败了可以通过这个接口重试）
+    """
+    from service.cache.mongodb_cache import get_cache
+    cache = get_cache()
+    result = cache.reconnect()
+    print(f"[Cache Reconnect] {result}")
+    return result
+
+
+@app.get("/api/cache/clear")
+async def clear_all_cache_get():
+    """
+    浏览器友好版本：清空所有缓存（GET 请求直接访问即可）
+    """
+    from service.cache.mongodb_cache import get_cache
+    cache = get_cache()
+    print("[Cache Clear] 清空所有缓存...")
+    cache.clear_all()
+    print("[Cache Clear] ✅ 所有缓存已清空")
+    return {"success": True, "message": "✅ 所有缓存已清空，下次请求将从数据源重新获取"}
+
+
+@app.get("/api/cache/clear/kline")
+async def clear_kline_cache(code: str = None):
+    """
+    清空 K线 缓存（浏览器友好）
+    - 不传 code = 清空**所有** K线 缓存
+    - 传 code = 清空该股票的 K线 缓存
+
+    用法: /api/cache/clear/kline                 → 清空所有 K线
+    用法: /api/cache/clear/kline?code=LITE       → 只清空 LITE
+    用法: /api/cache/clear/kline?code=00700      → 只清空 00700
+    """
+    from service.cache.mongodb_cache import get_cache
+    cache = get_cache()
+
+    if not code:
+        # 不传 code → 清空所有 K线
+        print("[Cache Clear] 清空所有 K线 缓存...")
+        result = cache.delete_all_kline()
+        print(f"[Cache Clear] → 结果: {result}")
+        return {
+            "success": result["success"],
+            "scope": "all_kline",
+            "deleted": result.get("deleted", 0),
+            "message": result.get("message", "")
+        }
+
+    # 传 code → 清空该股票的缓存
+    print(f"[Cache Clear] 清空股票 {code} 的缓存...")
+    result = cache.delete_by_code(code)
+    print(f"[Cache Clear] → 结果: {result}")
+    return {
+        "success": result["success"],
+        "scope": "single_stock",
+        "code": code,
+        "deleted_kline": result.get("deleted_kline", 0),
+        "deleted_market": result.get("deleted_market", 0),
+        "message": result.get("message", "")
+    }
+
+
+@app.get("/api/cache/clear/market")
+async def clear_market_cache(marketCode: str = None):
+    """
+    清空指定市场的列表缓存（浏览器友好）
+
+    用法: /api/cache/clear/market?marketCode=us
+    用法: /api/cache/clear/market?marketCode=hk
+    用法: /api/cache/clear/market?marketCode=a
+    """
+    from service.cache.mongodb_cache import get_cache
+    cache = get_cache()
+
+    if not marketCode:
+        return {"success": False, "message": "❌ 请提供 marketCode 参数: /api/cache/clear/market?marketCode=us"}
+
+    print(f"[Cache Clear] 清空 market:{marketCode} 缓存...")
+    result = cache.delete_by_market(marketCode)
+    print(f"[Cache Clear] → 结果: {result}")
+    return {
+        "success": result["success"],
+        "market_code": marketCode,
+        "deleted": result.get("deleted", 0),
+        "message": result.get("message", "")
+    }
+
+
 def normalize_date(date_str: str) -> str:
     if not date_str:
         return None
