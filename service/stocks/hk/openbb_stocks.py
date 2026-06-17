@@ -49,25 +49,8 @@ def get_hk_stocks_by_openbb() -> Optional[Dict[str, Any]]:
         except Exception as e2:
             print(f"[openbb] 查找函数失败: {e2}")
 
-        # 方案3：使用兜底数据的主要港股作为种子，结合搜索
-        print("[openbb] 使用辅助搜索方式获取港股...")
-        # 获取常用港股代码
-        hk_symbols = ["00001.HK", "00002.HK", "00003.HK", "00004.HK", "00005.HK", "00006.HK", "00011.HK", "00012.HK", "00016.HK", "00017.HK", "00019.HK", "00023.HK", "00027.HK", "00066.HK", "00083.HK", "00101.HK", "00144.HK", "00175.HK", "00388.HK", "00688.HK", "00700.HK", "00762.HK", "00857.HK", "00883.HK", "00941.HK", "00981.HK", "00992.HK", "01038.HK", "01088.HK", "01109.HK", "01177.HK", "01211.HK", "01299.HK", "01398.HK", "01810.HK", "01816.HK", "01888.HK", "01918.HK", "01919.HK", "01994.HK", "02007.HK", "02015.HK", "02018.HK", "02020.HK", "02068.HK", "02202.HK", "02269.HK", "02313.HK", "02318.HK", "02319.HK", "02331.HK", "02333.HK", "02338.HK", "02343.HK", "02357.HK", "02382.HK", "02388.HK", "02398.HK", "02518.HK", "02601.HK", "02628.HK", "02688.HK", "02777.HK", "02899.HK", "03323.HK", "03328.HK", "03333.HK", "03690.HK", "03692.HK", "03800.HK", "03808.HK", "03818.HK", "03888.HK", "03898.HK", "03908.HK", "03968.HK", "03988.HK", "03993.HK", "06098.HK", "06186.HK", "06862.HK", "06969.HK", "07000.HK", "08002.HK", "09003.HK", "09868.HK", "09888.HK", "09919.HK", "09922.HK", "09988.HK", "09999.HK"]
-        
-        hk_stocks = []
-        for symbol in hk_symbols:
-            try:
-                # 尝试获取名称
-                clean_code = symbol.replace(".HK", "")
-                name = f"港股 {clean_code}"
-                hk_stocks.append((clean_code, name))
-            except:
-                pass
-        
-        if len(hk_stocks) > 0:
-            return _convert_to_result(hk_stocks, "openbb")
-        
-        print("[openbb] 所有方案都失败")
+        # 方案3：无真实数据时直接返回 None（不要生成假名称）
+        print("[openbb] 所有方案都无法获取真实股票名称")
         return None
         
     except Exception as e:

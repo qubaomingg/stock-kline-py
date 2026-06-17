@@ -58,10 +58,11 @@ def _infer_market_from_code(code: str) -> str:
 
 def cache_market_stocks(market_code_param: str = "market"):
     """
-    缓存股票市场列表的装饰器 - 优化版本：减少日志输出
+    缓存股票市场列表的装饰器
 
     Args:
         market_code_param: 函数参数中市场代码的参数名，默认为'market'
+        force: 从 kwargs 中读取，force=True 时跳过缓存查询
 
     Returns:
         装饰器函数
@@ -71,13 +72,14 @@ def cache_market_stocks(market_code_param: str = "market"):
         def wrapper(*args, **kwargs) -> Optional[Dict[str, Any]]:
             # 获取市场代码
             market_code = None
+            # 获取 force 参数
+            force = kwargs.pop('force', False) or kwargs.pop('force_refresh', False)
 
             # 从关键字参数中获取
             if market_code_param in kwargs:
                 market_code = kwargs[market_code_param]
             # 从位置参数中获取（如果函数有market参数）
             elif args:
-                # 尝试从函数签名获取参数位置
                 import inspect
                 sig = inspect.signature(func)
                 params = list(sig.parameters.keys())
@@ -88,7 +90,6 @@ def cache_market_stocks(market_code_param: str = "market"):
                         market_code = args[param_index]
 
             if not market_code:
-                # 如果没有明确的市场代码，尝试从函数名推断
                 func_name = func.__name__.lower()
                 if 'a' in func_name:
                     market_code = 'a'
@@ -99,35 +100,40 @@ def cache_market_stocks(market_code_param: str = "market"):
                 else:
                     market_code = 'unknown'
 
-            # 尝试从缓存获取 - 减少日志
+            # 初始化缓存
             cache = get_cache()
-            cached_data = cache.get(market_code)
 
-            if cached_data:
-                # 添加缓存标记
-                cached_data["_cached"] = True
-                cached_data["_cache_timestamp"] = datetime.utcnow().isoformat()
-                logger.debug(f"缓存命中: {market_code.upper()} 市场")
-                return cached_data
+            # force=True 时跳过缓存查询
+            if not force:
+                cached_data = cache.get(market_code)
+                if cached_data:
+                    cached_data["_cached"] = True
+                    cached_data["_cache_timestamp"] = datetime.utcnow().isoformat()
+                    logger.info(f"[{market_code.upper()}] 缓存命中，共 {cached_data.get('count', 0)} 只股票")
+                    return cached_data
 
-            # 缓存未命中，调用原函数
-            logger.info(f"缓存未命中: {market_code.upper()} 市场，正在获取数据...")
+            # 缓存未命中或 force=True，调用原函数
+            log_prefix = f"[{market_code.upper()}]"
+            if force:
+                logger.info(f"{log_prefix} force=true，跳过缓存，直接获取数据...")
+            else:
+                logger.info(f"{log_prefix} 缓存未命中，正在获取数据...")
+
             result = func(*args, **kwargs)
 
             if result:
-                # 添加缓存标记
                 result["_cached"] = False
                 result["_cache_timestamp"] = datetime.utcnow().isoformat()
 
-                # 缓存结果
+                # 写入缓存
                 cache_success = cache.set(market_code, data=result, ttl_days=5)
 
                 if cache_success:
-                    logger.info(f"成功缓存 {market_code.upper()} 市场数据，共{result.get('count', 0)}只股票")
+                    logger.info(f"{log_prefix} 成功写入缓存，共 {result.get('count', 0)} 只股票")
                 else:
-                    logger.warning(f"缓存 {market_code.upper()} 市场数据失败")
+                    logger.warning(f"{log_prefix} 缓存写入失败")
             else:
-                logger.warning(f"原函数返回空结果，跳过缓存: {market_code.upper()} 市场")
+                logger.warning(f"{log_prefix} 原函数返回空结果，跳过缓存")
 
             return result
 
@@ -223,10 +229,12 @@ def cache_kline_data():
             sig = inspect.signature(func)
             params = list(sig.parameters.keys())
 
-            # 从参数中提取股票代码、开始日期和结束日期
+            # 从参数中提取股票代码、开始日期、结束日期
+            # force: True 表示强制跳过缓存，直接从数据源获取
             code = None
             start_date = None
             end_date = None
+            force = False
 
             # 首先检查关键字参数
             if 'code' in kwargs:
@@ -235,6 +243,8 @@ def cache_kline_data():
                 start_date = kwargs['start_date']
             if 'end_date' in kwargs:
                 end_date = kwargs['end_date']
+            if 'force' in kwargs:
+                force = bool(kwargs['force'])
 
             # 如果没有在关键字参数中找到，检查位置参数
             if not code and 'code' in params:
@@ -252,6 +262,11 @@ def cache_kline_data():
                 if param_index < len(args):
                     end_date = args[param_index]
 
+            if not force and 'force' in params:
+                param_index = params.index('force')
+                if param_index < len(args):
+                    force = bool(args[param_index])
+
             if not code:
                 # 如果没有股票代码，直接调用原函数
                 logger.warning("无法获取股票代码，跳过缓存")
@@ -261,34 +276,49 @@ def cache_kline_data():
             market_type = _infer_market_from_code(code)
             log_prefix = f"[{func.__name__}] [market={market_type}] {code.upper()}"
 
-            # 尝试从缓存获取
-            logger.info(f"{log_prefix} 尝试从缓存获取K线数据 (日期: {start_date or 'auto'} ~ {end_date or 'auto'})")
-
+            # 初始化 cache 实例（force=True 和正常路径都可能需要写缓存）
             cache = get_cache()
-            t0 = time.time()
-            cached_data = cache.get(code, start_date, end_date)
-            cache_lookup_ms = int((time.time() - t0) * 1000)
 
-            if cached_data:
-                # 添加缓存标记
-                cached_data["_cached"] = True
-                cached_data["_cache_timestamp"] = datetime.utcnow().isoformat()
-                data_size = len(str(cached_data))
-                logger.info(f"{log_prefix} ✅ 缓存命中 ({cache_lookup_ms}ms), 数据大小: {data_size//1024}KB, 返回缓存数据")
-                return cached_data
-
-            # 缓存未命中，调用原函数，记录耗时
-            logger.info(f"{log_prefix} ⚠️ 缓存未命中，调用 {func.__name__}() 从数据源获取...")
-
-            t_start = time.time()
-            try:
-                result = func(*args, **kwargs)
-            except Exception as e:
+            # 如果 force=True，直接跳过缓存查询
+            if force:
+                logger.info(f"{log_prefix} 🔄 强制刷新模式，跳过缓存，直接从数据源获取...")
+                t_start = time.time()
+                try:
+                    # 将 force 从 kwargs 中移除，避免传给底层函数（可能不支持此参数）
+                    func_kwargs = {k: v for k, v in kwargs.items() if k != 'force'}
+                    result = func(*args, **func_kwargs)
+                except Exception as e:
+                    elapsed = time.time() - t_start
+                    logger.error(f"{log_prefix} ❌ 原函数调用异常 ({elapsed:.1f}s): {e}")
+                    raise
                 elapsed = time.time() - t_start
-                logger.error(f"{log_prefix} ❌ 原函数调用异常 ({elapsed:.1f}s): {e}")
-                raise
+            else:
+                # 正常流程：先尝试从缓存获取
+                logger.info(f"{log_prefix} 尝试从缓存获取K线数据 (日期: {start_date or 'auto'} ~ {end_date or 'auto'})")
 
-            elapsed = time.time() - t_start
+                t0 = time.time()
+                cached_data = cache.get(code, start_date, end_date)
+                cache_lookup_ms = int((time.time() - t0) * 1000)
+
+                if cached_data:
+                    # 添加缓存标记
+                    cached_data["_cached"] = True
+                    cached_data["_cache_timestamp"] = datetime.utcnow().isoformat()
+                    data_size = len(str(cached_data))
+                    logger.info(f"{log_prefix} ✅ 缓存命中 ({cache_lookup_ms}ms), 数据大小: {data_size//1024}KB, 返回缓存数据")
+                    return cached_data
+
+                # 缓存未命中，调用原函数，记录耗时
+                logger.info(f"{log_prefix} ⚠️ 缓存未命中，调用 {func.__name__}() 从数据源获取...")
+
+                t_start = time.time()
+                try:
+                    result = func(*args, **kwargs)
+                except Exception as e:
+                    elapsed = time.time() - t_start
+                    logger.error(f"{log_prefix} ❌ 原函数调用异常 ({elapsed:.1f}s): {e}")
+                    raise
+                elapsed = time.time() - t_start
 
             # 检查是否有有效数据（不仅是非空 dict，还需要 data 字段有内容）
             has_valid_data = False

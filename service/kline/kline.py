@@ -139,7 +139,8 @@ def get_kline_data(
     code: str,
     start_date: Optional[str] = None,
     end_date: Optional[str] = None,
-    data_sources: Optional[List[str]] = None
+    data_sources: Optional[List[str]] = None,
+    force: bool = False
 ) -> Dict:
     """
     获取股票K线数据
@@ -148,7 +149,8 @@ def get_kline_data(
         code: 股票代码
         start_date: 开始日期，格式：YYYY-MM-DD
         end_date: 结束日期，格式：YYYY-MM-DD
-        data_sources: 指定数据源列表，如果为None则使用默认配置
+        data_sources: 指定数据源优先级（None 表示使用默认配置）
+        force: 强制跳过缓存，直接从数据源获取（True=强制刷新）
 
     Returns:
         包含K线数据的字典

@@ -13,13 +13,13 @@ import importlib.util
 # 添加当前目录到Python路径，以便导入数据源模块
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-# 数据源列表（按优先级顺序）
+# 数据源列表（按优先级顺序 - 能获取真实股票名称的优先）
 DATA_SOURCES = [
-    'extended_hk_stocks',  # 增强版港股数据源（新增，包含真实数据 + 扩展数据）
-    'finnhub_stocks',      # finnhub数据源（新增，支持 exchange=HK）
-    'openbb_stocks',       # openbb-china数据源（新增，配合 openbb）
-    'ak_stocks',           # akshare数据源
-    'eastmoney_stocks',    # openbb-china eastmoney数据源
+    'ak_stocks',           # akshare数据源（从东方财富获取真实名称）
+    'eastmoney_stocks',    # openbb-china eastmoney数据源（同样能获取真实名称）
+    'extended_hk_stocks',  # 增强版港股数据源（硬编码常用成分股，作为补充）
+    'finnhub_stocks',      # finnhub数据源
+    'openbb_stocks',       # openbb-china数据源
 ]
 
 
@@ -97,20 +97,52 @@ def get_hk_stocks() -> Optional[Dict[str, Any]]:
     except Exception as e:
         print(f"[hk_stocks] 获取兜底数据失败: {e}")
 
+    # 港股非股票类型关键词（权证/衍生品/基金/债券/ETF等）
+    NON_STOCK_KEYWORDS = [
+        '购', '沽', '权证', '牛', '熊',
+        '基金', 'ETF', 'ETF-R', 'ETP', '信托', '债券', '债',
+        '指数', '期货', '期权', 'REIT', 'reit',
+        '优先', '存托', 'A', 'B',
+        '现金', '黄金', '白银', '人民币', '港元',
+    ]
+    
+    def _is_valid_hk_stock(stock: Dict) -> bool:
+        """判断是否为有效港股（过滤权证/基金/衍生品）"""
+        name = str(stock.get('name', ''))
+        code = str(stock.get('code', ''))
+        if not name or not code or name == 'nan':
+            return False
+        name_upper = name.upper()
+        for kw in NON_STOCK_KEYWORDS:
+            if kw in name_upper:
+                return False
+        # 港股代码应为 4-5 位数字
+        if not code.isdigit() or len(code) < 4 or len(code) > 5:
+            return False
+        return True
+
     # 3. 合并去重：真实数据优先 + 兜底补充
     final_stocks = []
     seen_codes = set()
 
     for stock in real_stocks:
+        if not _is_valid_hk_stock(stock):
+            continue
+        if stock['code'] in seen_codes:
+            continue
         final_stocks.append(stock)
         seen_codes.add(stock['code'])
 
     for stock in fallback_stocks:
+        if not _is_valid_hk_stock(stock):
+            continue
         if stock['code'] not in seen_codes:
             final_stocks.append(stock)
             seen_codes.add(stock['code'])
 
-    print(f"[hk_stocks] 合并后共 {len(final_stocks)} 只港股（真实 {len(real_stocks)} + 兜底补充 {len(final_stocks)-len(real_stocks)}）")
+    total_input = len(real_stocks) + len(fallback_stocks)
+    filtered_out = total_input - len(final_stocks)
+    print(f"[hk_stocks] 合并后共 {len(final_stocks)} 只港股（真实 {len(real_stocks)} + 兜底补充 {len(final_stocks)-len(real_stocks)}，过滤 {filtered_out} 只非股票）")
 
     if len(final_stocks) > 0:
         return {

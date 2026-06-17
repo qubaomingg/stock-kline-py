@@ -74,8 +74,31 @@ def get_hk_stocks_by_ak() -> Optional[Dict[str, Any]]:
             print("[akshare] 所有方法都失败")
             return None
 
+        # 港股非股票类型关键词（权证/衍生品/基金/债券/ETF等）
+        NON_STOCK_KEYWORDS = [
+            '购', '沽', '权证', '牛', '熊',
+            '基金', 'ETF', 'ETF-R', 'ETP', '信托', '债券', '债',
+            '指数', '期货', '期权', 'REIT', 'reit',
+            '优先', '存托', 'A', 'B',
+            '现金', '黄金', '白银', '人民币', '港元',
+        ]
+        
+        def _is_valid_hk_stock(name: str, code: str) -> bool:
+            """判断是否为有效港股（过滤权证/基金/衍生品）"""
+            if not name or name == 'nan':
+                return False
+            name_upper = name.upper()
+            for kw in NON_STOCK_KEYWORDS:
+                if kw in name_upper:
+                    return False
+            # 港股代码应为 5 位数字
+            if not code.isdigit() or len(code) < 4 or len(code) > 5:
+                return False
+            return True
+
         # 转换为列表格式
         stocks = []
+        filtered_out = 0
         for _, row in df.iterrows():
             code = str(row['symbol'])
             name = str(row['name'])
@@ -85,6 +108,11 @@ def get_hk_stocks_by_ak() -> Optional[Dict[str, Any]]:
 
             if code and code.isdigit():
                 code = code.zfill(5)
+
+            # 应用名称过滤
+            if not _is_valid_hk_stock(name, code):
+                filtered_out += 1
+                continue
 
             stock = {
                 'code': code,
@@ -99,12 +127,13 @@ def get_hk_stocks_by_ak() -> Optional[Dict[str, Any]]:
         result = {
             'market': 'hk',
             'count': len(stocks),
+            'filtered_out': filtered_out,
             'stocks': stocks,
             'timestamp': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
             'source': 'akshare'
         }
 
-        print(f"[akshare] 成功获取 {len(stocks)} 只港股")
+        print(f"[akshare] 成功获取 {len(stocks)} 只港股，过滤掉 {filtered_out} 只非股票")
         return result
 
     except Exception as e:

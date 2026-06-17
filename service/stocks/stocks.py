@@ -34,7 +34,7 @@ from cache.decorators import cache_market_stocks
 
 
 @cache_market_stocks(market_code_param="marketcode")
-def get_stock_by_market(marketcode: str) -> Optional[Dict[str, Any]]:
+def get_stock_by_market(marketcode: str, force: bool = False) -> Optional[Dict[str, Any]]:
     """
     获取指定市场的所有股票列表
 

@@ -93,7 +93,7 @@ def normalize_date(date_str: str) -> str:
 
 
 @app.get("/api/kline")
-async def get_kline(code: str, start_date: str = None, end_date: str = None, start: str = None, end: str = None, name: str = None):
+async def get_kline(code: str, start_date: str = None, end_date: str = None, start: str = None, end: str = None, name: str = None, force: bool = False):
     """
     获取股票K线数据
 
@@ -104,6 +104,7 @@ async def get_kline(code: str, start_date: str = None, end_date: str = None, sta
     :param start: 开始日期（兼容参数，支持 YYYY-MM-DD 或 YYYYMMDD 格式）
     :param end: 结束日期（兼容参数，支持 YYYY-MM-DD 或 YYYYMMDD 格式）
     :param name: 股票名称（可选）
+    :param force: 强制跳过缓存，直接从数据源获取（True=强制刷新，默认False）
     :return: K线数据
     """
     # 延迟导入 - 仅在首次调用时加载重型模块
@@ -111,10 +112,10 @@ async def get_kline(code: str, start_date: str = None, end_date: str = None, sta
 
     final_start_date = normalize_date(start_date) or normalize_date(start)
     final_end_date = normalize_date(end_date) or normalize_date(end)
-    print(f'获取股票K线数据，股票代码：{code}，开始日期：{final_start_date}，结束日期：{final_end_date}，股票名称：{name}')
+    print(f'获取股票K线数据，股票代码：{code}，开始日期：{final_start_date}，结束日期：{final_end_date}，股票名称：{name}，force={force}')
 
     try:
-        result = get_kline_data(code, final_start_date, final_end_date)
+        result = get_kline_data(code, final_start_date, final_end_date, force=force)
 
         return {
             "code": code,
@@ -187,20 +188,25 @@ async def api_get_stock_baseinfo(code: str):
 
 
 @app.get("/api/stock/market")
-async def get_stock_market(marketCode: str):
+async def get_stock_market(marketCode: str, force: bool = False):
     """
     获取指定市场的所有股票列表
-    :param marketCode: 市场代码 (a, hk, us)
-    :return: 股票列表数据
+
+    Args:
+        marketCode: 市场代码 (a, hk, us)
+        force: 是否强制跳过缓存，从数据源重新获取（默认 False）
+
+    Returns:
+        股票列表数据
     """
     # 延迟导入
     from service.stocks.stocks import get_stock_by_market
 
-    print(f'获取市场股票列表，市场代码：{marketCode}')
+    print(f'获取市场股票列表，市场代码：{marketCode}，force：{force}')
 
     try:
         # 调用股票市场服务获取数据
-        result = get_stock_by_market(marketCode)
+        result = get_stock_by_market(marketCode, force=force)
 
         if result is None:
             raise HTTPException(status_code=404, detail=f"未找到市场代码为 {marketCode} 的股票列表")

@@ -144,21 +144,7 @@ def get_hk_stocks_by_extended() -> Optional[Dict[str, Any]]:
                 all_hk_stocks.append(stock)
                 seen_codes.add(stock["code"])
 
-        # 3. 再补充一些从 00001 到 02500 的连续港股代码
-        print("\n补充连续港股代码...")
-        for i in range(1, 2501):
-            code = f"{i:05d}"
-            if code not in seen_codes:
-                all_hk_stocks.append({
-                    "code": code,
-                    "name": f"港股{code}",
-                    "market": "hk",
-                    "full_code": f"{code}.HK"
-                })
-                seen_codes.add(code)
-
         print(f"\n✓ 增强版港股列表获取完成！共 {len(all_hk_stocks)} 只港股")
-        print(f"✓ 包含真实数据 {len(hang_sheng_stocks)} 只 + 补充数据 {len(all_hk_stocks) - len(hang_sheng_stocks)} 只")
 
         return {
             "market": "hk",
