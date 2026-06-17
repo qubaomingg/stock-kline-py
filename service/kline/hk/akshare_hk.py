@@ -32,6 +32,9 @@ from datetime import datetime
 import requests
 import urllib3
 import contextlib
+import logging
+
+logger = logging.getLogger(__name__)
 
 # 忽略SSL警告
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
@@ -88,13 +91,13 @@ def get_kline_data_from_akshare_hk(
     """
 
     if market_type != 'hk':
-        print(f"akshare_hk 仅支持港股(hk)市场，收到: {market_type}")
+        logger.warning(f"akshare_hk 仅支持港股(hk)市场，收到: {market_type}")
         return None
 
     try:
         import akshare as ak
     except ImportError:
-        print("akshare未安装，无法使用akshare_hk数据源")
+        logger.warning("akshare未安装，无法使用akshare_hk数据源")
         return None
 
     # 尝试不同的akshare函数获取港股数据
@@ -105,7 +108,7 @@ def get_kline_data_from_akshare_hk(
 
     for source in data_sources:
         try:
-            print(f"尝试使用 {source['name']} 获取港股数据...")
+            logger.info(f"尝试使用 {source['name']} 获取港股数据: {code}")
             data = None
 
             # 使用ignore_ssl_verification上下文管理器执行akshare函数
@@ -145,7 +148,7 @@ def get_kline_data_from_akshare_hk(
                         if data is not None and not data.empty:
                             # 确保有date列
                             if 'date' not in data.columns:
-                                print(f"警告: stock_hk_daily返回的数据缺少date列，列名为: {list(data.columns)}")
+                                logger.warning(f"stock_hk_daily返回的数据缺少date列，列名为: {list(data.columns)}")
                                 data = None
                             else:
                                 # 转换date列为datetime类型
@@ -157,12 +160,12 @@ def get_kline_data_from_akshare_hk(
                                 end_dt = pd.to_datetime(end_date)
                                 data = data[(data['date'] >= start_dt) & (data['date'] <= end_dt)]
                     except Exception as e:
-                        print(f"stock_hk_daily调用失败: {e}")
+                        logger.warning(f"stock_hk_daily调用失败: {e}")
                         data = None
 
             # 检查是否成功获取数据
             if data is not None and not data.empty:
-                print(f"{source['name']} 成功获取港股数据，数据形状: {data.shape}")
+                logger.info(f"{source['name']} 成功获取港股数据: {len(data)} 条")
 
                 # 处理数据
                 processed_data = process_kline_data(data, 'akshare_hk')
@@ -176,21 +179,21 @@ def get_kline_data_from_akshare_hk(
                 }
 
         except Exception as e:
-            print(f"{source['name']} 获取港股数据失败: {e}")
+            logger.warning(f"{source['name']} 获取港股数据失败: {e}")
             continue
 
     # 如果所有数据源都失败，尝试获取实时数据
-    print("所有历史数据源失败，尝试获取实时数据...")
+    logger.warning("所有历史数据源失败，尝试获取实时数据...")
     try:
         # 获取实时行情数据
         realtime_data = get_hk_realtime_data(code)
         if realtime_data:
-            print(f"成功获取港股实时数据")
+            logger.info(f"成功获取港股实时数据: {code}")
             return realtime_data
     except Exception as e:
-        print(f"获取实时数据失败: {e}")
+        logger.warning(f"获取实时数据失败: {e}")
 
-    print(f"所有akshare港股数据源均失败")
+    logger.warning(f"所有akshare港股数据源均失败: {code}")
     return None
 
 
@@ -232,7 +235,7 @@ def get_hk_realtime_data(code: str) -> Optional[Dict]:
                     "data": kline_data
                 }
     except Exception as e:
-        print(f"获取实时数据失败: {e}")
+        logger.warning(f"获取实时数据失败: {type(e).__name__}: {e}")
 
     return None
 
@@ -272,7 +275,7 @@ def get_hk_market_sentiment() -> Optional[Dict]:
                 "data": formatted_data
             }
     except Exception as e:
-        print(f"获取市场情绪数据失败: {e}")
+        logger.warning(f"获取市场情绪数据失败: {type(e).__name__}: {e}")
 
     return None
 
@@ -315,7 +318,7 @@ def get_hk_sector_performance() -> Optional[Dict]:
                 "data": formatted_data
             }
     except Exception as e:
-        print(f"获取板块表现数据失败: {e}")
+        logger.warning(f"获取板块表现数据失败: {type(e).__name__}: {e}")
 
     return None
 
@@ -344,7 +347,7 @@ def get_hk_fund_flow() -> Optional[Dict]:
                     "data": hk_fund_flow.to_dict('records')
                 }
     except Exception as e:
-        print(f"获取资金流向数据失败: {e}")
+        logger.warning(f"获取资金流向数据失败: {type(e).__name__}: {e}")
 
     return None
 
@@ -397,7 +400,7 @@ def get_hk_order_book(code: str) -> Optional[Dict]:
 
                 return order_book
     except Exception as e:
-        print(f"获取盘口数据失败: {e}")
+        logger.warning(f"获取盘口数据失败: {type(e).__name__}: {e}")
 
     return None
 

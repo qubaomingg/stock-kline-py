@@ -19,9 +19,13 @@ tiingo数据源模块
 }
 """
 
+import logging
+
 from typing import Dict, List, Optional
 import pandas as pd
 from datetime import datetime
+
+logger = logging.getLogger(__name__)
 
 def get_kline_data_from_tiingo(
     code: str,
@@ -57,11 +61,11 @@ def get_kline_data_from_tiingo(
     try:
         from tiingo import TiingoClient
     except ImportError:
-        print("tiingo未安装，无法使用tiingo数据源")
+        logger.warning("tiingo未安装，无法使用tiingo数据源")
         return None
 
     if not api_key:
-        print("tiingo需要API密钥，跳过")
+        logger.warning("tiingo需要API密钥，跳过")
         return None
 
     try:
@@ -86,13 +90,13 @@ def get_kline_data_from_tiingo(
                 error_msg = str(e)
                 if "rate limit" in error_msg.lower() or "too many requests" in error_msg.lower():
                     wait_time = 5
-                    print(f"tiingo 速率限制，等待 {wait_time} 秒后重试...")
+                    logger.warning(f"tiingo 速率限制，等待 {wait_time} 秒后重试...")
                     time.sleep(wait_time)
                     continue
                 else:
                     raise e
         else:
-            print("tiingo 所有重试均失败")
+            logger.warning("tiingo 所有重试均失败")
             return None
 
         # tiingo返回的数据格式需要特殊处理
@@ -109,7 +113,7 @@ def get_kline_data_from_tiingo(
                 item['volume'] = item.get('volume', item.get('adjVolume', 0))
 
         if not data:
-            print(f"tiingo 数据源返回空数据")
+            logger.warning(f"tiingo 数据源返回空数据")
             return None
 
         # 转换为DataFrame
@@ -117,7 +121,7 @@ def get_kline_data_from_tiingo(
         data['date'] = pd.to_datetime(data['date'])
         data.set_index('date', inplace=True)
 
-        print(f"tiingo 数据源成功获取数据，数据形状: {data.shape}")
+        logger.info(f"tiingo 数据源成功获取数据，数据形状: {data.shape}")
 
         # 处理数据
         from ..utils import process_kline_data
@@ -132,7 +136,7 @@ def get_kline_data_from_tiingo(
         }
 
     except Exception as e:
-        print(f"tiingo 数据源失败: {e}")
+        logger.warning(f"tiingo 数据源失败: {e}")
         return None
 
 

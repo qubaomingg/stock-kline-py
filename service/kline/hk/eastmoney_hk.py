@@ -10,6 +10,9 @@ import pandas as pd
 import requests
 from datetime import datetime, timedelta
 import time
+import logging
+
+logger = logging.getLogger(__name__)
 
 # 导入数据处理函数
 import sys
@@ -48,11 +51,11 @@ def get_kline_data_from_eastmoney_hk(
     """
 
     if market_type != 'hk':
-        print(f"eastmoney_hk 仅支持港股(hk)市场，收到: {market_type}")
+        logger.warning(f"eastmoney_hk 仅支持港股(hk)市场，收到: {market_type}")
         return None
 
     try:
-        print(f"[eastmoney_hk] 正在获取港股 {code} K线数据...")
+        logger.info(f"正在获取港股 {code} K线数据...")
 
         # 东方财富港股K线API
         # 港股代码格式：116.HK -> 00116
@@ -80,7 +83,7 @@ def get_kline_data_from_eastmoney_hk(
                 end_date_formatted = end_date
                 end_date = end_dt.strftime('%Y-%m-%d') # 标准化为 YYYY-MM-DD 供后续使用
         except ValueError as e:
-            print(f"[eastmoney_hk] 日期格式解析错误: {e}")
+            logger.warning(f"日期格式解析错误: {e}")
             return None
 
         # API参数
@@ -102,18 +105,18 @@ def get_kline_data_from_eastmoney_hk(
         import urllib3
         urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
-        response = requests.get(url, params=params, timeout=10, verify=False)
+        response = requests.get(url, params=params, timeout=5, verify=False)
         response.raise_for_status()
         data = response.json()
 
         if data.get("rc") != 0:
-            print(f"[eastmoney_hk] API返回错误: rc={data.get('rc')}, rt={data.get('rt', '未知错误')}")
+            logger.warning(f"API返回错误: rc={data.get('rc')}, rt={data.get('rt', '未知错误')}")
             return None
 
         klines = data.get("data", {}).get("klines", [])
 
         if not klines:
-            print(f"[eastmoney_hk] 未获取到K线数据")
+            logger.warning(f"未获取到K线数据: {code}")
             return None
 
         # 解析K线数据
@@ -151,14 +154,14 @@ def get_kline_data_from_eastmoney_hk(
         df = df[(df["date"] >= start_dt) & (df["date"] <= end_dt)]
 
         if df.empty:
-            print(f"[eastmoney_hk] 在指定时间范围内未找到数据: {start_date} 到 {end_date}")
+            logger.warning(f"在指定时间范围内未找到数据: {start_date} 到 {end_date}")
             return None
 
         # 处理数据
         processed_data = process_kline_data(df, "eastmoney_hk")
 
         if not processed_data:
-            print(f"[eastmoney_hk] 数据处理失败")
+            logger.warning(f"数据处理失败: {code}")
             return None
 
         result = {
@@ -169,14 +172,14 @@ def get_kline_data_from_eastmoney_hk(
             "data": processed_data
         }
 
-        print(f"[eastmoney_hk] 成功获取 {len(processed_data)} 条K线数据")
+        logger.info(f"成功获取 {len(processed_data)} 条K线数据: {code}")
         return result
 
     except requests.exceptions.RequestException as e:
-        print(f"[eastmoney_hk] 网络请求失败: {e}")
+        logger.warning(f"网络请求失败: {type(e).__name__}: {e}")
         return None
     except Exception as e:
-        print(f"[eastmoney_hk] 获取K线数据时发生错误: {e}")
+        logger.warning(f"获取K线数据时发生错误: {type(e).__name__}: {e}")
         return None
 
 

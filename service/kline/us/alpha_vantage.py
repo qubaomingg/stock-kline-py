@@ -29,6 +29,8 @@ Alpha Vantage数据源模块
 }
 """
 
+import logging
+
 import pandas as pd
 from typing import Dict, List, Optional, Any
 import requests
@@ -36,6 +38,8 @@ import urllib3
 import contextlib
 from datetime import datetime
 import time
+
+logger = logging.getLogger(__name__)
 
 # 忽略SSL警告
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
@@ -136,10 +140,10 @@ def get_kline_data_from_alpha_vantage(
                     last_error = None
                     for sym in symbols_to_try:
                         try:
-                            print(f"尝试从 alpha_vantage 获取符号: {sym}")
+                            logger.info(f"尝试从 alpha_vantage 获取符号: {sym}")
                             data, meta_data = ts.get_daily(symbol=sym, outputsize='compact')
                             if data is not None and not data.empty:
-                                print(f"成功使用符号 {sym} 获取数据")
+                                logger.info(f"成功使用符号 {sym} 获取数据")
                                 break
                         except ValueError as e:
                             last_error = e
@@ -161,7 +165,7 @@ def get_kline_data_from_alpha_vantage(
                 if "Our standard API call frequency" in error_msg or "Thank you for using Alpha Vantage" in error_msg:
                     # 触发限流
                     wait_time = 5 # 免费版每分钟5次，等5秒
-                    print(f"alpha_vantage 速率限制，等待 {wait_time} 秒后重试...")
+                    logger.warning(f"alpha_vantage 速率限制，等待 {wait_time} 秒后重试...")
                     time.sleep(wait_time)
                     continue
                 else:
@@ -171,13 +175,13 @@ def get_kline_data_from_alpha_vantage(
                 if "Our standard API call frequency" in error_msg or "Thank you for using Alpha Vantage" in error_msg:
                     # 触发限流
                     wait_time = 5 # 免费版每分钟5次，等5秒
-                    print(f"alpha_vantage 速率限制，等待 {wait_time} 秒后重试...")
+                    logger.warning(f"alpha_vantage 速率限制，等待 {wait_time} 秒后重试...")
                     time.sleep(wait_time)
                     continue
                 else:
                     raise e
         except Exception as e:
-            print(f"alpha_vantage 数据源尝试 {attempt + 1} 失败: {e}")
+            logger.warning(f"alpha_vantage 数据源尝试 {attempt + 1} 失败: {e}")
             if attempt < 2:
                 time.sleep(5)
                 continue
@@ -215,15 +219,15 @@ def get_kline_data_from_alpha_vantage(
 
     # 如果无法解析日期，使用默认值
     if start_dt is None:
-        print(f"警告: 无法解析开始日期 {start_date}，使用默认值")
+        logger.warning(f"警告: 无法解析开始日期 {start_date}，使用默认值")
         start_dt = datetime.strptime('2000-01-01', '%Y-%m-%d')
     if end_dt is None:
-        print(f"警告: 无法解析结束日期 {end_date}，使用默认值")
+        logger.warning(f"警告: 无法解析结束日期 {end_date}，使用默认值")
         end_dt = datetime.now()
 
     # 确保end_dt在start_dt之后
     if end_dt < start_dt:
-        print(f"警告: 结束日期 {end_dt.strftime('%Y-%m-%d')} 早于开始日期 {start_dt.strftime('%Y-%m-%d')}，交换日期")
+        logger.warning(f"警告: 结束日期 {end_dt.strftime('%Y-%m-%d')} 早于开始日期 {start_dt.strftime('%Y-%m-%d')}，交换日期")
         start_dt, end_dt = end_dt, start_dt
 
     # 筛选日期范围
@@ -232,13 +236,13 @@ def get_kline_data_from_alpha_vantage(
     data = data.loc[mask]
 
     if data.empty:
-        print(f"alpha_vantage 数据源返回空数据 (日期范围: {start_date} - {end_date})")
+        logger.warning(f"alpha_vantage 数据源返回空数据 (日期范围: {start_date} - {end_date})")
         return None
 
     # 确保数据按日期升序排列
     data = data.sort_index(ascending=True)
 
-    print(f"alpha_vantage 数据源成功获取数据，数据形状: {data.shape}")
+    logger.info(f"alpha_vantage 数据源成功获取数据，数据形状: {data.shape}")
 
     # 处理数据
     processed_data = []

@@ -25,6 +25,9 @@ import os
 from typing import Dict, List, Optional, Any
 import pandas as pd
 from datetime import datetime
+import logging
+
+logger = logging.getLogger(__name__)
 
 from ..utils import process_kline_data
 
@@ -90,24 +93,18 @@ def get_kline_data_from_baostock(
 
         # 检查baostock是否可用
         if not is_baostock_available():
-            print("baostock 库不可用")
+            logger.warning("baostock 库不可用")
             return None
-
-        # 登录Baostock
-        print(f'11 - bs模块属性: {dir(bs)}')
-        print(f'11 - bs模块是否有login属性: {"login" in dir(bs)}')
-        print(f'11 - bs模块位置: {bs.__file__}')
 
         # 检查login属性是否存在
         if not hasattr(bs, 'login'):
-            print('错误: bs模块没有login属性')
-            print(f'bs模块的所有属性: {dir(bs)}')
+            logger.warning('baostock模块没有login属性')
             return None
 
+        # 登录Baostock
         lg = bs.login()
-        print('22 - login成功')
         if lg.error_code != '0':
-            print(f"baostock 登录失败: {lg.error_msg}")
+            logger.warning(f"baostock 登录失败: {lg.error_msg}")
             return None
 
         # 根据市场类型确定股票代码
@@ -125,11 +122,11 @@ def get_kline_data_from_baostock(
                 elif code.startswith('0') or code.startswith('3'):
                     bs_code = f"sz.{code}"
                 else:
-                    print(f"baostock 无法确定市场: {code}")
+                    logger.warning(f"baostock 无法确定市场: {code}")
                     bs.logout()
                     return None
         else:
-            print(f"baostock 不支持的市场类型: {market_type}")
+            logger.warning(f"baostock 不支持的市场类型: {market_type}")
             bs.logout()
             return None
 
@@ -161,7 +158,7 @@ def get_kline_data_from_baostock(
                 end_date = end_date_clean.replace('/', '-')
 
         except Exception as e:
-            print(f"baostock 日期格式处理错误: {e}")
+            logger.warning(f"baostock 日期格式处理错误: {e}")
             # 继续尝试使用原始日期
 
         # 获取日线数据
@@ -176,7 +173,7 @@ def get_kline_data_from_baostock(
         )
 
         if not rs or rs.error_code != '0':
-            print(f"baostock 查询失败: {rs.error_msg if rs else '结果为空'}")
+            logger.warning(f"baostock 查询失败: {rs.error_msg if rs else '结果为空'}, 股票: {bs_code}")
             bs.logout()
             return None
 
@@ -186,13 +183,11 @@ def get_kline_data_from_baostock(
             data_list.append(rs.get_row_data())
 
         if not data_list:
-            print(f"baostock 未找到数据: {bs_code}")
+            logger.warning(f"baostock 未找到数据: {bs_code}, 日期: {start_date} ~ {end_date}")
             bs.logout()
             return None
 
-        print(f"baostock 获取到 {len(data_list)} 条数据")
-        print(f"数据字段: {fields}")
-        print(f"第一条数据: {data_list[0] if data_list else '空'}")
+        logger.info(f"baostock 获取到 {len(data_list)} 条数据: {bs_code}")
 
         df = pd.DataFrame(data_list, columns=fields.split(','))
 
@@ -216,7 +211,7 @@ def get_kline_data_from_baostock(
         processed_data = process_kline_data(df, 'baostock')
 
         if not processed_data:
-            print("baostock 数据处理失败")
+            logger.warning("baostock 数据处理失败: process_kline_data 返回空")
             return None
 
         return {
@@ -227,10 +222,7 @@ def get_kline_data_from_baostock(
         }
 
     except Exception as e:
-        import traceback
-        print(f"baostock 数据源失败: {type(e).__name__}: {e}")
-        print("完整错误信息:")
-        traceback.print_exc()
+        logger.warning(f"baostock 数据源失败: {type(e).__name__}: {e}")
         # 确保登出
         try:
             import baostock as bs

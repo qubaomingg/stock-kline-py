@@ -5,10 +5,14 @@
 """
 import os
 import sys
+import logging
 from typing import Dict, List, Optional, Tuple
 import pandas as pd
 from datetime import datetime, timedelta
 import time
+
+# 设置日志
+logger = logging.getLogger(__name__)
 
 # 加载环境变量
 from dotenv import load_dotenv
@@ -28,6 +32,7 @@ from service.kline.us.finnhub import get_kline_data_from_finnhub, is_finnhub_ava
 from service.kline.a.baostock import get_kline_data_from_baostock, is_baostock_available
 from service.kline.hk.eastmoney_hk import get_kline_data_from_eastmoney_hk, is_eastmoney_hk_available
 from service.kline.a.eastmoney_a import get_kline_data_from_eastmoney_a, is_eastmoney_a_available
+from service.kline.a.sina_a import get_kline_data_from_sina, is_sina_available
 
 # 导入缓存装饰器
 from service.cache.decorators import cache_kline_data
@@ -47,7 +52,7 @@ except ImportError:
 
 # 数据源配置
 DATA_SOURCES_CONFIG = {
-    'a': ['eastmoney_a', 'akshare', 'baostock'],
+    'a': ['sina', 'eastmoney_a', 'akshare', 'baostock'],
     'hk': ['eastmoney_hk', 'akshare_hk'],
     'us': ['yfinance', 'alpha_vantage', 'tiingo', 'finnhub']
 }
@@ -100,7 +105,7 @@ def process_kline_data(data: pd.DataFrame, source: str) -> List[Dict]:
     required_cols = ['date', 'open', 'high', 'low', 'close']
     for col in required_cols:
         if col not in data.columns:
-            print(f"警告: {source} 数据源缺少 {col} 列")
+            logger.debug(f"数据源 {source} 缺少 {col} 列")
             return []
 
     # 转换日期格式
@@ -152,7 +157,7 @@ def get_kline_data(
     clean_code = code.split('.')[0] if '.' in code else code
     market_type = get_market_type(clean_code)
 
-    print(f"股票代码: {code} 市场类型：{market_type}")
+    logger.info(f"[{code.upper()}] 市场类型: {market_type.upper()}, 请求日期范围: {start_date or 'auto'} ~ {end_date or 'auto'}")
 
     # 格式化股票代码
     formatted_code = format_stock_code(code)
@@ -168,17 +173,40 @@ def get_kline_data(
         data_sources = DATA_SOURCES_CONFIG.get(market_type, [])
 
     last_error = None
+    log_prefix = f"[{code.upper()}] [market={market_type}]"
+    consecutive_network_errors = 0  # 连续网络错误计数
+    total_start_time = time.time()
+    MAX_TOTAL_TIME = 30  # 单只股票最大总耗时（秒），超过则停止尝试
 
     # 按优先级尝试各个数据源
-    for source in data_sources:
+    for idx, source in enumerate(data_sources, 1):
+        # 检查是否超过总时间限制
+        elapsed_total = time.time() - total_start_time
+        if elapsed_total > MAX_TOTAL_TIME:
+            logger.warning(
+                f"{log_prefix} ⏱️ 已耗时 {elapsed_total:.1f}s，超过 {MAX_TOTAL_TIME}s 限制，停止尝试剩余数据源"
+            )
+            break
+
+        # 检查连续网络错误短路
+        if consecutive_network_errors >= 2:
+            logger.warning(
+                f"{log_prefix} 🔌 连续 {consecutive_network_errors} 次网络错误，推断当前网络无法访问该市场API，跳过剩余 {len(data_sources) - idx + 1} 个数据源"
+            )
+            break
+
         try:
             result = None
+            elapsed = 0.0
+            loop_t0 = time.time()
+            logger.info(f"{log_prefix} 🔄 开始尝试数据源 {source} ({idx}/{len(data_sources)})...")
 
             if source == 'yfinance':
                 if not is_yfinance_available():
-                    print("yfinance不可用，跳过")
+                    logger.info(f"{log_prefix} ⏭️ 数据源 {source} ({idx}/{len(data_sources)}) 不可用，跳过")
                     continue
 
+                t0 = time.time()
                 result = get_kline_data_from_yfinance(
                     code=code,
                     market_type=market_type,
@@ -186,12 +214,14 @@ def get_kline_data(
                     start_date=start_date,
                     end_date=end_date
                 )
+                elapsed = time.time() - t0
 
             elif source == 'akshare_hk':
                 if not is_akshare_hk_available():
-                    print("akshare_hk不可用，跳过")
+                    logger.info(f"{log_prefix} ⏭️ 数据源 {source} ({idx}/{len(data_sources)}) 不可用，跳过")
                     continue
 
+                t0 = time.time()
                 result = get_kline_data_from_akshare_hk(
                     code=code,
                     market_type=market_type,
@@ -199,12 +229,14 @@ def get_kline_data(
                     start_date=start_date,
                     end_date=end_date
                 )
+                elapsed = time.time() - t0
 
             elif source == 'akshare':
                 if not is_akshare_available():
-                    print("akshare不可用，跳过")
+                    logger.info(f"{log_prefix} ⏭️ 数据源 {source} ({idx}/{len(data_sources)}) 不可用，跳过")
                     continue
 
+                t0 = time.time()
                 result = get_kline_data_from_akshare(
                     code=code,
                     market_type=market_type,
@@ -212,12 +244,14 @@ def get_kline_data(
                     start_date=start_date,
                     end_date=end_date
                 )
+                elapsed = time.time() - t0
 
             elif source == 'eastmoney_hk':
                 if not is_eastmoney_hk_available():
-                    print("eastmoney_hk不可用，跳过")
+                    logger.info(f"{log_prefix} ⏭️ 数据源 {source} ({idx}/{len(data_sources)}) 不可用，跳过")
                     continue
 
+                t0 = time.time()
                 result = get_kline_data_from_eastmoney_hk(
                     code=code,
                     market_type=market_type,
@@ -225,12 +259,29 @@ def get_kline_data(
                     start_date=start_date,
                     end_date=end_date
                 )
+                elapsed = time.time() - t0
+
+            elif source == 'sina':
+                if not is_sina_available():
+                    logger.info(f"{log_prefix} ⏭️ 数据源 {source} ({idx}/{len(data_sources)}) 网络不可用，跳过")
+                    continue
+
+                t0 = time.time()
+                result = get_kline_data_from_sina(
+                    code=code,
+                    market_type=market_type,
+                    formatted_code=formatted_code,
+                    start_date=start_date,
+                    end_date=end_date
+                )
+                elapsed = time.time() - t0
 
             elif source == 'eastmoney_a':
                 if not is_eastmoney_a_available():
-                    print("eastmoney_a不可用，跳过")
+                    logger.info(f"{log_prefix} ⏭️ 数据源 {source} ({idx}/{len(data_sources)}) 不可用，跳过")
                     continue
 
+                t0 = time.time()
                 result = get_kline_data_from_eastmoney_a(
                     code=code,
                     market_type=market_type,
@@ -238,17 +289,19 @@ def get_kline_data(
                     start_date=start_date,
                     end_date=end_date
                 )
+                elapsed = time.time() - t0
 
             elif source == 'alpha_vantage':
                 if not is_alpha_vantage_available():
-                    print("alpha_vantage不可用，跳过")
+                    logger.info(f"{log_prefix} ⏭️ 数据源 {source} ({idx}/{len(data_sources)}) 不可用，跳过")
                     continue
 
                 api_key = API_KEYS.get('alpha_vantage', '')
                 if not api_key:
-                    print("alpha_vantage需要API密钥，跳过")
+                    logger.info(f"{log_prefix} ⏭️ 数据源 {source} ({idx}/{len(data_sources)}) 需要API密钥，跳过")
                     continue
 
+                t0 = time.time()
                 result = get_kline_data_from_alpha_vantage(
                     code=code,
                     market_type=market_type,
@@ -257,18 +310,19 @@ def get_kline_data(
                     end_date=end_date,
                     api_key=api_key
                 )
+                elapsed = time.time() - t0
 
             elif source == 'tiingo':
                 if not is_tiingo_available():
-                    print("tiingo不可用，跳过")
+                    logger.info(f"{log_prefix} ⏭️ 数据源 {source} ({idx}/{len(data_sources)}) 不可用，跳过")
                     continue
 
                 api_key = API_KEYS.get('tiingo', '')
-                print(f"tiingo API密钥: {api_key}")
                 if not api_key:
-                    print("tiingo需要API密钥，跳过")
+                    logger.info(f"{log_prefix} ⏭️ 数据源 {source} ({idx}/{len(data_sources)}) 需要API密钥，跳过")
                     continue
 
+                t0 = time.time()
                 result = get_kline_data_from_tiingo(
                     code=code,
                     market_type=market_type,
@@ -277,18 +331,19 @@ def get_kline_data(
                     end_date=end_date,
                     api_key=api_key
                 )
+                elapsed = time.time() - t0
 
             elif source == 'finnhub':
                 if not is_finnhub_available():
-                    print("finnhub不可用，跳过")
+                    logger.info(f"{log_prefix} ⏭️ 数据源 {source} ({idx}/{len(data_sources)}) 不可用，跳过")
                     continue
 
                 api_key = API_KEYS.get('finnhub', '')
-                print(f"finnhub API密钥: {api_key}")
                 if not api_key:
-                    print("finnhub需要API密钥，跳过")
+                    logger.info(f"{log_prefix} ⏭️ 数据源 {source} ({idx}/{len(data_sources)}) 需要API密钥，跳过")
                     continue
 
+                t0 = time.time()
                 result = get_kline_data_from_finnhub(
                     code=code,
                     market_type=market_type,
@@ -297,12 +352,14 @@ def get_kline_data(
                     end_date=end_date,
                     api_key=api_key
                 )
+                elapsed = time.time() - t0
 
             elif source == 'baostock':
                 if not is_baostock_available():
-                    print("baostock不可用，跳过")
+                    logger.info(f"{log_prefix} ⏭️ 数据源 {source} ({idx}/{len(data_sources)}) 不可用，跳过")
                     continue
 
+                t0 = time.time()
                 result = get_kline_data_from_baostock(
                     code=code,
                     market_type=market_type,
@@ -310,12 +367,14 @@ def get_kline_data(
                     start_date=start_date,
                     end_date=end_date
                 )
+                elapsed = time.time() - t0
 
             elif source == 'google_finance':
                 if not is_google_finance_available():
-                    print("google_finance不可用，跳过")
+                    logger.info(f"{log_prefix} ⏭️ 数据源 {source} ({idx}/{len(data_sources)}) 不可用，跳过")
                     continue
 
+                t0 = time.time()
                 result = get_kline_data_from_google_finance(
                     code=code,
                     market_type=market_type,
@@ -323,10 +382,16 @@ def get_kline_data(
                     start_date=start_date,
                     end_date=end_date
                 )
+                elapsed = time.time() - t0
+
+            else:
+                logger.warning(f"{log_prefix} 未知数据源: {source} ({idx}/{len(data_sources)}), 跳过")
+                continue
 
             # 如果成功获取数据，返回结果
             if result and result.get('data'):
-                print(f"{source} 数据源成功获取数据，数据条数: {len(result['data'])}")
+                data_count = len(result['data'])
+                logger.info(f"{log_prefix} ✅ 数据源 {source} ({idx}/{len(data_sources)}) 获取成功: {data_count} 条数据, 耗时 {elapsed:.1f}s")
                 # 确保返回的字典包含source字段
                 if 'data_source' in result and 'source' not in result:
                     result['source'] = result['data_source']
@@ -335,15 +400,44 @@ def get_kline_data(
                 result['data'].sort(key=lambda x: x['date'])
 
                 return result
+            elif result is None:
+                # 数据源函数返回None（网络错误、API不可用等）
+                # 将其视为网络错误，用于短路判断
+                consecutive_network_errors += 1
+                logger.warning(
+                    f"{log_prefix} ❌ 数据源 {source} ({idx}/{len(data_sources)}) 失败（返回None，已在上方记录详细错误）, "
+                    f"耗时 {elapsed:.1f}s（连续网络错误 {consecutive_network_errors}/2）"
+                )
+            else:
+                # 返回了字典但没有数据（可能是数据处理失败）
+                logger.warning(f"{log_prefix} ⚠️ 数据源 {source} ({idx}/{len(data_sources)}) 返回空数据, 耗时 {elapsed:.1f}s")
 
         except Exception as e:
-            print(f"{source} 数据源失败: {e}")
+            elapsed = time.time() - loop_t0
+            error_str = str(e).lower()
+            # 检测是否为网络相关错误（ConnectionError, timeout, RemoteDisconnected 等）
+            is_network_error = any(
+                keyword in error_str or keyword in type(e).__name__.lower()
+                for keyword in ['connection', 'timeout', 'network', 'remote', 'socket', 'timed out', 'disconnect', 'pipe', 'dns', 'resolve', 'refused', 'unreachable']
+            )
+
+            if is_network_error:
+                consecutive_network_errors += 1
+                logger.warning(
+                    f"{log_prefix} ❌ 数据源 {source} ({idx}/{len(data_sources)}) 网络失败 ({elapsed:.1f}s): "
+                    f"{type(e).__name__}（连续网络错误 {consecutive_network_errors}/2）"
+                )
+            else:
+                # 非网络错误（数据格式问题等），不影响短路
+                logger.warning(
+                    f"{log_prefix} ❌ 数据源 {source} ({idx}/{len(data_sources)}) 异常 ({elapsed:.1f}s): {type(e).__name__}: {e}"
+                )
             last_error = e
             continue
 
     # 如果所有数据源都失败，返回错误信息
     error_msg = f"所有数据源都失败，最后错误: {last_error}" if last_error else "所有数据源都失败"
-    print(error_msg)
+    logger.error(f"{log_prefix} ❌ {error_msg}. 已尝试的数据源: {data_sources}")
 
     return {
         "code": code,
@@ -364,7 +458,7 @@ def set_api_credentials(source: str, api_key: str):
         api_key: API密钥
     """
     API_KEYS[source] = api_key
-    print(f"已设置 {source} 的API密钥")
+    logger.info(f"已设置 {source} 的API密钥")
 
 
 def test_kline_service():

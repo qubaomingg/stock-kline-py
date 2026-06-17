@@ -23,6 +23,9 @@ akshare数据源模块
 
 from typing import Dict, List, Optional
 import pandas as pd
+import logging
+
+logger = logging.getLogger(__name__)
 
 # 导入数据处理函数
 from ..utils import process_kline_data
@@ -60,7 +63,7 @@ def get_kline_data_from_akshare(
     try:
         import akshare as ak
     except ImportError:
-        print("akshare未安装，无法使用akshare数据源")
+        logger.warning("akshare未安装，无法使用akshare数据源")
         return None
 
     try:
@@ -84,14 +87,14 @@ def get_kline_data_from_akshare(
                 adjust='qfq'
             )
         else:
-            print(f"akshare不支持 {market_type} 市场")
+            logger.warning(f"akshare不支持 {market_type} 市场")
             return None
 
         if data is None or data.empty:
-            print(f"akshare 数据源返回空数据")
+            logger.warning(f"akshare 数据源返回空数据: {code} ({market_type}), 日期: {start_date} ~ {end_date}")
             return None
 
-        print(f"akshare 数据源成功获取数据，数据形状: {data.shape}")
+        logger.info(f"akshare 数据源成功获取数据: {len(data)} 条")
 
         # 处理数据
         processed_data = process_kline_data(data, 'akshare')
@@ -105,7 +108,7 @@ def get_kline_data_from_akshare(
         }
 
     except Exception as e:
-        print(f"akshare 数据源失败: {e}")
+        logger.warning(f"akshare 数据源失败: {type(e).__name__}: {e}")
         return None
 
 

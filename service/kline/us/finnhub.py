@@ -21,8 +21,12 @@ Finnhub数据源模块
 }
 """
 
+import logging
+
 from typing import Dict, List, Optional
 import pandas as pd
+
+logger = logging.getLogger(__name__)
 
 
 def process_kline_data(data: pd.DataFrame, source: str) -> List[Dict]:
@@ -65,7 +69,7 @@ def process_kline_data(data: pd.DataFrame, source: str) -> List[Dict]:
     required_cols = ['date', 'open', 'high', 'low', 'close']
     for col in required_cols:
         if col not in data.columns:
-            print(f"警告: {source} 数据源缺少 {col} 列")
+            logger.warning(f"警告: {source} 数据源缺少 {col} 列")
             return []
 
     # 转换日期格式
@@ -132,7 +136,7 @@ def get_kline_data_from_finnhub(
         start_timestamp = date_to_timestamp(start_date)
         end_timestamp = date_to_timestamp(end_date)
 
-        print(f"finnhub 转换日期: {start_date} -> {start_timestamp}, {end_date} -> {end_timestamp}")
+        logger.info(f"finnhub 转换日期: {start_date} -> {start_timestamp}, {end_date} -> {end_timestamp}")
 
         # 获取股票代码（去掉后缀）
         ticker = formatted_code.split('.')[0] if '.' in formatted_code else formatted_code
@@ -156,7 +160,7 @@ def get_kline_data_from_finnhub(
         )
 
         if result.get('s') != 'ok':
-            print(f"finnhub 数据源返回状态: {result.get('s')}")
+            logger.warning(f"finnhub 数据源返回状态: {result.get('s')}")
             return None
 
         # 转换为DataFrame
@@ -169,7 +173,7 @@ def get_kline_data_from_finnhub(
             'volume': result['v']
         })
 
-        print(f"finnhub 数据源成功获取数据，数据条数: {len(data)}")
+        logger.info(f"finnhub 数据源成功获取数据，数据条数: {len(data)}")
 
         # 处理数据
         processed_data = process_kline_data(data, 'finnhub')
@@ -184,7 +188,7 @@ def get_kline_data_from_finnhub(
 
     except Exception as e:
         error_msg = str(e)
-        print(f"finnhub 数据源失败: {error_msg}")
+        logger.warning(f"finnhub 数据源失败: {error_msg}")
         return None
 
 

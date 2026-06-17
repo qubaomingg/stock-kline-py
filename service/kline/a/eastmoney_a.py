@@ -8,7 +8,10 @@ from typing import Dict, List, Optional
 import pandas as pd
 import requests
 import time
+import logging
 from datetime import datetime, timedelta
+
+logger = logging.getLogger(__name__)
 
 # 导入数据处理函数
 import sys
@@ -38,7 +41,7 @@ def get_kline_data_from_eastmoney_a(
     """
 
     try:
-        print(f"[eastmoney_a] 正在获取A股 {code} K线数据...")
+        logger.info(f"正在获取A股 {code} K线数据...")
 
         # 确定市场后缀
         if code.startswith(('60', '68', '900')):
@@ -46,7 +49,7 @@ def get_kline_data_from_eastmoney_a(
         elif code.startswith(('00', '30', '200')):
             secid = f"0.{code}"  # 深圳
         else:
-            print(f"[eastmoney_a] 无法识别的A股代码格式: {code}")
+            logger.warning(f"无法识别的A股代码格式: {code}")
             return None
 
         # 东方财富K线API
@@ -71,20 +74,20 @@ def get_kline_data_from_eastmoney_a(
             "lmt": 10000  # 最大数据量
         }
 
-        response = requests.get(url, params=params, timeout=10)
+        response = requests.get(url, params=params, timeout=5)
         data = response.json()
 
         if data.get('data') is None or data['data'].get('klines') is None:
-            print(f"[eastmoney_a] 获取K线数据失败: {data}")
+            logger.warning(f"获取K线数据失败: API返回 data=None 或 klines=None, 原始响应: {data}")
             return None
 
         klines = data['data']['klines']
 
         if not klines:
-            print(f"[eastmoney_a] 没有获取到K线数据")
+            logger.warning(f"没有获取到K线数据: {code} 在 {start_date} ~ {end_date} 范围内无数据")
             return None
 
-        print(f"[eastmoney_a] 成功获取 {len(klines)} 条K线数据")
+        logger.info(f"成功获取 {len(klines)} 条K线数据")
 
         # 解析数据
         records = []
@@ -120,7 +123,7 @@ def get_kline_data_from_eastmoney_a(
         }
 
     except Exception as e:
-        print(f"[eastmoney_a] 获取K线数据时发生错误: {e}")
+        logger.warning(f"获取K线数据时发生错误: {type(e).__name__}: {e}")
         return None
 
 

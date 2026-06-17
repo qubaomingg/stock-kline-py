@@ -7,6 +7,9 @@
 
 from typing import Dict, List
 import pandas as pd
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 def process_kline_data(data: pd.DataFrame, source: str) -> List[Dict]:
@@ -49,7 +52,7 @@ def process_kline_data(data: pd.DataFrame, source: str) -> List[Dict]:
     required_cols = ['date', 'open', 'high', 'low', 'close']
     for col in required_cols:
         if col not in data.columns:
-            print(f"警告: {source} 数据源缺少 {col} 列")
+            logger.warning(f"{source} 数据源缺少 {col} 列，可用列: {list(data.columns)}")
             return []
 
     # 转换日期格式

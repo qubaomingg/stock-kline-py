@@ -30,8 +30,11 @@ yfinance数据源模块，注意需要vpn网络
 """
 
 import asyncio
+import logging
 from typing import Dict, List, Optional
 import pandas as pd
+
+logger = logging.getLogger(__name__)
 
 
 def process_kline_data(data: pd.DataFrame, source: str) -> List[Dict]:
@@ -74,7 +77,7 @@ def process_kline_data(data: pd.DataFrame, source: str) -> List[Dict]:
     required_cols = ['date', 'open', 'high', 'low', 'close']
     for col in required_cols:
         if col not in data.columns:
-            print(f"警告: {source} 数据源缺少 {col} 列")
+            logger.warning(f"警告: {source} 数据源缺少 {col} 列")
             return []
 
     # 转换日期格式
@@ -153,14 +156,14 @@ def get_kline_data_from_yfinance(
                     continue
 
             # 如果所有格式都失败，返回原始字符串
-            print(f"警告: 无法解析日期格式: {date_str}")
+            logger.warning(f"警告: 无法解析日期格式: {date_str}")
             return date_str
 
         # 转换开始日期和结束日期
         start_date_converted = convert_date_format(start_date)
         end_date_converted = convert_date_format(end_date)
 
-        print(f"yfinance 转换日期格式: {start_date} -> {start_date_converted}, {end_date} -> {end_date_converted}")
+        logger.info(f"yfinance 转换日期格式: {start_date} -> {start_date_converted}, {end_date} -> {end_date_converted}")
 
         # 使用download方法获取数据
         for attempt in range(2):
@@ -185,10 +188,10 @@ def get_kline_data_from_yfinance(
                         if "Timeout" in err_info or "Connection timed out" in err_info or "ConnectionError" in err_info:
                             raise Exception(f"TimeoutOrConnectionError: {err_info}")
 
-                    print(f"yfinance 数据源返回空数据")
+                    logger.warning(f"yfinance 数据源返回空数据")
                     return None
 
-                print(f"yfinance 数据源成功获取数据，数据形状: {data.shape}")
+                logger.info(f"yfinance 数据源成功获取数据，数据形状: {data.shape}")
 
                 # 处理yfinance返回的多级列索引数据
                 # yfinance返回的DataFrame列是元组形式，如('Close', 'AAPL')
@@ -215,7 +218,7 @@ def get_kline_data_from_yfinance(
                     # 重命名日期列
                     data = data.rename(columns={'Date': 'date'})
 
-                print(f"处理后的数据列: {data.columns.tolist()}")
+                logger.info(f"处理后的数据列: {data.columns.tolist()}")
 
                 # 处理数据
                 processed_data = process_kline_data(data, 'yfinance')
@@ -230,12 +233,12 @@ def get_kline_data_from_yfinance(
 
             except Exception as e:
                 error_msg = str(e)
-                print(f"yfinance 数据源尝试 {attempt + 1} 失败: {error_msg}")
+                logger.warning(f"yfinance 数据源尝试 {attempt + 1} 失败: {error_msg}")
 
                 # 如果是速率限制或网络错误，等待一段时间后重试
                 if "Too Many Requests" in error_msg or "Rate limited" in error_msg or "Timeout" in error_msg or "Connection timed out" in error_msg or "ConnectionError" in error_msg:
                     wait_time = 5
-                    print(f"yfinance 请求受限或网络错误，等待 {wait_time} 秒后重试...")
+                    logger.info(f"yfinance 请求受限或网络错误，等待 {wait_time} 秒后重试...")
                     import time
                     time.sleep(wait_time)
                     continue
@@ -246,7 +249,7 @@ def get_kline_data_from_yfinance(
 
     except Exception as e:
         error_msg = str(e)
-        print(f"yfinance 数据源失败: {error_msg}")
+        logger.warning(f"yfinance 数据源失败: {error_msg}")
         return None
 
 
