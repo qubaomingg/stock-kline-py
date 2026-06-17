@@ -304,6 +304,31 @@ def cache_kline_data():
                     # 添加缓存标记
                     cached_data["_cached"] = True
                     cached_data["_cache_timestamp"] = datetime.utcnow().isoformat()
+
+                    # --- 新增：缓存命中时也过滤 NaN/Inf（旧缓存可能含脏数据）---
+                    if isinstance(cached_data.get('data'), list):
+                        clean_data = []
+                        nan_count = 0
+                        for item in cached_data['data']:
+                            has_nan = False
+                            if isinstance(item, dict):
+                                for k, v in item.items():
+                                    if isinstance(v, float):
+                                        if v != v or v in (float('inf'), float('-inf')):
+                                            has_nan = True
+                                            break
+                            if has_nan:
+                                nan_count += 1
+                            else:
+                                clean_data.append(item)
+                        if nan_count > 0:
+                            logger.warning(
+                                f"{log_prefix} ⚠️  缓存中发现 {nan_count} 条含 NaN/Inf 的数据已被过滤 "
+                                f"(从 {len(cached_data['data'])} 条 → {len(clean_data)} 条)"
+                            )
+                            cached_data['data'] = clean_data
+                    # --- 新增结束 ---
+
                     data_size = len(str(cached_data))
                     logger.info(f"{log_prefix} ✅ 缓存命中 ({cache_lookup_ms}ms), 数据大小: {data_size//1024}KB, 返回缓存数据")
                     return cached_data
@@ -325,6 +350,33 @@ def cache_kline_data():
             data_points = 0
             if isinstance(result, dict) and isinstance(result.get('data'), list):
                 data_points = len(result['data'])
+
+                # --- 新增：过滤掉含 NaN/Inf 的条目 ---
+                if data_points > 0:
+                    clean_data = []
+                    nan_count = 0
+                    for item in result['data']:
+                        has_nan = False
+                        if isinstance(item, dict):
+                            for k, v in item.items():
+                                if isinstance(v, float):
+                                    # v != v 是判断 NaN 的经典写法
+                                    if v != v or v in (float('inf'), float('-inf')):
+                                        has_nan = True
+                                        break
+                        if has_nan:
+                            nan_count += 1
+                        else:
+                            clean_data.append(item)
+                    if nan_count > 0:
+                        logger.warning(
+                            f"{log_prefix} ⚠️  发现 {nan_count} 条含 NaN/Inf 的数据已被过滤 "
+                            f"(从 {data_points} 条 → {len(clean_data)} 条)"
+                        )
+                    result['data'] = clean_data
+                    data_points = len(clean_data)
+                # --- 新增结束 ---
+
                 if data_points > 0:
                     has_valid_data = True
 
