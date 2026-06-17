@@ -7,6 +7,7 @@
 """
 
 import pandas as pd
+import re
 from typing import Dict, Any, Optional, List
 from openbb import obb
 
@@ -24,22 +25,26 @@ US_DATA_SOURCES_CONFIG = {
     }
 }
 
-# 名称关键词过滤：名称中包含以下关键词的证券排除（非普通股）
-FILTER_NAME_KEYWORDS = [
-    " ETF", " ETN", " ETP", " FUND", " REIT", " TRUST",
-    "LP", "L.P", "LIMITED PARTNERSHIP",
-    "UNIT", "UNITS", " WARRANT", " RIGHTS",
-    " PREF", " PREFERRED", "PREFERRED STOCK",
-    " CLOSED-END", "CLOSED END",
-    " BOND", " NOTE", " NOTES",
-    " DEPOSITARY SHARES", " DEPOSITORY SHARES",
-    " ADR", " GDR", " NVDR",
-    " CERTIFICATE", " SPAC ", " ACQUISITION CO",
-    " ACQUISITION CORP",
-    " INDEX", " MORTGAGE",
-]
+# 名称关键词过滤：正则表达式，匹配"整个单词"，避免误杀如 ALPHABET
+# \b 表示单词边界：" ETF\b" 匹配 "ETF" 但不匹配 "XETF..."
+_FILTER_REGEX = re.compile(
+    r"\b("
+    r"ETF|ETN|ETP|FUND|REIT|TRUST|UNIT|UNITS|"
+    r"WARRANT|WARRANTS|RIGHTS|NOTE|NOTES|BOND|"
+    r"PREFERRED|PFD|PRF|PREFERENCE|PRK|"
+    r"CLOSED-?END|CLOSED END|"
+    r"DEPOSITARY|DEPOSITORY|"
+    r"ADR|GDR|NVDR|ADS|"
+    r"CERTIFICATE|CERT|"
+    r"SPAC|ACQUISITION CO|ACQUISITION CORP|"
+    r"INDEX|MORTGAGE|MORTGAGE|"
+    r"L\.?P|LIMITED PARTNERSHIP|PARTNERS LTD\b|"
+    r"COM [A-Z]|CLASS [A-Z] W|CL A W\b|WT\b|RIGHTS\b"
+    r")\b",
+    re.IGNORECASE
+)
 
-# 代码格式过滤：包含以下符号的排除（优先股/权证/单位的特殊后缀）
+# 代码格式过滤：包含以下符号的排除（优先股/权证/单位等特殊后缀）
 EXCLUDE_SYMBOL_PATTERNS = [".", "-", "/"]
 
 
@@ -51,21 +56,20 @@ def _is_common_stock(code: str, name: str) -> bool:
     code_up = str(code).upper()
     name_up = str(name).upper()
 
-    # 1) 代码格式排除：包含 . - / 都是特殊证券
+    # 1) 代码格式排除：包含 . - / 都是特殊证券（优先股/权证/单位等）
     for pat in EXCLUDE_SYMBOL_PATTERNS:
         if pat in code_up:
             return False
 
-    # 2) 名称关键词排除
-    for kw in FILTER_NAME_KEYWORDS:
-        if kw in name_up:
-            return False
+    # 2) 名称关键词排除：用单词边界匹配（不会误杀 ALPHABET → LP）
+    if _FILTER_REGEX.search(name_up):
+        return False
 
-    # 3) 代码长度限制：美股代码通常 1-5 个字符（不含后缀）
+    # 3) 代码长度限制：美股普通股通常 1-5 个字符（不含后缀）
     if len(code_up) > 5:
         return False
 
-    # 4) 名称太短的排除（空名称或只有几个字符通常不是真实股票）
+    # 4) 名称太短或空排除
     if len(name_up.strip()) < 2:
         return False
 
