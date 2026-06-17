@@ -7,14 +7,21 @@
   # 立即跑一次（只跑某个类型）
   ./start-prefect.sh run newbee   # 优质次新
   ./start-prefect.sh run value    # 优质低价
-  ./start-prefect.sh run trend    # 全市场趋势
+  ./start-prefect.sh run trend    # 全市场趋势（a/hk/us）
+
+  # trend 支持指定市场：trend 后跟 a/hk/us 任一组合
+  ./start-prefect.sh run trend us       # 只跑美股趋势
+  ./start-prefect.sh run trend hk       # 只跑港股趋势
+  ./start-prefect.sh run trend a        # 只跑 A 股趋势
+  ./start-prefect.sh run trend hk us    # 港股 + 美股趋势
+  ./start-prefect.sh run trend us newbee  # 美股趋势 + 优质次新
 
   # 启动常驻调度（每天凌晨 1 点北京时间执行）
   ./start-prefect.sh start
 
   # 直接用 Python 调用（调试）
   ./venv/bin/python -m flows.daily run
-  ./venv/bin/python -m flows.daily run newbee
+  ./venv/bin/python -m flows.daily run trend us
 """
 import asyncio
 import logging
@@ -27,6 +34,7 @@ from flows.quality_newbee import process_quality_newbee
 from flows.quality_value import process_quality_value
 from flows.stock_trend import process_all_markets_stock_trend
 from flows.notify import send_text_message
+from flows.config import MARKET_CODES
 
 logging.basicConfig(level=logging.INFO)
 
@@ -39,12 +47,14 @@ TASK_TYPES = {
 
 
 @flow(name="daily-scheduler")
-async def daily_flow(task_types: list[str] | None = None) -> dict:
+async def daily_flow(task_types: list[str] | None = None, trend_markets: list[str] | None = None) -> dict:
     """每日任务调度器：按类型串行执行。
 
     Args:
         task_types: 要运行的任务类型关键字列表，可选值 newbee/value/trend；
                     None 表示全量（三个任务都跑）。
+        trend_markets: trend 任务要处理的市场列表（a/hk/us）；
+                       None 表示全量市场（a/hk/us）。
 
     必须串行：三者都直接打同一个下游 frequent-api，若并发执行会叠加压力，
     把单只本就慢的 trend 接口拖到 nginx 60s 超时（504）。
@@ -69,7 +79,10 @@ async def daily_flow(task_types: list[str] | None = None) -> dict:
     for key in selected:
         name, fn, _ = TASK_TYPES[key]
         try:
-            results[name] = await fn()
+            if key == "trend":
+                results[name] = await fn(trend_markets)
+            else:
+                results[name] = await fn()
         except Exception as exc:  # noqa: BLE001 — 单任务失败不影响其它
             run_logger.error("%s 任务失败: %s", name, exc)
             await send_text_message(f"策略：{name} 任务失败 : {exc}")
@@ -79,35 +92,54 @@ async def daily_flow(task_types: list[str] | None = None) -> dict:
     return {k: str(v) for k, v in results.items()}
 
 
-def _parse_types(args: list[str]) -> tuple[str, list[str] | None]:
-    """解析命令行参数，返回 (mode, task_types)。
+def _parse_types(args: list[str]) -> tuple[str, list[str] | None, list[str] | None]:
+    """解析命令行参数，返回 (mode, task_types, trend_markets)。
 
     规则：
-      run                → mode="run", types=None (全量)
-      run newbee           → mode="run", types=["newbee"]
-      run newbee value     → mode="run", types=["newbee","value"]
-      serve                → mode="serve", types=None (全量调度)
+      run                    → mode="run", types=None, markets=None（全量）
+      run trend              → mode="run", types=["trend"], markets=None（trend 全市场）
+      run trend us           → mode="run", types=["trend"], markets=["us"]
+      run trend hk a         → mode="run", types=["trend"], markets=["hk","a"]
+      run trend us newbee    → mode="run", types=["trend","newbee"], markets=["us"]
+      run newbee value       → mode="run", types=["newbee","value"], markets=None
+      serve                  → mode="serve", types=None, markets=None（全量调度）
+
+    解析规则：
+      - 如果 arg 在 TASK_TYPES 中 → 任务类型
+      - 如果 arg 在 MARKET_CODES 中 → trend 的市场过滤参数（必须紧跟 trend 或其他 market code）
+      - 其他 → 警告并跳过
     """
     if not args:
-        return ("run", None)
+        return ("run", None, None)
 
     mode = args[0]
 
     rest = args[1:]
     if not rest:
-        return (mode, None)
+        return (mode, None, None)
 
-    types = []
+    types: list[str] = []
+    trend_markets: list[str] = []
+    after_trend = False
+
     for t in rest:
-        if t not in TASK_TYPES:
-            print(f"警告: 未知类型 '{t}' 不在可选类型 {list(TASK_TYPES.keys())}")
-            continue
-        types.append(t)
-    return (mode, types if types else None)
+        if t in TASK_TYPES:
+            types.append(t)
+            after_trend = (t == "trend")
+        elif t in MARKET_CODES:
+            # 市场代码：作为 trend 的过滤参数（不管是否紧跟 trend）
+            if t not in trend_markets:
+                trend_markets.append(t)
+        else:
+            print(f"警告: 未知参数 '{t}' 不在可选类型 {list(TASK_TYPES.keys())} 或市场 {MARKET_CODES}")
+
+    task_types = types if types else None
+    markets = trend_markets if trend_markets else None
+    return (mode, task_types, markets)
 
 
 def main():
-    mode, task_types = _parse_types(sys.argv[1:])
+    mode, task_types, trend_markets = _parse_types(sys.argv[1:])
 
     if mode == "serve":
         daily_flow.serve(
@@ -115,7 +147,7 @@ def main():
             schedule=Cron("0 1 * * *", timezone="Asia/Shanghai"),
         )
     else:
-        asyncio.run(daily_flow(task_types))
+        asyncio.run(daily_flow(task_types, trend_markets))
 
 
 if __name__ == "__main__":

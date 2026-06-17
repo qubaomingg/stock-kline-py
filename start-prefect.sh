@@ -77,11 +77,16 @@ logs() {
 
 # 手动立即跑一次（不走调度，便于调试）；连线上 server，运行记录在线上 UI 可见
 # 用法：
-#   ./start-prefect.sh run            # 全量：新新+低价+趋势
-#   ./start-prefect.sh run newbee     # 只跑优质次新
-#   ./start-prefect.sh run value      # 只跑优质低价
-#   ./start-prefect.sh run trend      # 只跑全市场趋势
-#   ./start-prefect.sh run newbee value  # 同时跑指定多个类型
+#   ./start-prefect.sh run                      # 全量：新新+低价+趋势（trend 跑 a/hk/us 三市场）
+#   ./start-prefect.sh run newbee               # 只跑优质次新
+#   ./start-prefect.sh run value                # 只跑优质低价
+#   ./start-prefect.sh run trend                # 只跑全市场趋势（a/hk/us 全市场）
+#   ./start-prefect.sh run trend us             # 只跑美股趋势
+#   ./start-prefect.sh run trend hk             # 只跑港股趋势
+#   ./start-prefect.sh run trend a              # 只跑 A 股趋势
+#   ./start-prefect.sh run trend hk us          # 港股 + 美股趋势
+#   ./start-prefect.sh run trend us newbee      # 美股趋势 + 优质次新（可任意组合）
+#   ./start-prefect.sh run newbee value         # 同时跑指定多个类型
 run_once() {
     cd "$SCRIPT_DIR" || exit 1
     # 把 $@ 剩余参数全部传给 Python（例如 newbee / value / trend）

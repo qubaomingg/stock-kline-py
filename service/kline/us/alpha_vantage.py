@@ -30,7 +30,7 @@ Alpha Vantage数据源模块
 """
 
 import logging
-
+import math
 import pandas as pd
 from typing import Dict, List, Optional, Any
 import requests
@@ -244,16 +244,30 @@ def get_kline_data_from_alpha_vantage(
 
     logger.info(f"alpha_vantage 数据源成功获取数据，数据形状: {data.shape}")
 
-    # 处理数据
+    # 处理数据（确保可 JSON 序列化）
     processed_data = []
     for date, row in data.iterrows():
+        try:
+            o = float(row['open'])
+            h = float(row['high'])
+            l = float(row['low'])
+            c = float(row['close'])
+            if any(math.isnan(v) or math.isinf(v) for v in (o, h, l, c)):
+                continue
+            vol = row['volume']
+            if pd.notna(vol):
+                volume = int(vol)
+            else:
+                volume = 0
+        except (ValueError, TypeError):
+            continue
         item = {
             "date": date.strftime('%Y-%m-%d'),
-            "open": float(row['open']),
-            "high": float(row['high']),
-            "low": float(row['low']),
-            "close": float(row['close']),
-            "volume": int(row['volume'])
+            "open": o,
+            "high": h,
+            "low": l,
+            "close": c,
+            "volume": volume,
         }
         processed_data.append(item)
 

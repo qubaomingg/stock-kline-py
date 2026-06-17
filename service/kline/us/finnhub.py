@@ -22,9 +22,10 @@ Finnhub数据源模块
 """
 
 import logging
-
+import math
 from typing import Dict, List, Optional
 import pandas as pd
+import numpy as np
 
 logger = logging.getLogger(__name__)
 
@@ -75,20 +76,37 @@ def process_kline_data(data: pd.DataFrame, source: str) -> List[Dict]:
     # 转换日期格式
     data['date'] = pd.to_datetime(data['date'])
 
-    # 转换为字典列表
+    # 转换为字典列表（确保可 JSON 序列化）
     result = []
     for _, row in data.iterrows():
+        try:
+            o = float(row['open'])
+            h = float(row['high'])
+            l = float(row['low'])
+            c = float(row['close'])
+            if any(math.isnan(v) or math.isinf(v) for v in (o, h, l, c)):
+                continue
+        except (ValueError, TypeError):
+            continue
+
         item = {
             'date': row['date'].strftime('%Y-%m-%d'),
-            'open': float(row['open']),
-            'high': float(row['high']),
-            'low': float(row['low']),
-            'close': float(row['close']),
+            'open': o,
+            'high': h,
+            'low': l,
+            'close': c,
         }
 
         # 添加成交量（如果有）
         if 'volume' in data.columns:
-            item['volume'] = int(row['volume']) if pd.notna(row['volume']) else 0
+            v = row['volume']
+            try:
+                if pd.notna(v) and not (isinstance(v, float) and (math.isnan(v) or math.isinf(v))):
+                    item['volume'] = int(v)
+                else:
+                    item['volume'] = 0
+            except (ValueError, TypeError):
+                item['volume'] = 0
 
         result.append(item)
 

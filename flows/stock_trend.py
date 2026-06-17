@@ -143,17 +143,29 @@ async def market_trend_flow(market_code: str) -> dict:
 
 # ───────── 全市场调度（不产生独立 flow run，只在 daily-scheduler 的 run 中记录）
 
-async def process_all_markets_stock_trend() -> list[dict]:
+async def process_all_markets_stock_trend(markets: list[str] | None = None) -> list[dict]:
     """全市场趋势分析调度器：串行触发 a/hk/us 三个 market-trend-{code} flow。
+
+    Args:
+        markets: 要处理的市场列表，None 或 ["a","hk","us"；
+                 None 表示全量（a/hk/us）。
 
     注意：本函数不是 @flow 装饰的，不会产生独立 flow run。
     它直接由 daily_flow 调用，每个 market 的处理会各自产生独立 run。
     """
     run_logger = get_run_logger()
-    run_logger.info("开始全市场趋势分析，市场: %s", MARKET_CODES)
+    if not markets:
+        selected_markets = list(MARKET_CODES)
+    else:
+        selected_markets = [m for m in markets if m in MARKET_CODES]
+    run_logger.info("开始全市场趋势分析，市场: %s", selected_markets)
+
+    if not selected_markets:
+        run_logger.warning("没有合法的市场代码，跳过 trend 不执行")
+        return []
 
     results = []
-    for market_code in MARKET_CODES:
+    for market_code in selected_markets:
         try:
             results.append(await market_trend_flow(market_code))
         except Exception as exc:  # noqa: BLE001 — 单市场失败不应中断其它
@@ -166,9 +178,9 @@ async def process_all_markets_stock_trend() -> list[dict]:
     success = sum(r["success"] for r in results)
     failed = sum(r["failed"] for r in results)
     summary = (
-        f"策略：全市场股票趋势分析完成，"
+        f"策略：股票趋势分析完成，"
         f"共 {total} 只（成功 {success}，失败 {failed}），"
-        f"市场：{'、'.join(MARKET_NAMES.get(c, c) for c in MARKET_CODES)}"
+        f"市场：{'、'.join(MARKET_NAMES.get(c, c) for c in selected_markets)}"
     )
     await send_text_message(summary)
     run_logger.info(summary)
