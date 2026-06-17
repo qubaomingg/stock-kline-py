@@ -52,12 +52,13 @@ async def process_single_stock(stock: dict) -> bool:
     code = stock.get("code")
     name = stock.get("name", code)
 
-    url = f"{RAILWAY_API}/api/emit/trend?stockCode={code}&stockName={name}"
+    url = f"{RAILWAY_API}/api/emit/trend"
+    params = {"stockCode": code, "stockName": name}
     run_logger.info("【请求】GET %s  (code=%s, name=%s)", url, code, name)
 
     try:
         async with httpx.AsyncClient(timeout=TREND_HTTP_TIMEOUT, follow_redirects=True) as client:
-            resp = await asyncio.wait_for(client.get(url), timeout=_TREND_TIMEOUT)
+            resp = await asyncio.wait_for(client.get(url, params=params), timeout=_TREND_TIMEOUT)
             # HTTP 状态检查
             resp.raise_for_status()
 

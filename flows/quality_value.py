@@ -61,7 +61,8 @@ async def send_quality_request(stock: dict) -> bool:
     code = stock["code"]
     name = stock.get("name", code)
 
-    url = f"{RAILWAY_API}/api/emit/quality-value?stockCode={code}&stockName={name}"
+    url = f"{RAILWAY_API}/api/emit/quality-value"
+    params = {"stockCode": code, "stockName": name}
     run_logger.info("【触发】GET %s  (code=%s, name=%s)", url, code, name)
 
     timeout = httpx.Timeout(connect=10.0, read=75.0, write=10.0, pool=10.0)
@@ -72,7 +73,7 @@ async def send_quality_request(stock: dict) -> bool:
         try:
             async with httpx.AsyncClient(timeout=timeout, verify=False, follow_redirects=True) as client:
                 try:
-                    await asyncio.wait_for(client.get(url), timeout=_QV_TIMEOUT)
+                    await asyncio.wait_for(client.get(url, params=params), timeout=_QV_TIMEOUT)
                     run_logger.info("【完成】%s(%s) %s", name, code, attempt_info)
                     success = True
                     break
