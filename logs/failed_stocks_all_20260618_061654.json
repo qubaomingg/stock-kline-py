@@ -1,0 +1,4183 @@
+{
+  "timestamp": "2026-06-18T06:16:54.621994",
+  "total": 5772,
+  "success": 5395,
+  "failed_total": 377,
+  "markets": [
+    {
+      "market": "a",
+      "market_name": "A股",
+      "total": 5527,
+      "success": 5174,
+      "failed": 353,
+      "failed_stocks": [
+        {
+          "name": "*ST国华",
+          "code": "000004",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "惠康科技",
+          "code": "001237",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "福恩股份",
+          "code": "001312",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "胜通能源",
+          "code": "001331",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "天海电子",
+          "code": "001365",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "维通利",
+          "code": "001393",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "ST萃华",
+          "code": "002731",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "*ST恒久",
+          "code": "002808",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "*ST赛隆",
+          "code": "002898",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "*ST天龙",
+          "code": "300029",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "尚水智能",
+          "code": "301513",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "春光集团",
+          "code": "301531",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "理奇智能",
+          "code": "301599",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "大普微-UW",
+          "code": "301666",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "C高特电子",
+          "code": "301669",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "三瑞智能",
+          "code": "301696",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "退市创兴",
+          "code": "600193",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "退市华嵘",
+          "code": "600421",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "退市熊猫",
+          "code": "600599",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "退市沪科",
+          "code": "600608",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "退市国化",
+          "code": "600636",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "退市岩石",
+          "code": "600696",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "ST新华锦",
+          "code": "600735",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "埃泰克",
+          "code": "603293",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "长裕集团",
+          "code": "603407",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "嘉德利",
+          "code": "603435",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "红板科技",
+          "code": "603459",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "退市太和",
+          "code": "605081",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "卓然股份",
+          "code": "688121",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "长进光子",
+          "code": "688635",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "联讯仪器",
+          "code": "688808",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "有研复材",
+          "code": "688811",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "盛合晶微",
+          "code": "688820",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "安徽凤凰",
+          "code": "920000",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "纬达光电",
+          "code": "920001",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "万达轴承",
+          "code": "920002",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "中诚咨询",
+          "code": "920003",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "鼎佳精密",
+          "code": "920005",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "晟楠科技",
+          "code": "920006",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "酉立智能",
+          "code": "920007",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "成电光信",
+          "code": "920008",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "丹娜生物",
+          "code": "920009",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "凯添燃气",
+          "code": "920010",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "晨光电机",
+          "code": "920011",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "创达新材",
+          "code": "920012",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "特瑞斯",
+          "code": "920014",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "锦华新材",
+          "code": "920015",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "中草香料",
+          "code": "920016",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "星昊医药",
+          "code": "920017",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "宏远股份",
+          "code": "920018",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "铜冠矿建",
+          "code": "920019",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "泰凯英",
+          "code": "920020",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "流金科技",
+          "code": "920021",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "世昌股份",
+          "code": "920022",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "*ST田野",
+          "code": "920023",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "卓兆点胶",
+          "code": "920026",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "交大铁发",
+          "code": "920027",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "新恒泰",
+          "code": "920028",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "开发科技",
+          "code": "920029",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "德众汽车",
+          "code": "920030",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "康普化学",
+          "code": "920033",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "精创电气",
+          "code": "920035",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "觅睿科技",
+          "code": "920036",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "广信科技",
+          "code": "920037",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "国义招标",
+          "code": "920039",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "蘅东光",
+          "code": "920045",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "亿能电力",
+          "code": "920046",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "诺思兰德",
+          "code": "920047",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "爱舍伦",
+          "code": "920050",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "隆源股份",
+          "code": "920055",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "能之光",
+          "code": "920056",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "百甲科技",
+          "code": "920057",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "华洋赛车",
+          "code": "920058",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "万源通",
+          "code": "920060",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "西磁科技",
+          "code": "920061",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "科润智控",
+          "code": "920062",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "科拜尔",
+          "code": "920066",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "天工股份",
+          "code": "920068",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "普昂医疗",
+          "code": "920069",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "柏星龙",
+          "code": "920075",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "国亮新材",
+          "code": "920076",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "吉林碳谷",
+          "code": "920077",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "奥美森",
+          "code": "920080",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "族兴新材",
+          "code": "920078",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "方正阀门",
+          "code": "920082",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "金戈新材",
+          "code": "920083",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "科马材料",
+          "code": "920086",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "秋乐种业",
+          "code": "920087",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "科力股份",
+          "code": "920088",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "禾昌聚合",
+          "code": "920089",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "*ST同辉",
+          "code": "920090",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "大鹏工业",
+          "code": "920091",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "汉鑫科技",
+          "code": "920092",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "嘉晨智能",
+          "code": "920096",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "科隆新材",
+          "code": "920098",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "瑞华技术",
+          "code": "920099",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "三协电机",
+          "code": "920100",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "志高机械",
+          "code": "920101",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "林泰新材",
+          "code": "920106",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "宏海科技",
+          "code": "920108",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "雷特科技",
+          "code": "920110",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "聚星科技",
+          "code": "920111",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "巴兰仕",
+          "code": "920112",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "星图测控",
+          "code": "920116",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "太湖远大",
+          "code": "920118",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "美德乐",
+          "code": "920119",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "江天科技",
+          "code": "920121",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "中纺标",
+          "code": "920122",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "芭薇股份",
+          "code": "920123",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "南特科技",
+          "code": "920124",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "鸿仕达",
+          "code": "920125",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "胜业电气",
+          "code": "920128",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "立方控股",
+          "code": "920130",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "泰鹏智能",
+          "code": "920132",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "华岭股份",
+          "code": "920139",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "恒合股份",
+          "code": "920145",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "华阳变速",
+          "code": "920146",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "旭杰科技",
+          "code": "920149",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "昆工科技",
+          "code": "920152",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "海昌智能",
+          "code": "920156",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "长江能科",
+          "code": "920158",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "农大科技",
+          "code": "920159",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "北矿检测",
+          "code": "920160",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "龙辰科技",
+          "code": "920161",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "方大新材",
+          "code": "920163",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "海圣医疗",
+          "code": "920166",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "同享科技",
+          "code": "920167",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "通宝光电",
+          "code": "920168",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "七丰精工",
+          "code": "920169",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "志晟信息",
+          "code": "920171",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "五新智能",
+          "code": "920174",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "东方碳素",
+          "code": "920175",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "恒道科技",
+          "code": "920177",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "锐翔智能",
+          "code": "920178",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "凯德石英",
+          "code": "920179",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "爱得科技",
+          "code": "920180",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "赛英电子",
+          "code": "920181",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "海菲曼",
+          "code": "920183",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "XD国源科",
+          "code": "920184",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "贝特瑞",
+          "code": "920185",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "中科仪",
+          "code": "920186",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "通领科技",
+          "code": "920187",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "悦龙科技",
+          "code": "920188",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "雷神科技",
+          "code": "920190",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "瑞尔竞达",
+          "code": "920191",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "三祥科技",
+          "code": "920195",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "微创光电",
+          "code": "920198",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "倍益康",
+          "code": "920199",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "振宏股份",
+          "code": "920200",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "沪江材料",
+          "code": "920204",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "彩客科技",
+          "code": "920206",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "众诚科技",
+          "code": "920207",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "青矩技术",
+          "code": "920208",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "新睿电子",
+          "code": "920211",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "智新电子",
+          "code": "920212",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "新天力",
+          "code": "920218",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "朗信电气",
+          "code": "920220",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "易实精密",
+          "code": "920221",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "荣亿精密",
+          "code": "920223",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "利通科技",
+          "code": "920225",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "美登科技",
+          "code": "920227",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "欧康医药",
+          "code": "920230",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "力佳科技",
+          "code": "920237",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "长虹能源",
+          "code": "920239",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "建邦科技",
+          "code": "920242",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "DR威博液",
+          "code": "920245",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "华密新材",
+          "code": "920247",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "利尔达",
+          "code": "920249",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "天宏锂电",
+          "code": "920252",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "中寰股份",
+          "code": "920260",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "一诺威",
+          "code": "920261",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "太湖雪",
+          "code": "920262",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "中航泰达",
+          "code": "920263",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "生物谷",
+          "code": "920266",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "鑫汇科",
+          "code": "920267",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "天铭科技",
+          "code": "920270",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "邦德股份",
+          "code": "920271",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "一致魔芋",
+          "code": "920273",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "宏裕包材",
+          "code": "920274",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "驱动力",
+          "code": "920275",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "鹿得医疗",
+          "code": "920278",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "灵鸽科技",
+          "code": "920284",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "灿能电力",
+          "code": "920299",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "辰光医疗",
+          "code": "920300",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "迪尔化工",
+          "code": "920304",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "*ST云创",
+          "code": "920305",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "恒太照明",
+          "code": "920339",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "三元基因",
+          "code": "920344",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "威贸电子",
+          "code": "920346",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "华光源海",
+          "code": "920351",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "雅葆轩",
+          "code": "920357",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "莱赛激光",
+          "code": "920363",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "新赣江",
+          "code": "920367",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "连城数控",
+          "code": "920368",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "新安洁",
+          "code": "920370",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "欧福蛋业",
+          "code": "920371",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "云里物里",
+          "code": "920374",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "派诺科技",
+          "code": "920375",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "泰德股份",
+          "code": "920378",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "佳合科技",
+          "code": "920392",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "民士达",
+          "code": "920394",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "朗鸿科技",
+          "code": "920395",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "常辅股份",
+          "code": "920396",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "硅烷科技",
+          "code": "920402",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "康农种业",
+          "code": "920403",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "海希通讯",
+          "code": "920405",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "驰诚股份",
+          "code": "920407",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "欧普泰",
+          "code": "920414",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "恒拓开源",
+          "code": "920415",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "苏轴股份",
+          "code": "920418",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "路斯股份",
+          "code": "920419",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "润普食品",
+          "code": "920422",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "乐创技术",
+          "code": "920425",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "华维设计",
+          "code": "920427",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "XD康比特",
+          "code": "920429",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "大唐药业",
+          "code": "920433",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "大地电气",
+          "code": "920436",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "戈碧迦",
+          "code": "920438",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "龙竹科技",
+          "code": "920445",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "同心传动",
+          "code": "920454",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "汇隆活塞",
+          "code": "920455",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "富恒新材",
+          "code": "920469",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "XD美邦科",
+          "code": "920471",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "三友科技",
+          "code": "920475",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "海能技术",
+          "code": "920476",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "峆一药业",
+          "code": "920478",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "佳先股份",
+          "code": "920489",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "奥迪威",
+          "code": "920491",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "并行科技",
+          "code": "920493",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "许昌智能",
+          "code": "920496",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "博迅生物",
+          "code": "920504",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "九菱科技",
+          "code": "920505",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "殷图网联",
+          "code": "920508",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "同惠电子",
+          "code": "920509",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "丰光精密",
+          "code": "920510",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "万德股份",
+          "code": "920519",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "纳科诺尔",
+          "code": "920522",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "德瑞锂电",
+          "code": "920523",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "凯华材料",
+          "code": "920526",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "夜光明",
+          "code": "920527",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "骏创科技",
+          "code": "920533",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "铁大科技",
+          "code": "920541",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "无锡晶海",
+          "code": "920547",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "凯腾精工",
+          "code": "920553",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "雅达股份",
+          "code": "920556",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "天润科技",
+          "code": "920564",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "梓橦宫",
+          "code": "920566",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "国航远洋",
+          "code": "920571",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "坤博精工",
+          "code": "920570",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "*ST康乐",
+          "code": "920575",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "天力复合",
+          "code": "920576",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "巨能股份",
+          "code": "920578",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "机科股份",
+          "code": "920579",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "科创新材",
+          "code": "920580",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "华信永道",
+          "code": "920592",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "XD鼎智科",
+          "code": "920593",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "同力股份",
+          "code": "920599",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "丰安股份",
+          "code": "920608",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "力王股份",
+          "code": "920627",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "新威凌",
+          "code": "920634",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "晨光电缆",
+          "code": "920639",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "富士达",
+          "code": "920640",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "格利尔",
+          "code": "920641",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "通易航天",
+          "code": "920642",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "天罡股份",
+          "code": "920651",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "海昇药业",
+          "code": "920656",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "方盛股份",
+          "code": "920662",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "明阳科技",
+          "code": "920663",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "科强股份",
+          "code": "920665",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "数字人",
+          "code": "920670",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "秉扬科技",
+          "code": "920675",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "前进科技",
+          "code": "920679",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "球冠电缆",
+          "code": "920682",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "新芝生物",
+          "code": "920685",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "克莱特",
+          "code": "920689",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "捷众科技",
+          "code": "920690",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "阿为特",
+          "code": "920693",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "中裕科技",
+          "code": "920694",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "海达尔",
+          "code": "920699",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "豪声电子",
+          "code": "920701",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "广厦环能",
+          "code": "920703",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "铁拓机械",
+          "code": "920706",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "瑞星股份",
+          "code": "920717",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "合肥高科",
+          "code": "920718",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "宁新新材",
+          "code": "920719",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "吉冈精密",
+          "code": "920720",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "惠丰钻石",
+          "code": "920725",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "朱老六",
+          "code": "920726",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "永顺生物",
+          "code": "920729",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "德源药业",
+          "code": "920735",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "路桥信息",
+          "code": "920748",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "惠同新材",
+          "code": "920751",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "天纺标",
+          "code": "920753",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "美之高",
+          "code": "920765",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "拾比佰",
+          "code": "920768",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "艾能聚",
+          "code": "920770",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "武汉蓝电",
+          "code": "920779",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "瑞奇智造",
+          "code": "920781",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "骑士乳业",
+          "code": "920786",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "XD联迪信",
+          "code": "920790",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "东和新材",
+          "code": "920792",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "艾融软件",
+          "code": "920799",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "保丽洁",
+          "code": "920802",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "云星宇",
+          "code": "920806",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "奔朗新材",
+          "code": "920807",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "曙光数创",
+          "code": "920808",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "安达科技",
+          "code": "920809",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "春光智能",
+          "code": "920810",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "颖泰生物",
+          "code": "920819",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "则成电子",
+          "code": "920821",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "XD盖世食",
+          "code": "920826",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "齐鲁华信",
+          "code": "920832",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "美心翼申",
+          "code": "920833",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "三维装备",
+          "code": "920834",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "华原股份",
+          "code": "920837",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "万通液压",
+          "code": "920839",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "浙江大农",
+          "code": "920855",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "浩淼科技",
+          "code": "920856",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "泓禧科技",
+          "code": "920857",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "绿亨科技",
+          "code": "920866",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "恒进感应",
+          "code": "920870",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "派特尔",
+          "code": "920871",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "中设咨询",
+          "code": "920873",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "XD慧为智",
+          "code": "920876",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "基康技术",
+          "code": "920879",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "星辰科技",
+          "code": "920885",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "广咨国际",
+          "code": "920892",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "花溪科技",
+          "code": "920895",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "旺成科技",
+          "code": "920896",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "舜宇精工",
+          "code": "920906",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "远航精密",
+          "code": "920914",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "XD广脉科",
+          "code": "920924",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "锦好医疗",
+          "code": "920925",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "鸿智科技",
+          "code": "920926",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "无锡鼎邦",
+          "code": "920931",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "科达自控",
+          "code": "920932",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "恒立钻具",
+          "code": "920942",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "优机股份",
+          "code": "920943",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "森萱医药",
+          "code": "920946",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "迅安科技",
+          "code": "920950",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "国子软件",
+          "code": "920953",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "汉维科技",
+          "code": "920957",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "创远信科",
+          "code": "920961",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "润农节水",
+          "code": "920964",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "大禹生物",
+          "code": "920970",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "天马新材",
+          "code": "920971",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "凯大催化",
+          "code": "920974",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "视声智能",
+          "code": "920976",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "开特股份",
+          "code": "920978",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "晶赛科技",
+          "code": "920981",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "锦波生物",
+          "code": "920982",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "海泰新能",
+          "code": "920985",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "中科美菱",
+          "code": "920992",
+          "reason": "HTTP 500"
+        }
+      ]
+    },
+    {
+      "market": "hk",
+      "market_name": "港股",
+      "total": 245,
+      "success": 221,
+      "failed": 24,
+      "failed_stocks": [
+        {
+          "name": "智富资源投资",
+          "code": "00007",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "东方传媒集团",
+          "code": "00018",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "大中华控股",
+          "code": "00021",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "中华汽车",
+          "code": "00026",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "INTL GENIUS",
+          "code": "00033",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "远东控股国际",
+          "code": "00036",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "中国北大荒",
+          "code": "00039",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "科联系统",
+          "code": "00046",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "海港企业",
+          "code": "00051",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "中星集团控股",
+          "code": "00055",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "新威国际",
+          "code": "00058",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "天誉置业",
+          "code": "00059",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "香港食品投资",
+          "code": "00060",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "绿领控股",
+          "code": "00061",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "中亚烯谷集团",
+          "code": "00063",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "弘海高新资源",
+          "code": "00065",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "金粤控股",
+          "code": "00070",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "恒生银行",
+          "code": "00011",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "百威亚太",
+          "code": "00104",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "海通证券",
+          "code": "06837",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "瑞声科技",
+          "code": "02028",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "中国高速传动",
+          "code": "00658",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "恒大传媒",
+          "code": "00708",
+          "reason": "HTTP 500"
+        },
+        {
+          "name": "合生创展集团",
+          "code": "00754",
+          "reason": "HTTP 500"
+        }
+      ]
+    },
+    {
+      "market": "us",
+      "total": 0,
+      "success": 0,
+      "failed": 0,
+      "error": "None",
+      "failed_stocks": []
+    }
+  ],
+  "failed_stocks": [
+    {
+      "name": "*ST国华",
+      "code": "000004",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "惠康科技",
+      "code": "001237",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "福恩股份",
+      "code": "001312",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "胜通能源",
+      "code": "001331",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "天海电子",
+      "code": "001365",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "维通利",
+      "code": "001393",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "ST萃华",
+      "code": "002731",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "*ST恒久",
+      "code": "002808",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "*ST赛隆",
+      "code": "002898",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "*ST天龙",
+      "code": "300029",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "尚水智能",
+      "code": "301513",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "春光集团",
+      "code": "301531",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "理奇智能",
+      "code": "301599",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "大普微-UW",
+      "code": "301666",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "C高特电子",
+      "code": "301669",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "三瑞智能",
+      "code": "301696",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "退市创兴",
+      "code": "600193",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "退市华嵘",
+      "code": "600421",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "退市熊猫",
+      "code": "600599",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "退市沪科",
+      "code": "600608",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "退市国化",
+      "code": "600636",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "退市岩石",
+      "code": "600696",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "ST新华锦",
+      "code": "600735",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "埃泰克",
+      "code": "603293",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "长裕集团",
+      "code": "603407",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "嘉德利",
+      "code": "603435",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "红板科技",
+      "code": "603459",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "退市太和",
+      "code": "605081",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "卓然股份",
+      "code": "688121",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "长进光子",
+      "code": "688635",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "联讯仪器",
+      "code": "688808",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "有研复材",
+      "code": "688811",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "盛合晶微",
+      "code": "688820",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "安徽凤凰",
+      "code": "920000",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "纬达光电",
+      "code": "920001",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "万达轴承",
+      "code": "920002",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "中诚咨询",
+      "code": "920003",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "鼎佳精密",
+      "code": "920005",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "晟楠科技",
+      "code": "920006",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "酉立智能",
+      "code": "920007",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "成电光信",
+      "code": "920008",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "丹娜生物",
+      "code": "920009",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "凯添燃气",
+      "code": "920010",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "晨光电机",
+      "code": "920011",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "创达新材",
+      "code": "920012",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "特瑞斯",
+      "code": "920014",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "锦华新材",
+      "code": "920015",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "中草香料",
+      "code": "920016",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "星昊医药",
+      "code": "920017",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "宏远股份",
+      "code": "920018",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "铜冠矿建",
+      "code": "920019",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "泰凯英",
+      "code": "920020",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "流金科技",
+      "code": "920021",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "世昌股份",
+      "code": "920022",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "*ST田野",
+      "code": "920023",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "卓兆点胶",
+      "code": "920026",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "交大铁发",
+      "code": "920027",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "新恒泰",
+      "code": "920028",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "开发科技",
+      "code": "920029",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "德众汽车",
+      "code": "920030",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "康普化学",
+      "code": "920033",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "精创电气",
+      "code": "920035",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "觅睿科技",
+      "code": "920036",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "广信科技",
+      "code": "920037",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "国义招标",
+      "code": "920039",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "蘅东光",
+      "code": "920045",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "亿能电力",
+      "code": "920046",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "诺思兰德",
+      "code": "920047",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "爱舍伦",
+      "code": "920050",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "隆源股份",
+      "code": "920055",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "能之光",
+      "code": "920056",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "百甲科技",
+      "code": "920057",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "华洋赛车",
+      "code": "920058",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "万源通",
+      "code": "920060",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "西磁科技",
+      "code": "920061",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "科润智控",
+      "code": "920062",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "科拜尔",
+      "code": "920066",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "天工股份",
+      "code": "920068",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "普昂医疗",
+      "code": "920069",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "柏星龙",
+      "code": "920075",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "国亮新材",
+      "code": "920076",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "吉林碳谷",
+      "code": "920077",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "奥美森",
+      "code": "920080",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "族兴新材",
+      "code": "920078",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "方正阀门",
+      "code": "920082",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "金戈新材",
+      "code": "920083",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "科马材料",
+      "code": "920086",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "秋乐种业",
+      "code": "920087",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "科力股份",
+      "code": "920088",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "禾昌聚合",
+      "code": "920089",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "*ST同辉",
+      "code": "920090",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "大鹏工业",
+      "code": "920091",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "汉鑫科技",
+      "code": "920092",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "嘉晨智能",
+      "code": "920096",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "科隆新材",
+      "code": "920098",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "瑞华技术",
+      "code": "920099",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "三协电机",
+      "code": "920100",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "志高机械",
+      "code": "920101",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "林泰新材",
+      "code": "920106",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "宏海科技",
+      "code": "920108",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "雷特科技",
+      "code": "920110",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "聚星科技",
+      "code": "920111",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "巴兰仕",
+      "code": "920112",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "星图测控",
+      "code": "920116",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "太湖远大",
+      "code": "920118",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "美德乐",
+      "code": "920119",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "江天科技",
+      "code": "920121",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "中纺标",
+      "code": "920122",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "芭薇股份",
+      "code": "920123",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "南特科技",
+      "code": "920124",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "鸿仕达",
+      "code": "920125",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "胜业电气",
+      "code": "920128",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "立方控股",
+      "code": "920130",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "泰鹏智能",
+      "code": "920132",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "华岭股份",
+      "code": "920139",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "恒合股份",
+      "code": "920145",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "华阳变速",
+      "code": "920146",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "旭杰科技",
+      "code": "920149",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "昆工科技",
+      "code": "920152",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "海昌智能",
+      "code": "920156",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "长江能科",
+      "code": "920158",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "农大科技",
+      "code": "920159",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "北矿检测",
+      "code": "920160",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "龙辰科技",
+      "code": "920161",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "方大新材",
+      "code": "920163",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "海圣医疗",
+      "code": "920166",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "同享科技",
+      "code": "920167",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "通宝光电",
+      "code": "920168",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "七丰精工",
+      "code": "920169",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "志晟信息",
+      "code": "920171",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "五新智能",
+      "code": "920174",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "东方碳素",
+      "code": "920175",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "恒道科技",
+      "code": "920177",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "锐翔智能",
+      "code": "920178",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "凯德石英",
+      "code": "920179",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "爱得科技",
+      "code": "920180",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "赛英电子",
+      "code": "920181",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "海菲曼",
+      "code": "920183",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "XD国源科",
+      "code": "920184",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "贝特瑞",
+      "code": "920185",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "中科仪",
+      "code": "920186",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "通领科技",
+      "code": "920187",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "悦龙科技",
+      "code": "920188",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "雷神科技",
+      "code": "920190",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "瑞尔竞达",
+      "code": "920191",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "三祥科技",
+      "code": "920195",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "微创光电",
+      "code": "920198",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "倍益康",
+      "code": "920199",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "振宏股份",
+      "code": "920200",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "沪江材料",
+      "code": "920204",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "彩客科技",
+      "code": "920206",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "众诚科技",
+      "code": "920207",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "青矩技术",
+      "code": "920208",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "新睿电子",
+      "code": "920211",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "智新电子",
+      "code": "920212",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "新天力",
+      "code": "920218",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "朗信电气",
+      "code": "920220",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "易实精密",
+      "code": "920221",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "荣亿精密",
+      "code": "920223",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "利通科技",
+      "code": "920225",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "美登科技",
+      "code": "920227",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "欧康医药",
+      "code": "920230",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "力佳科技",
+      "code": "920237",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "长虹能源",
+      "code": "920239",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "建邦科技",
+      "code": "920242",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "DR威博液",
+      "code": "920245",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "华密新材",
+      "code": "920247",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "利尔达",
+      "code": "920249",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "天宏锂电",
+      "code": "920252",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "中寰股份",
+      "code": "920260",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "一诺威",
+      "code": "920261",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "太湖雪",
+      "code": "920262",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "中航泰达",
+      "code": "920263",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "生物谷",
+      "code": "920266",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "鑫汇科",
+      "code": "920267",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "天铭科技",
+      "code": "920270",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "邦德股份",
+      "code": "920271",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "一致魔芋",
+      "code": "920273",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "宏裕包材",
+      "code": "920274",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "驱动力",
+      "code": "920275",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "鹿得医疗",
+      "code": "920278",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "灵鸽科技",
+      "code": "920284",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "灿能电力",
+      "code": "920299",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "辰光医疗",
+      "code": "920300",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "迪尔化工",
+      "code": "920304",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "*ST云创",
+      "code": "920305",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "恒太照明",
+      "code": "920339",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "三元基因",
+      "code": "920344",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "威贸电子",
+      "code": "920346",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "华光源海",
+      "code": "920351",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "雅葆轩",
+      "code": "920357",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "莱赛激光",
+      "code": "920363",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "新赣江",
+      "code": "920367",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "连城数控",
+      "code": "920368",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "新安洁",
+      "code": "920370",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "欧福蛋业",
+      "code": "920371",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "云里物里",
+      "code": "920374",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "派诺科技",
+      "code": "920375",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "泰德股份",
+      "code": "920378",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "佳合科技",
+      "code": "920392",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "民士达",
+      "code": "920394",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "朗鸿科技",
+      "code": "920395",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "常辅股份",
+      "code": "920396",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "硅烷科技",
+      "code": "920402",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "康农种业",
+      "code": "920403",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "海希通讯",
+      "code": "920405",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "驰诚股份",
+      "code": "920407",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "欧普泰",
+      "code": "920414",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "恒拓开源",
+      "code": "920415",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "苏轴股份",
+      "code": "920418",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "路斯股份",
+      "code": "920419",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "润普食品",
+      "code": "920422",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "乐创技术",
+      "code": "920425",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "华维设计",
+      "code": "920427",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "XD康比特",
+      "code": "920429",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "大唐药业",
+      "code": "920433",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "大地电气",
+      "code": "920436",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "戈碧迦",
+      "code": "920438",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "龙竹科技",
+      "code": "920445",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "同心传动",
+      "code": "920454",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "汇隆活塞",
+      "code": "920455",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "富恒新材",
+      "code": "920469",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "XD美邦科",
+      "code": "920471",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "三友科技",
+      "code": "920475",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "海能技术",
+      "code": "920476",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "峆一药业",
+      "code": "920478",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "佳先股份",
+      "code": "920489",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "奥迪威",
+      "code": "920491",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "并行科技",
+      "code": "920493",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "许昌智能",
+      "code": "920496",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "博迅生物",
+      "code": "920504",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "九菱科技",
+      "code": "920505",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "殷图网联",
+      "code": "920508",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "同惠电子",
+      "code": "920509",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "丰光精密",
+      "code": "920510",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "万德股份",
+      "code": "920519",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "纳科诺尔",
+      "code": "920522",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "德瑞锂电",
+      "code": "920523",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "凯华材料",
+      "code": "920526",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "夜光明",
+      "code": "920527",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "骏创科技",
+      "code": "920533",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "铁大科技",
+      "code": "920541",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "无锡晶海",
+      "code": "920547",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "凯腾精工",
+      "code": "920553",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "雅达股份",
+      "code": "920556",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "天润科技",
+      "code": "920564",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "梓橦宫",
+      "code": "920566",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "国航远洋",
+      "code": "920571",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "坤博精工",
+      "code": "920570",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "*ST康乐",
+      "code": "920575",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "天力复合",
+      "code": "920576",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "巨能股份",
+      "code": "920578",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "机科股份",
+      "code": "920579",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "科创新材",
+      "code": "920580",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "华信永道",
+      "code": "920592",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "XD鼎智科",
+      "code": "920593",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "同力股份",
+      "code": "920599",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "丰安股份",
+      "code": "920608",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "力王股份",
+      "code": "920627",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "新威凌",
+      "code": "920634",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "晨光电缆",
+      "code": "920639",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "富士达",
+      "code": "920640",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "格利尔",
+      "code": "920641",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "通易航天",
+      "code": "920642",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "天罡股份",
+      "code": "920651",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "海昇药业",
+      "code": "920656",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "方盛股份",
+      "code": "920662",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "明阳科技",
+      "code": "920663",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "科强股份",
+      "code": "920665",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "数字人",
+      "code": "920670",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "秉扬科技",
+      "code": "920675",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "前进科技",
+      "code": "920679",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "球冠电缆",
+      "code": "920682",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "新芝生物",
+      "code": "920685",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "克莱特",
+      "code": "920689",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "捷众科技",
+      "code": "920690",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "阿为特",
+      "code": "920693",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "中裕科技",
+      "code": "920694",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "海达尔",
+      "code": "920699",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "豪声电子",
+      "code": "920701",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "广厦环能",
+      "code": "920703",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "铁拓机械",
+      "code": "920706",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "瑞星股份",
+      "code": "920717",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "合肥高科",
+      "code": "920718",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "宁新新材",
+      "code": "920719",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "吉冈精密",
+      "code": "920720",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "惠丰钻石",
+      "code": "920725",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "朱老六",
+      "code": "920726",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "永顺生物",
+      "code": "920729",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "德源药业",
+      "code": "920735",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "路桥信息",
+      "code": "920748",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "惠同新材",
+      "code": "920751",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "天纺标",
+      "code": "920753",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "美之高",
+      "code": "920765",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "拾比佰",
+      "code": "920768",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "艾能聚",
+      "code": "920770",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "武汉蓝电",
+      "code": "920779",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "瑞奇智造",
+      "code": "920781",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "骑士乳业",
+      "code": "920786",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "XD联迪信",
+      "code": "920790",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "东和新材",
+      "code": "920792",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "艾融软件",
+      "code": "920799",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "保丽洁",
+      "code": "920802",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "云星宇",
+      "code": "920806",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "奔朗新材",
+      "code": "920807",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "曙光数创",
+      "code": "920808",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "安达科技",
+      "code": "920809",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "春光智能",
+      "code": "920810",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "颖泰生物",
+      "code": "920819",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "则成电子",
+      "code": "920821",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "XD盖世食",
+      "code": "920826",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "齐鲁华信",
+      "code": "920832",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "美心翼申",
+      "code": "920833",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "三维装备",
+      "code": "920834",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "华原股份",
+      "code": "920837",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "万通液压",
+      "code": "920839",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "浙江大农",
+      "code": "920855",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "浩淼科技",
+      "code": "920856",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "泓禧科技",
+      "code": "920857",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "绿亨科技",
+      "code": "920866",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "恒进感应",
+      "code": "920870",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "派特尔",
+      "code": "920871",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "中设咨询",
+      "code": "920873",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "XD慧为智",
+      "code": "920876",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "基康技术",
+      "code": "920879",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "星辰科技",
+      "code": "920885",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "广咨国际",
+      "code": "920892",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "花溪科技",
+      "code": "920895",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "旺成科技",
+      "code": "920896",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "舜宇精工",
+      "code": "920906",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "远航精密",
+      "code": "920914",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "XD广脉科",
+      "code": "920924",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "锦好医疗",
+      "code": "920925",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "鸿智科技",
+      "code": "920926",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "无锡鼎邦",
+      "code": "920931",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "科达自控",
+      "code": "920932",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "恒立钻具",
+      "code": "920942",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "优机股份",
+      "code": "920943",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "森萱医药",
+      "code": "920946",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "迅安科技",
+      "code": "920950",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "国子软件",
+      "code": "920953",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "汉维科技",
+      "code": "920957",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "创远信科",
+      "code": "920961",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "润农节水",
+      "code": "920964",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "大禹生物",
+      "code": "920970",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "天马新材",
+      "code": "920971",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "凯大催化",
+      "code": "920974",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "视声智能",
+      "code": "920976",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "开特股份",
+      "code": "920978",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "晶赛科技",
+      "code": "920981",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "锦波生物",
+      "code": "920982",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "海泰新能",
+      "code": "920985",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "中科美菱",
+      "code": "920992",
+      "reason": "HTTP 500",
+      "market": "a"
+    },
+    {
+      "name": "智富资源投资",
+      "code": "00007",
+      "reason": "HTTP 500",
+      "market": "hk"
+    },
+    {
+      "name": "东方传媒集团",
+      "code": "00018",
+      "reason": "HTTP 500",
+      "market": "hk"
+    },
+    {
+      "name": "大中华控股",
+      "code": "00021",
+      "reason": "HTTP 500",
+      "market": "hk"
+    },
+    {
+      "name": "中华汽车",
+      "code": "00026",
+      "reason": "HTTP 500",
+      "market": "hk"
+    },
+    {
+      "name": "INTL GENIUS",
+      "code": "00033",
+      "reason": "HTTP 500",
+      "market": "hk"
+    },
+    {
+      "name": "远东控股国际",
+      "code": "00036",
+      "reason": "HTTP 500",
+      "market": "hk"
+    },
+    {
+      "name": "中国北大荒",
+      "code": "00039",
+      "reason": "HTTP 500",
+      "market": "hk"
+    },
+    {
+      "name": "科联系统",
+      "code": "00046",
+      "reason": "HTTP 500",
+      "market": "hk"
+    },
+    {
+      "name": "海港企业",
+      "code": "00051",
+      "reason": "HTTP 500",
+      "market": "hk"
+    },
+    {
+      "name": "中星集团控股",
+      "code": "00055",
+      "reason": "HTTP 500",
+      "market": "hk"
+    },
+    {
+      "name": "新威国际",
+      "code": "00058",
+      "reason": "HTTP 500",
+      "market": "hk"
+    },
+    {
+      "name": "天誉置业",
+      "code": "00059",
+      "reason": "HTTP 500",
+      "market": "hk"
+    },
+    {
+      "name": "香港食品投资",
+      "code": "00060",
+      "reason": "HTTP 500",
+      "market": "hk"
+    },
+    {
+      "name": "绿领控股",
+      "code": "00061",
+      "reason": "HTTP 500",
+      "market": "hk"
+    },
+    {
+      "name": "中亚烯谷集团",
+      "code": "00063",
+      "reason": "HTTP 500",
+      "market": "hk"
+    },
+    {
+      "name": "弘海高新资源",
+      "code": "00065",
+      "reason": "HTTP 500",
+      "market": "hk"
+    },
+    {
+      "name": "金粤控股",
+      "code": "00070",
+      "reason": "HTTP 500",
+      "market": "hk"
+    },
+    {
+      "name": "恒生银行",
+      "code": "00011",
+      "reason": "HTTP 500",
+      "market": "hk"
+    },
+    {
+      "name": "百威亚太",
+      "code": "00104",
+      "reason": "HTTP 500",
+      "market": "hk"
+    },
+    {
+      "name": "海通证券",
+      "code": "06837",
+      "reason": "HTTP 500",
+      "market": "hk"
+    },
+    {
+      "name": "瑞声科技",
+      "code": "02028",
+      "reason": "HTTP 500",
+      "market": "hk"
+    },
+    {
+      "name": "中国高速传动",
+      "code": "00658",
+      "reason": "HTTP 500",
+      "market": "hk"
+    },
+    {
+      "name": "恒大传媒",
+      "code": "00708",
+      "reason": "HTTP 500",
+      "market": "hk"
+    },
+    {
+      "name": "合生创展集团",
+      "code": "00754",
+      "reason": "HTTP 500",
+      "market": "hk"
+    }
+  ]
+}

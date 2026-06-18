@@ -1,0 +1,133 @@
+{
+  "market": "hk",
+  "market_name": "港股",
+  "total": 245,
+  "success": 221,
+  "failed": 24,
+  "timestamp": "2026-06-18T04:55:14.568978",
+  "failed_stocks": [
+    {
+      "name": "智富资源投资",
+      "code": "00007",
+      "reason": "HTTP 500"
+    },
+    {
+      "name": "东方传媒集团",
+      "code": "00018",
+      "reason": "HTTP 500"
+    },
+    {
+      "name": "大中华控股",
+      "code": "00021",
+      "reason": "HTTP 500"
+    },
+    {
+      "name": "中华汽车",
+      "code": "00026",
+      "reason": "HTTP 500"
+    },
+    {
+      "name": "INTL GENIUS",
+      "code": "00033",
+      "reason": "HTTP 500"
+    },
+    {
+      "name": "远东控股国际",
+      "code": "00036",
+      "reason": "HTTP 500"
+    },
+    {
+      "name": "中国北大荒",
+      "code": "00039",
+      "reason": "HTTP 500"
+    },
+    {
+      "name": "科联系统",
+      "code": "00046",
+      "reason": "HTTP 500"
+    },
+    {
+      "name": "海港企业",
+      "code": "00051",
+      "reason": "HTTP 500"
+    },
+    {
+      "name": "中星集团控股",
+      "code": "00055",
+      "reason": "HTTP 500"
+    },
+    {
+      "name": "新威国际",
+      "code": "00058",
+      "reason": "HTTP 500"
+    },
+    {
+      "name": "天誉置业",
+      "code": "00059",
+      "reason": "HTTP 500"
+    },
+    {
+      "name": "香港食品投资",
+      "code": "00060",
+      "reason": "HTTP 500"
+    },
+    {
+      "name": "绿领控股",
+      "code": "00061",
+      "reason": "HTTP 500"
+    },
+    {
+      "name": "中亚烯谷集团",
+      "code": "00063",
+      "reason": "HTTP 500"
+    },
+    {
+      "name": "弘海高新资源",
+      "code": "00065",
+      "reason": "HTTP 500"
+    },
+    {
+      "name": "金粤控股",
+      "code": "00070",
+      "reason": "HTTP 500"
+    },
+    {
+      "name": "恒生银行",
+      "code": "00011",
+      "reason": "HTTP 500"
+    },
+    {
+      "name": "百威亚太",
+      "code": "00104",
+      "reason": "HTTP 500"
+    },
+    {
+      "name": "海通证券",
+      "code": "06837",
+      "reason": "HTTP 500"
+    },
+    {
+      "name": "瑞声科技",
+      "code": "02028",
+      "reason": "HTTP 500"
+    },
+    {
+      "name": "中国高速传动",
+      "code": "00658",
+      "reason": "HTTP 500"
+    },
+    {
+      "name": "恒大传媒",
+      "code": "00708",
+      "reason": "HTTP 500"
+    },
+    {
+      "name": "合生创展集团",
+      "code": "00754",
+      "reason": "HTTP 500"
+    }
+  ],
+  "reason_summary": {
+    "HTTP 500": 24
+  }
+}
